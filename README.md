@@ -54,6 +54,8 @@ It turns out ... (describe that we need to make sure the incoming messages are q
 
 A naive state machine is a mailbox actor with `capacity=0`, which means it will face the `Dead Letter` problem when new messages come but it has not finished processing the last one.
 
+![FSM v.s. Actor](docs/images/fsm-vs-actor.png)
+
 Assume we are a coffee maker, and we need 4 three steps to make a coffee:
 
 1. received a `MAKE_ME_COFFEE` event from a customer (sync)
@@ -285,6 +287,10 @@ The Mailbox implementes the Ask Pattern by default. It will response to the orig
 - "The difference being that messages are directed, events are not — a message has a clear addressable recipient while an event just happen for others (0-N) to observe it." ([link](https://stackoverflow.com/a/31706206/1123955))
 - "The difference lies in that with MessageQueues it's typical that the sender requires a response. With an EventQueue this is not necessary." ([link](https://stackoverflow.com/a/65209807/1123955))
 - "A Message is some data sent to a specific address; An Event is some data emitted from a component for anyone listening to consume." ([link](https://developer.lightbend.com/docs/akka-platform-guide/concepts/message-driven-event-driven.html#message_vs_event))
+
+![Event v.s. Message (tell/ask)](docs/images/event-message-tell-ask-pattern.svg)
+
+> Image source: [Wechaty CQRS](https://github.com/wechaty/cqrs#architecture-diagrams)
 
 ## Known Issues
 

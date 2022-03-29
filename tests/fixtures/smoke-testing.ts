@@ -1,9 +1,6 @@
-import assert from 'assert'
-
-import {
-  FileBox,
-  VERSION,
-}             from 'file-box'
+import { from, VERSION }  from 'mailbox'
+import { createMachine }  from 'xstate'
+import assert             from 'assert'
 
 async function main () {
   const box = FileBox.fromUrl('https://raw.githubusercontent.com/huan/file-box/main/docs/images/file-box-logo.jpg')

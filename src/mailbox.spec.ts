@@ -29,7 +29,7 @@ import {
 import * as Baby      from '../tests/fixtures/baby-machine.js'
 import * as DingDong  from '../tests/ding-dong-machine.fixture.js'
 
-import * as Mailbox   from './mod.js'
+import * as Mailbox   from './mods/mod.js'
 
 test('Mailbox.from() smoke testing (w/BabyMachine)', async t => {
   const sandbox = sinon.createSandbox({

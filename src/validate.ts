@@ -26,6 +26,7 @@ import {
   AnyEventObject,
   Interpreter,
   actions,
+  EventObject,
 }                   from 'xstate'
 
 import { types, events }  from './duck/mod.js'
@@ -85,7 +86,7 @@ function validateInitializing (
   const eventList: AnyEventObject[] = []
   const interpreter = interpret(machine)
     .onEvent(e => eventList.push(e))
-    .start()
+    .start() as unknown as Interpreter<any, any, EventObject> // Huan(202203): FIXME: remove `as unknown as`
 
   const EXPECTED_INIT_EVENT_TYPES = [
     'xstate.init',

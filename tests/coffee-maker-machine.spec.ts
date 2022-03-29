@@ -15,7 +15,7 @@ import {
 
 import * as Mailbox   from '../src/mods/mod.js'
 
-import * as CoffeeMaker from './coffee-maker-machine.fixture.js'
+import * as CoffeeMaker from './fixtures/coffee-maker-machine.js'
 
 test('CoffeeMaker.machine smoke testing', async t => {
   const CUSTOMER = 'John'

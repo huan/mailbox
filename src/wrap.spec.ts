@@ -75,7 +75,7 @@ test('wrap interpret smoke testing: 1 event (with BabyMachine)', async t => {
   const stateList: State<any, any>[] = []
 
   interpreter.onEvent(e => eventList.push(e))
-  interpreter.onTransition(s => stateList.push(s))
+  interpreter.onTransition(s => stateList.push(s.value))
   interpreter.start()
 
   const SLEEP_MS = 10
