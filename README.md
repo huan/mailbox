@@ -1,4 +1,9 @@
-# Mailbox (Converting XState Machine to a REAL Actor)
+# Mailbox (turns XState Machine into a REAL Actor)
+
+[![NPM Version](https://badge.fury.io/js/mailbox.svg)](https://badge.fury.io/js/mailbox)
+[![NPM](https://github.com/huan/mailbox/workflows/NPM/badge.svg)](https://github.com/huan/mailbox/actions?query=workflow%3ANPM)
+[![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-blue.svg)](https://www.typescriptlang.org/)
+[![ES Modules](https://img.shields.io/badge/ES-Modules-brightgreen)](https://github.com/Chatie/tsconfig/issues/16)
 
 Mailbox is a NPM module built on top of XState Actor, by adding a message queue to the XState machine, and let the machine to decide when to process the next message.
 
