@@ -12,7 +12,7 @@ import {
   interpret,
 }                   from 'xstate'
 
-import * as Mailbox   from '../src/mod.js'
+import * as Mailbox   from '../src/mods/mod.js'
 
 import * as DingDong  from './ding-dong-machine.fixture.js'
 

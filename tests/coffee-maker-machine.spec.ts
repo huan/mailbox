@@ -13,7 +13,7 @@ import {
   actions,
 }                   from 'xstate'
 
-import * as Mailbox   from '../src/mod.js'
+import * as Mailbox   from '../src/mods/mod.js'
 
 import * as CoffeeMaker from './coffee-maker-machine.fixture.js'
 
@@ -62,7 +62,7 @@ test('CoffeeMaker.machine smoke testing', async t => {
     eventList.map(e => e.type),
     [
       'xstate.init',
-      Mailbox.Types.CHILD_IDLE,
+      Mailbox.types.CHILD_IDLE,
       CoffeeMaker.types.MAKE_ME_COFFEE,
     ],
     'should have received init/RECEIVE/MAKE_ME_COFFEE events after initializing',
@@ -72,7 +72,7 @@ test('CoffeeMaker.machine smoke testing', async t => {
   await sandbox.clock.runAllAsync()
   t.same(
     eventList
-      .filter(e => e.type === Mailbox.Types.CHILD_REPLY),
+      .filter(e => e.type === Mailbox.types.CHILD_REPLY),
     [
       Mailbox.events.CHILD_REPLY(CoffeeMaker.events.COFFEE(CUSTOMER)),
     ],
@@ -120,7 +120,7 @@ test('XState machine will lost incoming messages(events) when receiving multiple
   // eventList.forEach(e => console.info(e))
   t.same(
     eventList
-      .filter(e => e.type === Mailbox.Types.CHILD_REPLY),
+      .filter(e => e.type === Mailbox.types.CHILD_REPLY),
     [
       COFFEE_EVENT_LIST.map(e =>
         Mailbox.events.CHILD_REPLY(e),

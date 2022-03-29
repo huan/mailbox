@@ -11,8 +11,9 @@ import {
   interpret,
 }                 from 'xstate'
 
+import * as duck  from './duck/mod.js'
+
 import * as MailboxActions  from './actions.js'
-import * as MailboxEvents   from './events.js'
 
 /**
  * Issue #11 - Race condition: Mailbox think the target machine is busy when it's not
@@ -50,7 +51,7 @@ test('reply()', async t => {
     [
       { type: 'xstate.init' },
       { type: 'SECOND_LINE' },
-      MailboxEvents.CHILD_REPLY({ type: 'FIRST_LINE' }),
+      duck.events.CHILD_REPLY({ type: 'FIRST_LINE' }),
     ],
     'should send reply event to parent in the next event loop',
   )

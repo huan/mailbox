@@ -23,8 +23,9 @@ import {
   SendActionOptions,
 }                         from 'xstate'
 
-import * as events        from './events.js'
-import { isMailboxType }  from './types.js'
+import { events }         from './duck/mod.js'
+
+import { isMailboxType }  from './is-mailbox-type.js'
 import * as contexts      from './contexts.js'
 
 export const idle = (name: string) => (data: string) => {

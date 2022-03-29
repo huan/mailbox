@@ -32,8 +32,9 @@ import {
 import EventEmitter         from 'events'
 import type { Disposable }  from 'typed-inject'
 
-import { isMailboxType, types }                 from './duck/mod.js'
+import * as duck  from './duck/mod.js'
 
+import { isMailboxType }                        from './is-mailbox-type.js'
 import type * as contexts                       from './contexts.js'
 import type { Event }                           from './duck/event-type.js'
 import { Options, MAILBOX_TARGET_MACHINE_ID }   from './options.js'
@@ -125,7 +126,7 @@ class MailboxImpl<
       if (/^xstate\./i.test(event.type)) {
         // 1. skip for XState system events
         return
-      } else if (isMailboxType(event.type) && event.type !== types.DEAD_LETTER) {
+      } else if (isMailboxType(event.type) && event.type !== duck.types.DEAD_LETTER) {
         // 2. skip for Mailbox system events
         return
       }

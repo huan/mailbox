@@ -28,9 +28,9 @@ import {
   actions,
 }                   from 'xstate'
 
-import { types, isMailboxType }   from './types.js'
-import * as events                from './events.js'
-import * as contexts              from './contexts.js'
+import { types, events }  from './duck/mod.js'
+import { isMailboxType }  from './is-mailbox-type.js'
+import * as contexts      from './contexts.js'
 
 /**
  * Make the machine the child of the container to ready for testing

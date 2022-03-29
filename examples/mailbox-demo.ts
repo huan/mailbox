@@ -1,11 +1,12 @@
 #!/usr/bin/env -S node --no-warnings --loader ts-node/esm
 /* eslint-disable sort-keys */
-import * as Mailbox from '../mod.js'
 import {
   actions,
   createMachine,
   interpret,
 }                   from 'xstate'
+
+import * as Mailbox from '../src/mods/mod.js'
 
 /**
  * We will create a machine, and test it by sending two events to it:
@@ -28,14 +29,14 @@ const demoMachine = (withMailbox = false) => createMachine<{}>({
   states: {
     idle: {
       /**
-       * RULE #1: machine must put a `Mailbox.Actions.idle('machine-name')` action
+       * RULE #1: machine must put a `Mailbox.actions.idle('machine-name')` action
        *  to the `entry` of the state which your machine can accept new messages,
        *  so that the Mailbox can know the machine are ready to receive new messages from other actors.
        */
       entry: actions.choose([
         {
           cond: _ => withMailbox,
-          actions: Mailbox.Actions.idle('DemoMachine')('idle'),
+          actions: Mailbox.actions.idle('DemoMachine')('idle'),
         },
       ]),
       on: {
@@ -53,14 +54,14 @@ const demoMachine = (withMailbox = false) => createMachine<{}>({
     },
     busy: {
       /**
-       * RULE #3: machine use `Mailbox.Actions.reply(TASK_RECEIVED)`
+       * RULE #3: machine use `Mailbox.actions.reply(TASK_RECEIVED)`
        *  to reply TASK_RECEIVED (or any EVENTs) to other actors.
        */
       entry: [
         actions.choose([
           {
             cond: _ => withMailbox,
-            actions: Mailbox.Actions.reply('TASK_RECEIVED'),
+            actions: Mailbox.actions.reply('TASK_RECEIVED'),
           },
         ]),
         _ => console.info('TASK_RECEIVED'),

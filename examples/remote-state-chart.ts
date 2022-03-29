@@ -17,28 +17,30 @@ import {
   createMachine,
   actions,
   interpret,
-}                   from 'xstate'
-import { inspect } from '@xstate/inspect/lib/server.js'
-import { WebSocketServer } from 'ws'
+}                           from 'xstate'
+import { inspect }          from '@xstate/inspect/lib/server.js'
+import { WebSocketServer }  from 'ws'
 
-enum States {
-  inactive = 'pingpong/inactive',
-  active = 'pingpong/active',
+enum State {
+  inactive  = 'pingpong/inactive',
+  active    = 'pingpong/active',
 }
+const states = State
 
-enum Types {
+enum Type {
   PING = 'pingpong/PING',
   PONG = 'pingpong/PONG',
 }
+const types = Type
 
-const Events = {
-  PING: () => ({ type: Types.PING }) as const,
-  PONG: () => ({ type: Types.PONG }) as const,
+const events = {
+  PING: () => ({ type: types.PING }) as const,
+  PONG: () => ({ type: types.PONG }) as const,
 } as const
+type Events = typeof events
+type Event = ReturnType<Events[keyof Events]>
 
 interface Context {}
-
-type Event = ReturnType<typeof Events[keyof typeof Events]>
 
 const PONGER_ID = 'ponger'
 
@@ -48,30 +50,30 @@ const PONGER_ID = 'ponger'
  * @link https://github.com/statelyai/xstate/blob/main/packages/xstate-inspect/examples/server.ts
  */
 const machine = createMachine<Context, Event>({
-  initial: States.inactive,
+  initial: states.inactive,
   invoke: {
     id: PONGER_ID,
     src: () => (send, onReceive) => {
       onReceive((event) => {
-        if (event.type === Types.PING) {
-          send(Events.PONG())
+        if (event.type === types.PING) {
+          send(events.PONG())
         }
       })
     },
   },
   states: {
-    [States.inactive]: {
+    [states.inactive]: {
       after: {
-        1000: States.active,
+        1000: states.active,
       },
     },
-    [States.active]: {
-      entry: actions.send(Events.PING(), {
+    [states.active]: {
+      entry: actions.send(events.PING(), {
         delay: 1000,
         to: PONGER_ID,
       }),
       on: {
-        [Types.PONG]: States.inactive,
+        [types.PONG]: states.inactive,
       },
     },
   },

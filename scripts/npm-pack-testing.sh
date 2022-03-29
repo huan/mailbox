@@ -15,6 +15,7 @@ npm init -y
 npm install ./*-*.*.*.tgz \
   @types/node \
   typescript \
+  xstate \
 
 #
 # CommonJS

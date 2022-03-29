@@ -1,7 +1,7 @@
 /* eslint-disable sort-keys */
 import { createMachine, actions }   from 'xstate'
 
-import * as Mailbox from '../../src/mod.js'
+import * as Mailbox from '../../src/mods/mod.js'
 
 enum State {
   idle = 'ding-dong/idle',

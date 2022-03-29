@@ -14,9 +14,10 @@ import {
   // spawn,
 }                   from 'xstate'
 
-import * as Mailbox     from '../src/mod.js'
-import * as DingDong    from './ding-dong-machine.fixture.js'
-import * as CoffeeMaker from './coffee-maker-machine.fixture.js'
+import * as Mailbox   from '../src/mods/mod.js'
+
+import * as DingDong    from './fixtures/ding-dong-machine.js'
+import * as CoffeeMaker from './fixtures/coffee-maker-machine.js'
 
 test('Mailbox.from(DingDong.machine) as an actor should enforce process messages one by one', async t => {
   const sandbox = sinon.createSandbox({
@@ -27,7 +28,7 @@ test('Mailbox.from(DingDong.machine) as an actor should enforce process messages
   const DING_EVENT_LIST = ITEM_NUMBERS.map(i => DingDong.events.DING(i))
   const DONG_EVENT_LIST = ITEM_NUMBERS.map(i => DingDong.events.DONG(i))
 
-  const mailbox = Mailbox.from(DingDong.machine) as Mailbox.MailboxImpl
+  const mailbox = Mailbox.from(DingDong.machine) as Mailbox.impls.Mailbox
   mailbox.acquire()
   const interpreter = mailbox.debug.interpreter!
 
@@ -43,7 +44,7 @@ test('Mailbox.from(DingDong.machine) as an actor should enforce process messages
 
   t.same(
     eventList
-      .filter(e => e.type === Mailbox.Types.DEAD_LETTER)
+      .filter(e => e.type === Mailbox.types.DEAD_LETTER)
       .map(e => (e as ReturnType<typeof Mailbox.events.DEAD_LETTER>).payload.message),
     DONG_EVENT_LIST,
     `should reply total ${DONG_EVENT_LIST.length} DONG events to ${DING_EVENT_LIST.length} DING events`,
@@ -67,7 +68,7 @@ test('parentMachine with invoke.src=Mailbox.address(DingDong.machine) should pro
     DingDong.events.DONG(i),
   )
 
-  const mailbox = Mailbox.from(DingDong.machine) as Mailbox.MailboxImpl
+  const mailbox = Mailbox.from(DingDong.machine) as Mailbox.impls.Mailbox
   const machine = mailbox.debug.machine
 
   const CHILD_ID = 'mailbox-child-id'
@@ -134,7 +135,7 @@ test('Mailbox.from(CoffeeMaker.machine) as an actor should enforce process messa
     CoffeeMaker.events.COFFEE(String(i)),
   )
 
-  const mailbox = Mailbox.from(CoffeeMaker.machine) as Mailbox.MailboxImpl
+  const mailbox = Mailbox.from(CoffeeMaker.machine) as Mailbox.impls.Mailbox
   mailbox.acquire()
   const interpreter = mailbox.debug.interpreter!
 
@@ -157,7 +158,7 @@ test('Mailbox.from(CoffeeMaker.machine) as an actor should enforce process messa
 
   t.same(
     eventList
-      .filter(e => e.type === Mailbox.Types.DEAD_LETTER)
+      .filter(e => e.type === Mailbox.types.DEAD_LETTER)
       .map(e => (e as ReturnType<typeof Mailbox.events.DEAD_LETTER>).payload.message),
     EXPECTED_COFFEE_EVENT_LIST,
     `should reply dead letter of total ${EXPECTED_COFFEE_EVENT_LIST.length} COFFEE events to ${MAKE_ME_COFFEE_EVENT_LIST.length} MAKE_ME_COFFEE events`,
