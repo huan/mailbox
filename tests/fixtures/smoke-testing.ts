@@ -1,18 +1,17 @@
-import { from, VERSION }  from 'mailbox'
+import * as Mailbox  from 'mailbox'
 import { createMachine }  from 'xstate'
 import assert             from 'assert'
 
 async function main () {
-  const box = FileBox.fromUrl('https://raw.githubusercontent.com/huan/file-box/main/docs/images/file-box-logo.jpg')
+  const machine = createMachine({})
+  const mailbox = Mailbox.from(machine)
 
-  await box.ready()
-  assert.ok(box.size > 0, 'should get remote url content length')
+  mailbox.acquire()
+  assert.ok(mailbox.address, 'should get address from mailbox')
 
-  if (VERSION === '0.0.0') {
-    throw new Error('version not set right before publish!')
-  }
+  assert.notEqual(Mailbox.VERSION, '0.0.0', 'version must be updated instead of 0.0.0 before publish!')
 
-  console.log(`FileBox v${box.version} smoke testing passed!`)
+  console.log(`Mailbox v${Mailbox.VERSION} smoke testing passed!`)
 }
 
 main()

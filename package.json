@@ -5,8 +5,8 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/esm/src/mod.js",
-      "require": "./dist/cjs/src/mod.js"
+      "import": "./dist/esm/src/mods/mod.js",
+      "require": "./dist/cjs/src/mods/mod.js"
     },
     "./helpers": {
       "import": "./dist/esm/src/mods/helpers.js",
@@ -27,10 +27,10 @@
       ]
     }
   },
-  "typings": "./dist/esm/src/mod.d.ts",
+  "typings": "./dist/esm/src/mods/mod.d.ts",
   "engines": {
     "node": ">=16",
-    "npm": ">=7"
+    "npm": ">=8"
   },
   "scripts": {
     "clean": "shx rm -fr dist/*",

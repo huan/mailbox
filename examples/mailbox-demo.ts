@@ -73,48 +73,53 @@ const demoMachine = (withMailbox = false) => createMachine<{}>({
   },
 })
 
-/**
- * Normal machine without Mailbox
- */
-const rawMachine = demoMachine(false)
-const rawInterpreter = interpret(rawMachine, { logger: () => {} })
-rawInterpreter.start()
+async function main () {
+  /**
+   * Normal machine without Mailbox
+   */
+  const rawMachine = demoMachine(false)
+  const rawInterpreter = interpret(rawMachine, { logger: () => {} })
+  rawInterpreter.start()
 
-/**
- * machine with Mailbox (async queue protocol support)
- */
-const actorMailbox = Mailbox.from(demoMachine(true), { logger: () => {} })
-actorMailbox.acquire()
+  /**
+   * machine with Mailbox (async queue protocol support)
+   */
+  const actorMailbox = Mailbox.from(demoMachine(true), { logger: () => {} })
+  actorMailbox.acquire()
 
-/**
- * send two events for testing/demonstration
- */
-const callTwice = async (send: () => void) => {
-  ;[...Array(2).keys()].forEach(i => {
-    console.info(`> sending event #${i}`)
-    send()
-  })
-  await new Promise(resolve => setTimeout(resolve, 30))
+  /**
+   * send two events for testing/demonstration
+   */
+  const callTwice = async (send: () => void) => {
+    ;[...Array(2).keys()].forEach(i => {
+      console.info(`> sending event #${i}`)
+      send()
+    })
+    await new Promise(resolve => setTimeout(resolve, 30))
+  }
+
+  /**
+   * For normal machine, it will only response the first event
+   */
+  console.info('# testing the raw machine ... (a raw machine will only be able to response the first event)')
+  await callTwice(rawInterpreter.sender('TASK'))
+  console.info('# testing raw machine ... done\n')
+
+  /**
+   * for a Mailbox-ed machine(actor), it will response all events by processing it one by one.
+   */
+  console.info('# testing the mailbox-ed(actor) machine ... (an actor will be able to response two events one by one)')
+  await callTwice(() => actorMailbox.send('TASK'))
+  console.info('# testing mailbox-ed machine ... done\n')
+
+  /**
+   * Conclusion:
+   *  a state machine has internal state transtions and it might not be able to response the new messages at a time,
+   *  which means we need to have a mailbox to store the messages and process them one by one.
+   *
+   * This is the reason of why we built the Mailbox for XState for using it as a Actor Model with distributed async tasks.
+   */
 }
 
-/**
- * For normal machine, it will only response the first event
- */
-console.info('# testing the raw machine ... (a raw machine will only be able to response the first event)')
-await callTwice(rawInterpreter.sender('TASK'))
-console.info('# testing raw machine ... done\n')
-
-/**
- * for a Mailbox-ed machine(actor), it will response all events by processing it one by one.
- */
-console.info('# testing the mailbox-ed(actor) machine ... (an actor will be able to response two events one by one)')
-await callTwice(() => actorMailbox.send('TASK'))
-console.info('# testing mailbox-ed machine ... done\n')
-
-/**
- * Conclusion:
- *  a state machine has internal state transtions and it might not be able to response the new messages at a time,
- *  which means we need to have a mailbox to store the messages and process them one by one.
- *
- * This is the reason of why we built the Mailbox for XState for using it as a Actor Model with distributed async tasks.
- */
+main()
+  .catch(console.error)
