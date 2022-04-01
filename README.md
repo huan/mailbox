@@ -138,8 +138,8 @@ Learn more about similiar (i.e. Akka) Actor & Mailbox diagram with discussion fr
 1. Use `const mailbox = Mailbox.from(yourMachine)` to wrap your actor with mailbox address. The mailbox address is a parent XState machine which will invok your machine as child and add message queue to the child machine.
 
 ```ts
-import * as Mailbox from 'mailbox'
-import { createMachine } from 'xstate'
+import * as Mailbox       from 'mailbox'
+import { createMachine }  from 'xstate'
 
 const machine = createMachine({
   initial: 'idle',
