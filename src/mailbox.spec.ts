@@ -37,7 +37,7 @@ test('Mailbox.from() smoke testing (w/BabyMachine)', async t => {
   })
 
   const mailbox = Mailbox.from(Baby.machine)
-  mailbox.acquire()
+  mailbox.open()
 
   const testMachine = createMachine({
     on: {
@@ -102,7 +102,7 @@ test('Mailbox.from() smoke testing (w/BabyMachine)', async t => {
     ],
     'should get one dead letter with PEE&PLAY event after sleep',
   )
-  mailbox.dispose()
+  mailbox.close()
   sandbox.restore()
 })
 
@@ -112,7 +112,7 @@ test('mailbox address interpret smoke testing: 3 parallel EVENTs (w/BabyMachine)
   })
 
   const mailbox = Mailbox.from(Baby.machine)
-  mailbox.acquire()
+  mailbox.open()
 
   const testMachine = createMachine({
     on: {
@@ -194,7 +194,7 @@ test('mailbox address interpret smoke testing: 3 parallel EVENTs (w/BabyMachine)
     Baby.events.PLAY(),
   ], 'should enter wakeup state')
 
-  mailbox.dispose()
+  mailbox.close()
   sandbox.restore()
 })
 
@@ -204,7 +204,7 @@ test('mailbox address interpret smoke testing: 3 EVENTs with respond (w/BabyMach
   })
 
   const mailbox = Mailbox.from(Baby.machine)
-  mailbox.acquire()
+  mailbox.open()
 
   const testMachine = createMachine({
     on: {
@@ -282,7 +282,7 @@ test('mailbox address interpret smoke testing: 3 EVENTs with respond (w/BabyMach
     'should receive event child.events.PLAY after 3rd 10 ms',
   )
 
-  mailbox.dispose()
+  mailbox.close()
   sandbox.restore()
 })
 
@@ -308,7 +308,7 @@ test('Mailbox Address smoke testing (w/DingDongMachine)', async t => {
   })
 
   const interpreter = interpret(testMachine)
-  dingDong.acquire()
+  dingDong.open()
   interpreter.start()
 
   interpreter.send('TEST')
@@ -316,7 +316,7 @@ test('Mailbox Address smoke testing (w/DingDongMachine)', async t => {
   t.ok(spy.calledOnce, 'should be called once')
 
   interpreter.stop()
-  dingDong.dispose()
+  dingDong.close()
 
   sandbox.restore()
 })
@@ -329,12 +329,12 @@ test('Mailbox debug properties smoke testing (w/DingDongMachine)', async t => {
   t.notOk(mailbox.debug.interpreter, 'should has no interpreter initialized before acquire()')
   t.notOk(mailbox.debug.target.interpreter, 'should has no target interpreter initialized before acquire()')
 
-  mailbox.acquire()
+  mailbox.open()
 
   t.ok(mailbox.debug.interpreter, 'should has interpreter after acquire()')
   t.ok(mailbox.debug.target.interpreter, 'should has target interpreter after acquire()')
 
-  mailbox.dispose()
+  mailbox.close()
   t.notOk(mailbox.debug.interpreter, 'should has no interpreter initialized after dispose()')
   t.notOk(mailbox.debug.target.interpreter, 'should has no target interpreter initialized after dispose()')
 })
