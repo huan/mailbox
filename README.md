@@ -33,7 +33,6 @@ The design of Mailbox is very like the the Akka Actor Model:
 
 ## TODO
 
-- [ ] Publish to NPM
 - [ ] Address supports remote actor
 
 ## Motivation
@@ -321,9 +320,9 @@ See: [XState Docs - Batched Events](https://xstate.js.org/docs/guides/interpreta
 
 ## History
 
-### main
+### main v0.4 (Apr 1, 2022)
 
-WIP...
+Publish [mailbox](https://github.com/huan/mailbox) NPM module with DevOps.
 
 ### v0.2 (Dec 31, 2021)
 
