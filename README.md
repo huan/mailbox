@@ -75,27 +75,27 @@ const machine = createMachine({
   context: {
     customer: null,
   },
-  initial: States.idle,
+  initial: states.idle,
   states: {
-    [States.idle]: {
-      entry: Mailbox.Actions.sendParentIdle('coffee-maker'),
+    [states.idle]: {
+      entry: Mailbox.actions.idle('coffee-maker')('idle'),
       on: {
-        [Types.MAKE_ME_COFFEE]: {
-          target: States.making,
+        [types.MAKE_ME_COFFEE]: {
+          target: states.making,
           actions: actions.assign((_, e) => ({ customer: e.customer })),
         },
-        '*': States.idle,
+        '*': states.idle,
       },
     },
-    [States.making]: {
+    [states.making]: {
       after: {
-        10: States.delivering,
+        10: states.delivering,
       },
     },
-    [States.delivering]: {
-      entry: Mailbox.Actions.reply(ctx => Events.COFFEE(ctx.customer || 'NO CUSTOMER')),
+    [states.delivering]: {
+      entry: Mailbox.actions.reply(ctx => Events.COFFEE(ctx.customer || 'NO CUSTOMER')),
       after: {
-        10: States.idle,
+        10: states.idle,
       },
       exit: actions.assign({ customer: _ => null }),
     },
@@ -116,10 +116,10 @@ An actor should read the messages to process from its mailbox. A mailbox is an e
 Mailbox is a NPM module written in TypeScript based on the XState finite state machine to strict follow the actor model's principle:
 
 ```ts
-const mailboxAddress = Mailboxe.address(machine)
+const mailbox = Mailboxe.from(machine)
 ```
 
-Then use `mailboxAddress` instead.
+Then use `mailbox` instead.
 
 ## Mailbox Actor Architecture Diagram
 
@@ -133,9 +133,9 @@ Learn more about similiar (i.e. Akka) Actor & Mailbox diagram with discussion fr
 ## Quick Start
 
 1. `import * as Mailbox from 'mailbox'`
-1. Add `Mailbox.Actions.idle('child-id')` to the `entry` of state of your machine which it accepting new messages, to let the Mailbox continue sending new messages from other actors.
-1. Use `Mailbox.Actions.reply('YOUR_EVENT')` to reply event messages to other actors.
-1. Use `const actor = Mailbox.address(yourMachine)` to wrap your actor with mailbox address. The mailbox address is a parent XState machine which will invok your machine as child and add message queue to the child machine.
+1. Add `Mailbox.actions.idle('child-id')('data')` to the `entry` of state of your machine which it accepting new messages, to let the Mailbox continue sending new messages from other actors.
+1. Use `Mailbox.actions.reply('YOUR_EVENT')` to reply event messages to other actors.
+1. Use `const mailbox = Mailbox.from(yourMachine)` to wrap your actor with mailbox address. The mailbox address is a parent XState machine which will invok your machine as child and add message queue to the child machine.
 
 ```ts
 import * as Mailbox from 'mailbox'
@@ -148,7 +148,7 @@ const machine = createMachine({
       /**
        * RULE #1: machine must has `Mailbox.Actions.idle('child-id')` to the `entry` of the state which your machine can accept new messages, to let the Mailbox continue sending new messages from other actors.
        */
-      entry: Mailbox.Actions.idle('child-machine-name'),
+      entry: Mailbox.actions.idle('child-machine-name')('idle'),
       on: {
         '*': {
           /**
@@ -164,7 +164,7 @@ const machine = createMachine({
       /**
        * RULE #3: machine use `Mailbox.Actions.reply(EVENT)` to reply EVENT to other actors.
        */
-      entry: Mailbox.Actions.reply('YOUR_EVENT'),
+      entry: Mailbox.actions.reply('YOUR_EVENT'),
       after: {
         10: 'idle',
       },
@@ -172,11 +172,11 @@ const machine = createMachine({
   },
 })
 
-const actor = Mailbox.address(yourMachine)
+const mailbox = Mailbox.from(yourMachine)
 // just use it as a standard XState machine
 ```
 
-You can run a full version at <https://github.com/huan/mailbox/examples/mailbox-demo.ts> and see the result:
+You can run a full version at [examples/mailbox-demo.ts](examples/mailbox-demo.ts) and see the result:
 
 ```sh
 $ ./mailbox-demo.ts 
@@ -226,9 +226,9 @@ Learn more from [validate.ts source code](validate.ts)
 Whenever a message fails to be written into an actor mailbox, the actor system redirects it to a synthetic actor called /deadLetters. The delivery guarantees of dead letter messages are the same as any other message in the system. So, it’s better not to trust so much in such messages. The main purpose of dead letters is debugging.
 
 ```ts
-mailboxAddress.onEvent(event => {
-  if (event.type === Mailbox.Types.DeadLetter) {
-    console.error('DeadLetter:', event.payload)
+mailbox.onEvent(event => {
+  if (event.type === Mailbox.types.DEAD_LETTER) {
+    console.error('DEAD_LETTER:', event.payload)
   }
 })  
 ```
@@ -248,7 +248,7 @@ On the other side, bounded mailboxes retain only a fixed number of messages. The
 As we did a moment ago, we can configure the mailbox’s size directly using the Mailbox.bounded factory method. Or, better, we can specify it through the configuration properties file:
 
 ```ts
-const mailboxAddress = Mailboxe.address(machine, { 
+const mailbox = Mailboxe.from(machine, { 
   capacity: 100,
 })
 ```
