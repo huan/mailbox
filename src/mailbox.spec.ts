@@ -27,7 +27,7 @@ import {
 }                         from 'xstate'
 
 import * as Baby      from '../tests/fixtures/baby-machine.js'
-import * as DingDong  from '../tests/ding-dong-machine.fixture.js'
+import * as DingDong  from '../tests/fixtures/ding-dong-machine.js'
 
 import * as Mailbox   from './mods/mod.js'
 
@@ -322,7 +322,7 @@ test('Mailbox Address smoke testing (w/DingDongMachine)', async t => {
 })
 
 test('Mailbox debug properties smoke testing (w/DingDongMachine)', async t => {
-  const mailbox = Mailbox.from(DingDong.machine) as Mailbox.MailboxImpl
+  const mailbox = Mailbox.from(DingDong.machine) as Mailbox.impls.Mailbox
   t.ok(mailbox.debug.machine, 'should has machine')
   t.same(mailbox.debug.target.machine, DingDong.machine, 'should has target machine')
 

@@ -102,6 +102,9 @@ class MailboxImpl<
       contexts.Context,
       any,
       Event | { type: TEvent['type'] },
+      any,
+      any,
+      any,
       any
     >,
     options: Options = {},

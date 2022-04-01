@@ -18,9 +18,9 @@
  *
  */
 /* eslint-disable no-redeclare */
-interface DebugPayload {
-  debug?: string
-}
+// interface DebugPayload {
+//   debug?: string
+// }
 
 function stripPayloadDebug (event: Object): Object
 function stripPayloadDebug (eventList: Object[]): Object[]
