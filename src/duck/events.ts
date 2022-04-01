@@ -23,7 +23,7 @@ import type { AnyEventObject, EventObject }   from 'xstate'
 
 import type * as contexts   from '../contexts.js'
 
-import { types }            from './types.js'
+import { types }  from './types.js'
 
 /**
  * events of: child

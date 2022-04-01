@@ -24,9 +24,12 @@ import { wrap }                     from './wrap.js'
 import type { Options }             from './options.js'
 
 /**
- * Create a Mailbox for the target machine
+ * Create a Mailbox from the target machine
  *
  * @param targetMachine the target machine that conform to the Mailbox Actor Message Queue API
+ * @param options       the options for the mailbox
+ *
+ * @returns Mailbox instance
  */
 function from<
   TContext extends {},
