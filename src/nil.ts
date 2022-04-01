@@ -27,7 +27,7 @@ import type { Options }   from './options.js'
  */
 const machine = createMachine<{}>({})
 const mailbox = from(machine)
-mailbox.acquire()
+mailbox.open()
 
 const address = mailbox.address
 

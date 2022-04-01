@@ -29,7 +29,7 @@ test('Mailbox.from(DingDong.machine) as an actor should enforce process messages
   const DONG_EVENT_LIST = ITEM_NUMBERS.map(i => DingDong.events.DONG(i))
 
   const mailbox = Mailbox.from(DingDong.machine) as Mailbox.impls.Mailbox
-  mailbox.acquire()
+  mailbox.open()
   const interpreter = mailbox.debug.interpreter!
 
   const eventList: AnyEventObject[] = []
@@ -136,7 +136,7 @@ test('Mailbox.from(CoffeeMaker.machine) as an actor should enforce process messa
   )
 
   const mailbox = Mailbox.from(CoffeeMaker.machine) as Mailbox.impls.Mailbox
-  mailbox.acquire()
+  mailbox.open()
   const interpreter = mailbox.debug.interpreter!
 
   const eventList: AnyEventObject[] = []

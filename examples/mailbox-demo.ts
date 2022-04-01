@@ -84,8 +84,8 @@ async function main () {
   /**
    * machine with Mailbox (async queue protocol support)
    */
-  const actorMailbox = Mailbox.from(demoMachine(true), { logger: () => {} })
-  actorMailbox.acquire()
+  const mailbox = Mailbox.from(demoMachine(true), { logger: () => {} })
+  mailbox.open()
 
   /**
    * send two events for testing/demonstration
@@ -109,7 +109,7 @@ async function main () {
    * for a Mailbox-ed machine(actor), it will response all events by processing it one by one.
    */
   console.info('# testing the mailbox-ed(actor) machine ... (an actor will be able to response two events one by one)')
-  await callTwice(() => actorMailbox.send('TASK'))
+  await callTwice(() => mailbox.send('TASK'))
   console.info('# testing mailbox-ed machine ... done\n')
 
   /**

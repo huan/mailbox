@@ -194,6 +194,71 @@ TASK_RECEIVED
 # testing mailbox-ed machine ... done
 ```
 
+## References
+
+```ts
+import * as Mailbox from 'mailbox'
+```
+
+### 1. `Mailbox`
+
+#### 1.1 `Mailbox.from()`
+
+```ts
+const mailbox = Mailbox.from(machine, options)
+```
+
+Options:
+
+```ts
+interface Options {
+  id?       : string
+  capacity? : number
+  logger?   : InterpreterOptions['logger'],
+  devTools? : InterpreterOptions['devTools'],
+}
+```
+
+#### 1.2 `mailbox.address()`
+
+#### 1.3 `mailbox.send()`
+
+#### 1.4 `mailbox.on()`
+
+#### 1.5 `mailbox.open()`
+
+#### 1.6 `mailbox.close()`
+
+### 2. `Mailbox.Address`
+
+#### 2.1. `address.send()`
+
+#### 2.2. `address.condNotOrigin()`
+
+### 3. `Mailbox.actions.*`
+
+#### 3.1. `Mailbox.actions.idle()`
+
+#### 3.2. `Mailbox.actions.reply()`
+
+#### 3.3. `Mailbox.actions.proxyToChild()`
+
+### 4. `Mailbox.nil.*`
+
+#### 4.1 `Mailbox.nil.mailbox`
+
+#### 4.2 `Mailbox.nil.address`
+
+#### 4.3 `Mailbox.nil.logger`
+
+#### 4.4 `Mailbox.nil.machine`
+
+### 5. `Mailbox.helper.*`
+
+#### 5.1 `Mailbox.helper.validate()`
+
+#### 5.2 `Mailbox.helper.wrap()`
+
 ## Actor Mailbox Concept
 
 Actors have mailboxes.

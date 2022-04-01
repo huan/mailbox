@@ -48,8 +48,8 @@ interface Interface<
 > {
   address: Address
   on (name: 'event', listener: (event: TEvent) => void): void
-  acquire (): void
-  dispose (): void
+  open (): void
+  close (): void
   send (event: TEvent | TEvent['type']): void
 }
 
@@ -152,7 +152,7 @@ class MailboxImpl<
     this._interpreter.send(event)
   }
 
-  acquire (): void {
+  open (): void {
     this._interpreter.start()
 
     this.debug.interpreter        = this._interpreter
@@ -160,7 +160,7 @@ class MailboxImpl<
       .children.get(MAILBOX_TARGET_MACHINE_ID) as Interpreter<any>
   }
 
-  dispose (): void {
+  close (): void {
     this._interpreter.stop()
 
     this.debug.interpreter        = undefined
