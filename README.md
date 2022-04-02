@@ -259,6 +259,33 @@ interface Options {
 
 #### 5.2 `Mailbox.helper.wrap()`
 
+## Actor Inbound & Outbound Communication
+
+The mailbox actor will queue inbound messages to the child machine, and process them one by one.
+
+However, for outbound messages, the machine internally can send messages to other actors, and receives outbound response messages from other actors when it has other inbound messages not processed. This is because that the machine internal address has been used to send messages to other actors, and receive messages with this address from other actors, for the outbound message communication.
+
+```mermaid
+sequenceDiagram
+  participant Consumer
+  participant Mailbox
+  participant Machine
+  participant Service
+
+  Note right of Consumer: Inbound Message Request
+  Consumer->>Mailbox: {type: 'QUERY'}
+  Note right of Mailbox: Internal
+  Mailbox-->>Machine: {type: 'QUERY'}
+  Note right of Machine: Outbound Message Request
+  Machine->>Service: {type: 'LOG_COMMAND'}
+  Note right of Machine: Outbound Message Response
+  Service->>Machine: {type: 'LOG_COMMAND_RESPONSE'}
+  Note right of Mailbox: Internal
+  Machine-->>Mailbox: {type: 'QUERY_RESPONSE'}
+  Note right of Consumer: Inbound Message Response
+  Mailbox->>Consumer: {type: 'QUERY_RESPONSE'}
+```
+
 ## Actor Mailbox Concept
 
 Actors have mailboxes.
