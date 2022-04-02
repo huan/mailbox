@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-blue.svg)](https://www.typescriptlang.org/)
 [![ES Modules](https://img.shields.io/badge/ES-Modules-brightgreen)](https://github.com/Chatie/tsconfig/issues/16)
 
-Mailbox is a NPM module built on top of XState Actor, by adding a message queue to the XState machine, and let the machine to decide when to process the next message.
+Mailbox is an NPM module built on top of XState Actor, by adding a message queue to the XState machine and letting the machine decide when to process the next message.
 
 ![Actor Model: Mailbox](docs/images/mailbox.png)
 
