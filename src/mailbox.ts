@@ -28,17 +28,20 @@ import {
   Interpreter,
   interpret,
   InterpreterOptions,
+  AnyStateMachine,
+  AnyInterpreter,
 }                           from 'xstate'
 import EventEmitter         from 'events'
-import type { Disposable }  from 'typed-inject'
 
 import * as duck  from './duck/mod.js'
 
-import { isMailboxType }                        from './is-mailbox-type.js'
-import type * as contexts                       from './contexts.js'
-import type { Event }                           from './duck/event-type.js'
-import { Options, MAILBOX_TARGET_MACHINE_ID }   from './options.js'
-import { AddressImpl, type Address }            from './address.js'
+import { isMailboxType }              from './is-mailbox-type.js'
+import type * as contexts             from './contexts.js'
+import type { Event }                 from './duck/event-type.js'
+import type { Options }               from './options.js'
+import { AddressImpl, type Address }  from './address.js'
+import { MAILBOX_TARGET_MACHINE_ID }  from './constants.js'
+import { getTargetMachine }           from './wrap.js'
 
 /**
  * The Mailbox Interface
@@ -47,32 +50,18 @@ interface Interface<
   TEvent extends EventObject = EventObject,
 > {
   address: Address
-  on (name: 'event', listener: (event: TEvent) => void): void
+  send (event: TEvent | TEvent['type']): void
   open (): void
   close (): void
-  send (event: TEvent | TEvent['type']): void
+  on (name: 'event', listener: (event: TEvent) => void): void
 }
 
 /**
  * The Mailbox Class Implementation
  */
 class MailboxImpl<
-  TContext extends {} = {},
   TEvent extends EventObject = EventObject,
->
-  extends EventEmitter
-  implements
-    Interface,
-    Disposable {
-
-  /**
-   * XState interpreter
-   */
-  protected readonly _interpreter: Interpreter<
-    contexts.Context,
-    any,
-    Event | { type: TEvent['type'] }
-  >
+> extends EventEmitter implements Interface {
 
   /**
    * Address of the Mailbox
@@ -80,25 +69,42 @@ class MailboxImpl<
   readonly address: Address
 
   /**
-   * Debug only
+   * XState interpreter for Mailbox
+   */
+  private readonly _interpreter: Interpreter<
+    contexts.Context,
+    any,
+    Event | { type: TEvent['type'] }
+  >
+
+  /**
+   * Open flag: whether the Mailbox is opened
+   */
+  private _opened:boolean = false
+
+  /**
+   * For DEBUG only
    */
   readonly debug: {
-    interpreter? : Interpreter<any,  any>,
-    machine      : StateMachine<any, any,  any>,
-
+    /**
+     * Mailbox machine & interpreter (wrapped the original StateMachine)
+     */
+    machine     : AnyStateMachine,
+    interpreter : AnyInterpreter,
+    /**
+     * Interpreter & Machine for the target (managed child) machine in Mailbox
+     */
     target: {
-      interpreter? : Interpreter<any,  any>,
-      machine      : StateMachine<any, any,  any>,
+      machine      : AnyStateMachine,
+      interpreter? : AnyInterpreter,
     },
   }
 
   constructor (
-    protected readonly _targetMachine: StateMachine<
-      TContext,
-      any,
-      TEvent
-    >,
-    protected readonly _wrappedMachine: StateMachine<
+    /**
+     * The wrapped original StateMachine, by the wrap() function for satisfing the Mailbox Queue API
+     */
+    wrappedMachine: StateMachine<
       contexts.Context,
       any,
       Event | { type: TEvent['type'] },
@@ -115,16 +121,13 @@ class MailboxImpl<
     const interpretOptions: Partial<InterpreterOptions> = {
       devTools: options.devTools,
     }
-
     if (typeof options.logger === 'function') {
       // If the `logger` key has been set, then the value must be function
       // The interpret function can not accept a { logger: undefined } option
       interpretOptions.logger = options.logger
     }
 
-    this._interpreter = interpret(this._wrappedMachine, interpretOptions)
-    this.address      = AddressImpl.from(this._interpreter.sessionId)
-
+    this._interpreter = interpret(wrappedMachine, interpretOptions)
     this._interpreter.onEvent(event => {
       if (/^xstate\./i.test(event.type)) {
         // 1. skip for XState system events
@@ -137,10 +140,13 @@ class MailboxImpl<
       this.emit('event', event)
     })
 
+    this.address = AddressImpl.from(this._interpreter.sessionId)
+
     this.debug = {
-      machine: this._wrappedMachine,
+      machine: wrappedMachine,
+      interpreter: this._interpreter,
       target: {
-        machine: this._targetMachine,
+        machine: getTargetMachine(wrappedMachine),
       },
     }
   }
@@ -149,22 +155,40 @@ class MailboxImpl<
    * Send EVENT to the Mailbox Address
    */
   send (event: TEvent | TEvent['type']): void {
+    if (!this._opened) {
+      this.open()
+    }
     this._interpreter.send(event)
   }
 
+  /**
+   * Open the Mailbox for kick it started
+   *  The mailbox will be opened automatically when the first event is sent.
+   */
   open (): void {
-    this._interpreter.start()
+    if (this._opened) {
+      return
+    }
 
-    this.debug.interpreter        = this._interpreter
-    this.debug.target.interpreter = this._interpreter
-      .children.get(MAILBOX_TARGET_MACHINE_ID) as Interpreter<any>
+    this._interpreter.start()
+    this._opened = true
+
+    /**
+     * Huan(202203): FIXME:
+     *  will ` ActorRef<any, any> as AnyInterpreter` be a problem?
+     */
+    this.debug.target.interpreter = this._interpreter.children
+      .get(MAILBOX_TARGET_MACHINE_ID) as AnyInterpreter
   }
 
+  /**
+   * Close the Mailbox for disposing it
+   */
   close (): void {
     this._interpreter.stop()
 
-    this.debug.interpreter        = undefined
     this.debug.target.interpreter = undefined
+    this._opened = false
   }
 
 }

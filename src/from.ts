@@ -26,8 +26,8 @@ import type { Options }             from './options.js'
 /**
  * Create a Mailbox from the target machine
  *
- * @param targetMachine the target machine that conform to the Mailbox Actor Message Queue API
- * @param options       the options for the mailbox
+ * @param machine the target machine that conform to the Mailbox Actor Message Queue API
+ * @param options the options for the mailbox
  *
  * @returns Mailbox instance
  */
@@ -35,15 +35,15 @@ function from<
   TContext extends {},
   TEvent extends EventObject,
 > (
-  targetMachine: StateMachine<
+  machine: StateMachine<
     TContext,
     any,
     TEvent
   >,
   options?: Options,
 ): Interface<TEvent> {
-  const wrappedMachine = wrap(targetMachine, options)
-  return new MailboxImpl(targetMachine, wrappedMachine, options)
+  const wrappedMachine = wrap(machine, options)
+  return new MailboxImpl(wrappedMachine, options)
 }
 
 export {

@@ -13,9 +13,9 @@ import {
   Interpreter,
 }                   from 'xstate'
 
-import * as Mailbox   from '../src/mods/mod.js'
+import * as Mailbox   from '../../src/mods/mod.js'
 
-import * as Baby    from './fixtures/baby-machine.js'
+import * as Baby    from './baby-machine.js'
 
 test('babyMachine smoke testing with asleep under mock clock', async t => {
   const sandbox = sinon.createSandbox({

@@ -16,8 +16,8 @@ import {
 
 import * as Mailbox   from '../src/mods/mod.js'
 
-import * as DingDong    from './fixtures/ding-dong-machine.js'
-import * as CoffeeMaker from './fixtures/coffee-maker-machine.js'
+import * as DingDong    from './machine-behaviors/ding-dong-machine.js'
+import * as CoffeeMaker from './machine-behaviors/coffee-maker-machine.js'
 
 test('Mailbox.from(DingDong.machine) as an actor should enforce process messages one by one', async t => {
   const sandbox = sinon.createSandbox({

@@ -26,20 +26,20 @@ import {
   createMachine,
   StateMachine,
   EventObject,
+  AnyStateMachine,
 }                   from 'xstate'
 
 import { events, states, types }  from './duck/mod.js'
 
 import { IS_DEVELOPMENT }     from './config.js'
-
 import * as contexts          from './contexts.js'
 import type { Event }         from './duck/event-type.js'
 import { validate }           from './validate.js'
+import type { Options }       from './options.js'
 import {
-  type Options,
   MAILBOX_TARGET_MACHINE_ID,
   MAILBOX_NAME,
-}                             from './options.js'
+}                             from './constants.js'
 
 /**
  * Add Mailbox Queue to the targetMachine
@@ -225,6 +225,21 @@ function wrap <
   return machine
 }
 
+const getTargetMachine = (wrappedMachine: AnyStateMachine) => {
+  const services = wrappedMachine.options.services
+  if (!services) {
+    throw new Error('no services provided in the wrappedMachine!')
+  }
+
+  const childMachine = services[MAILBOX_TARGET_MACHINE_ID]
+  if (!childMachine) {
+    throw new Error('no child machine found in wrappedMachine!')
+  }
+
+  return childMachine as AnyStateMachine
+}
+
 export {
   wrap,
+  getTargetMachine,
 }

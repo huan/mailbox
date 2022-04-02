@@ -29,14 +29,14 @@ import {
   State,
 }                         from 'xstate'
 
-import * as Baby        from '../tests/fixtures/baby-machine.js'
-import * as CoffeeMaker from '../tests/fixtures/coffee-maker-machine.js'
+import * as Baby        from '../tests/machine-behaviors/baby-machine.js'
+import * as CoffeeMaker from '../tests/machine-behaviors/coffee-maker-machine.js'
 
 import { types, events, states }  from './duck/mod.js'
 
-import type { Context }       from './contexts.js'
-import { wrap }               from './wrap.js'
-import { stripPayloadDebug }  from './testing-utils.js'
+import type { Context }             from './contexts.js'
+import { wrap, getTargetMachine }   from './wrap.js'
+import { stripPayloadDebug }        from './testing-utils.js'
 
 test('wrap() transition nextState smoke testing', async t => {
   const mailbox = wrap(Baby.machine)
@@ -648,4 +648,10 @@ test('Mailbox.wrap proxy smoke testing', async t => {
 
   proxyInterpreter.stop()
   sandbox.restore()
+})
+
+test('getTargetMachine()', async t => {
+  const wrappedMachine = wrap(Baby.machine)
+  const targetMachine = getTargetMachine(wrappedMachine)
+  t.equal(targetMachine, Baby.machine, 'should return target machine')
 })

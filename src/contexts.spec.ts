@@ -15,7 +15,7 @@ import {
 }                 from 'xstate'
 
 import * as contexts                  from './contexts.js'
-import { MAILBOX_TARGET_MACHINE_ID }  from './options.js'
+import { MAILBOX_TARGET_MACHINE_ID }  from './constants.js'
 
 test('assignEnqueue', async t => {
   const CONTEXT = contexts.initialContext()

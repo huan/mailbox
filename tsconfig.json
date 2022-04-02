@@ -13,6 +13,7 @@
     "examples/**/*.ts",
     "scripts/**/*.ts",
     "src/**/*.ts",
-    "tests/**/*.spec.ts", "tests/ding-dong-machine.fixture.ts", "tests/baby-machine.fixture.ts",
+    "tests/**/*.spec.ts",
+    "tests/machine-behaviors/*.ts",
   ],
 }

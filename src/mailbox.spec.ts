@@ -26,8 +26,8 @@ import {
   interpret,
 }                         from 'xstate'
 
-import * as Baby      from '../tests/fixtures/baby-machine.js'
-import * as DingDong  from '../tests/fixtures/ding-dong-machine.js'
+import * as Baby      from '../tests/machine-behaviors/baby-machine.js'
+import * as DingDong  from '../tests/machine-behaviors/ding-dong-machine.js'
 
 import * as Mailbox   from './mods/mod.js'
 
@@ -324,17 +324,14 @@ test('Mailbox Address smoke testing (w/DingDongMachine)', async t => {
 test('Mailbox debug properties smoke testing (w/DingDongMachine)', async t => {
   const mailbox = Mailbox.from(DingDong.machine) as Mailbox.impls.Mailbox
   t.ok(mailbox.debug.machine, 'should has machine')
-  t.same(mailbox.debug.target.machine, DingDong.machine, 'should has target machine')
+  t.same(mailbox.debug.target.machine, DingDong.machine, 'should has the correct target machine')
 
-  t.notOk(mailbox.debug.interpreter, 'should has no interpreter initialized before acquire()')
-  t.notOk(mailbox.debug.target.interpreter, 'should has no target interpreter initialized before acquire()')
+  t.ok(mailbox.debug.interpreter, 'should has interpreter initialized before open()')
+  t.notOk(mailbox.debug.target.interpreter, 'should has no target interpreter initialized before open()')
 
   mailbox.open()
-
-  t.ok(mailbox.debug.interpreter, 'should has interpreter after acquire()')
-  t.ok(mailbox.debug.target.interpreter, 'should has target interpreter after acquire()')
+  t.ok(mailbox.debug.target.interpreter, 'should has target interpreter after open()')
 
   mailbox.close()
-  t.notOk(mailbox.debug.interpreter, 'should has no interpreter initialized after dispose()')
-  t.notOk(mailbox.debug.target.interpreter, 'should has no target interpreter initialized after dispose()')
+  t.notOk(mailbox.debug.target.interpreter, 'should has no target interpreter initialized after close()')
 })

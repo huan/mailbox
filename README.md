@@ -385,7 +385,11 @@ See: [XState Docs - Batched Events](https://xstate.js.org/docs/guides/interpreta
 
 ## History
 
-### main v0.4 (Apr 1, 2022)
+### main v0.5
+
+Refactoring APIs
+
+### v0.4 (Apr 1, 2022)
 
 Publish [mailbox](https://github.com/huan/mailbox) NPM module with DevOps.
 

@@ -40,7 +40,7 @@ import {
 }                   from './duck/mod.js'
 
 import { isMailboxType }              from './is-mailbox-type.js'
-import { MAILBOX_TARGET_MACHINE_ID }  from './options.js'
+import { MAILBOX_TARGET_MACHINE_ID }  from './constants.js'
 
 const metaSymKey = Symbol('meta')
 

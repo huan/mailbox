@@ -12,9 +12,9 @@ import {
   interpret,
 }                   from 'xstate'
 
-import * as Mailbox   from '../src/mods/mod.js'
+import * as Mailbox   from '../../src/mods/mod.js'
 
-import * as DingDong  from './fixtures/ding-dong-machine.js'
+import * as DingDong  from './ding-dong-machine.js'
 
 test('DingDong.machine process one DING event', async t => {
   const sandbox = sinon.createSandbox({
