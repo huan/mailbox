@@ -22,12 +22,11 @@ import { test }  from 'tstest'
 
 import * as mod   from './mod.js'
 
-test('mod export VERSION', async t => {
+test('mod.VERSION', async t => {
   t.ok(mod.VERSION, 'should export VERSION')
 })
 
-test('mod export helpers & impls', async t => {
-  t.ok(mod.helpers, 'should export helpers')
+test('mod.impls.*', async t => {
   t.ok(mod.impls, 'should export impls')
 })
 
@@ -37,4 +36,11 @@ test('mod export actions & nil & from etc', async t => {
   t.ok(mod.from, 'should export from')
   t.ok(mod.events, 'should export events')
   t.ok(mod.types, 'should export types')
+})
+
+test('helpers.*', async t => {
+  t.ok(mod.helpers, 'should export helpers')
+  t.ok(mod.helpers.isMailboxType, 'should export isMailboxType')
+  t.ok(mod.helpers.validate, 'should export validate')
+  t.ok(mod.helpers.wrap, 'should export wrap')
 })
