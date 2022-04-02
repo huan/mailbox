@@ -49,7 +49,7 @@ function container (machine: StateMachine<any, any, any>) {
       testing: {
         on: {
           '*': {
-            actions: actions.choose([{
+            actions: actions.choose([ {
               /**
                * skip all:
                *  1. Mailbox.Types (system messages): those events is for controling Mailbox only
@@ -64,7 +64,7 @@ function container (machine: StateMachine<any, any, any>) {
               actions: [
                 actions.send((_, e) => e, { to: CHILD_ID }),
               ],
-            }]),
+            } ]),
           },
         },
       },
@@ -102,7 +102,7 @@ function validateInitializing (
    */
   assert.deepEqual(actualInitEvents, EXPECTED_INIT_EVENT_TYPES, 'should send parent CHILD_IDLE right after it has been initialized')
 
-  return [interpreter, eventList] as const
+  return [ interpreter, eventList ] as const
 }
 
 /**
@@ -121,7 +121,7 @@ function validateReceiveFormOtherEvent (
   const actualIdleEvents = eventList
     .map(e => e.type)
     .filter(t => t === types.CHILD_IDLE)
-  const EXPECTED_CHILD_IDLE_EVENTS = [types.CHILD_IDLE]
+  const EXPECTED_CHILD_IDLE_EVENTS = [ types.CHILD_IDLE ]
   assert.deepEqual(
     actualIdleEvents,
     EXPECTED_CHILD_IDLE_EVENTS,
@@ -139,7 +139,7 @@ function validateReceiveFormOtherEvents (
 ): void {
   const TOTAL_EVENT_NUM = 10
   eventList.length = 0
-  const randomEvents = [...Array(TOTAL_EVENT_NUM).keys()]
+  const randomEvents = [ ...Array(TOTAL_EVENT_NUM).keys() ]
     .map(i => String(
       i + Math.random(),
     ))
@@ -195,7 +195,7 @@ function validate (
   /**
    * validate the machine initializing events
    */
-  const [interpreter, eventList] = validateInitializing(parentMachine)
+  const [ interpreter, eventList ] = validateInitializing(parentMachine)
 
   /**
    * Response each event with CHILD_IDLE event

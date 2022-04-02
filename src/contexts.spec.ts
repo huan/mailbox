@@ -29,14 +29,14 @@ test('assignEnqueue', async t => {
   t.equal(contexts.assignEnqueue.type, 'xstate.assign', 'should be in `assign` type')
 
   const queue = (contexts.assignEnqueue.assignment as any).queue(CONTEXT, EVENT, { _event: { origin: 'test-origin' } })
-  t.same(queue, [EVENT], 'should enqueue event to context.queue')
+  t.same(queue, [ EVENT ], 'should enqueue event to context.queue')
 })
 
 test('queueSize()', async t => {
   const EMPTY_CONTEXT = contexts.initialContext()
 
   const NONEMPTY_CONTEXT = contexts.initialContext()
-  NONEMPTY_CONTEXT.queue = [{} as any]
+  NONEMPTY_CONTEXT.queue = [ {} as any ]
 
   t.equal(contexts.queueSize(EMPTY_CONTEXT), 0, 'should be empty when queue is empty')
   t.equal(contexts.queueSize(NONEMPTY_CONTEXT), 1, 'should be not empty when queue has one message')
@@ -61,11 +61,11 @@ test('assignDequeue()', async t => {
   }
 
   const CONTEXT = contexts.initialContext()
-  CONTEXT.queue = [EVENT]
+  CONTEXT.queue = [ EVENT ]
 
-  t.same(CONTEXT.queue, [EVENT], 'should be one EVENT before dequeue event')
+  t.same(CONTEXT.queue, [ EVENT ], 'should be one EVENT before dequeue event')
   const index = contexts.assignDequeue.assignment.index(CONTEXT, undefined, { _event: {} })
-  t.same(CONTEXT.queue, [EVENT], 'should be one EVENT after dequeue event')
+  t.same(CONTEXT.queue, [ EVENT ], 'should be one EVENT after dequeue event')
   t.equal(index, 1, 'should be at index 1 after dequeue event')
 })
 

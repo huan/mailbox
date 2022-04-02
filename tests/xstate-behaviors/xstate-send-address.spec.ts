@@ -38,6 +38,6 @@ test('two xstate machine interpreter can exchange events', async t => {
 
   t.same(
     eventListB.filter(e => e.type === 'OK'),
-    [{ type: 'OK' }],
+    [ { type: 'OK' } ],
     'should receive OK event by B sent from A')
 })

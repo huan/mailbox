@@ -51,10 +51,10 @@ test('wrap() transition nextState smoke testing', async t => {
     nextState.actions
       .filter(a => a.type === 'xstate.send' && a['event'].type === types.NEW_MESSAGE)
       .map(a => a['event'].type),
-    [types.NEW_MESSAGE],
+    [ types.NEW_MESSAGE ],
     'should have NEW_MESSAGE event',
   )
-  t.same(nextState.context.queue, [SLEEP_EVENT], 'should have no MESSAGE in queue')
+  t.same(nextState.context.queue, [ SLEEP_EVENT ], 'should have no MESSAGE in queue')
 
   nextState = mailbox.transition(nextState, Baby.events.SLEEP(10))
   // console.info(nextState.actions)

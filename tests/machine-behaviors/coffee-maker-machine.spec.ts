@@ -88,7 +88,7 @@ test('XState machine will lost incoming messages(events) when receiving multiple
     useFakeTimers: true,
   })
 
-  const ITEM_NUMBERS = [...Array(10).keys()]
+  const ITEM_NUMBERS = [ ...Array(10).keys() ]
   const MAKE_ME_COFFEE_EVENT_LIST = ITEM_NUMBERS.map(i => CoffeeMaker.events.MAKE_ME_COFFEE(String(i)))
   const COFFEE_EVENT_LIST         = ITEM_NUMBERS.map(i => CoffeeMaker.events.COFFEE(String(i)))
 

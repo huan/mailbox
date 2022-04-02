@@ -147,7 +147,7 @@ test('mailbox address interpret smoke testing: 3 parallel EVENTs (w/BabyMachine)
 
   eventList.length = 0
   interpreter.send(Baby.events.SLEEP(20))
-  t.same(eventList, [Baby.events.SLEEP(20)], 'should received SLEEP event')
+  t.same(eventList, [ Baby.events.SLEEP(20) ], 'should received SLEEP event')
 
   /**
    * Finish 1st (will right enter the 2nd)

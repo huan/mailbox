@@ -24,7 +24,7 @@ test('Mailbox.from(DingDong.machine) as an actor should enforce process messages
     useFakeTimers: true,
   })
 
-  const ITEM_NUMBERS = [...Array(3).keys()]
+  const ITEM_NUMBERS = [ ...Array(3).keys() ]
   const DING_EVENT_LIST = ITEM_NUMBERS.map(i => DingDong.events.DING(i))
   const DONG_EVENT_LIST = ITEM_NUMBERS.map(i => DingDong.events.DONG(i))
 
@@ -59,7 +59,7 @@ test('parentMachine with invoke.src=Mailbox.address(DingDong.machine) should pro
     useFakeTimers: true,
   })
 
-  const ITEM_NUMBERS = [...Array(3).keys()]
+  const ITEM_NUMBERS = [ ...Array(3).keys() ]
 
   const DING_EVENT_LIST = ITEM_NUMBERS.map(i =>
     DingDong.events.DING(i),
@@ -126,7 +126,7 @@ test('Mailbox.from(CoffeeMaker.machine) as an actor should enforce process messa
     useFakeTimers: true,
   })
 
-  const ITEM_NUMBERS = [...Array(3).keys()]
+  const ITEM_NUMBERS = [ ...Array(3).keys() ]
 
   const MAKE_ME_COFFEE_EVENT_LIST = ITEM_NUMBERS.map(i =>
     CoffeeMaker.events.MAKE_ME_COFFEE(String(i)),

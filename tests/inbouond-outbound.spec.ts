@@ -70,7 +70,7 @@ test('Mailbox can make outbound communication when it has lots of queued inbound
       },
       loop: {
         entry: [
-          actions.assign({ counts: (ctx, e) => [...ctx.counts, (e as any).count] }),
+          actions.assign({ counts: (ctx, e) => [ ...ctx.counts, (e as any).count ] }),
         ],
         always: [
           {
