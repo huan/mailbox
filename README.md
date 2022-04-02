@@ -273,17 +273,19 @@ sequenceDiagram
   participant Service
 
   Note right of Consumer: Inbound Message Request
-  Consumer->>Mailbox: {type: 'QUERY'}
-  Note right of Mailbox: Internal
-  Mailbox-->>Machine: {type: 'QUERY'}
-  Note right of Machine: Outbound Message Request
-  Machine->>Service: {type: 'LOG_COMMAND'}
-  Note right of Machine: Outbound Message Response
-  Service->>Machine: {type: 'LOG_COMMAND_RESPONSE'}
-  Note right of Mailbox: Internal
-  Machine-->>Mailbox: {type: 'QUERY_RESPONSE'}
+  Consumer->>Mailbox: {type: QUERY}
+  Note right of Mailbox: Internal Request
+  Mailbox-->>Machine: {type: QUERY}
+  Note right of Machine: Outbound Message Requests
+  Machine->>Service: {type: LOG_COMMAND}
+  Machine->>Service: {type: DB_COMMAND}
+  Note right of Machine: Outbound Message Responses
+  Service->>Machine: {type: LOG_COMMAND_RESPONSE}
+  Service->>Machine: {type: DB_COMMAND_RESPONSE}
+  Note right of Mailbox: Internal Response
+  Machine-->>Mailbox: {type: QUERY_RESPONSE}
   Note right of Consumer: Inbound Message Response
-  Mailbox->>Consumer: {type: 'QUERY_RESPONSE'}
+  Mailbox->>Consumer: {type: QUERY_RESPONSE}
 ```
 
 ## Actor Mailbox Concept
