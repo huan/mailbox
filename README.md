@@ -146,8 +146,7 @@ const machine = createMachine({
   states: {
     idle: {
       /**
-       * RULE #1: machine must has `Mailbox.Actions.idle('child-id')` to the `entry` of the state which your machine can accept new messages, to let the Mailbox continue sending new messages from other actors.
-       */
+       * RULE #1: machine must has `Mailbox.Actions.idle('child-id')` tinbouond-outbound.spec
       entry: Mailbox.actions.idle('child-machine-name')('idle'),
       on: {
         '*': {
@@ -261,9 +260,13 @@ interface Options {
 
 ## Actor Inbound & Outbound Communication
 
-The mailbox actor will queue inbound messages to the child machine, and process them one by one.
+The mailbox actor will queue the second inbound messages to the child machine, and will not pass it to the child machine until the first inbound message is processed.
 
-However, for outbound messages, the machine internally can send messages to other actors, and receives outbound response messages from other actors when it has other inbound messages not processed. This is because that the machine internal address has been used to send messages to other actors, and receive messages with this address from other actors, for the outbound message communication.
+However, this are cases that the child machine that needs to communicate with other actors, and receives response messages from other actors.
+
+For outbound messages, the machine internally can send messages to other actors, and receives outbound response messages from other actors without the inbound limitation (the response of the outbound message will be passed by the mailbox queue directly).
+
+The machine internal address will be used to send messages to other actors, and receive messages with this address will by pass the Mailbox queue, for supporting multiple outbound message communication.
 
 ```mermaid
 sequenceDiagram
@@ -272,20 +275,23 @@ sequenceDiagram
   participant Machine
   participant Service
 
-  Note right of Consumer: Inbound Message Request
-  Consumer->>Mailbox: {type: QUERY}
-  Note right of Mailbox: Internal Request
-  Mailbox-->>Machine: {type: QUERY}
-  Note right of Machine: Outbound Message Requests
+  Consumer->>Mailbox: {type: EVENT1}
+  Note right of Consumer: Inbound Message Request 1
+  Consumer-->>Mailbox: {type: EVENT2}
+  Note right of Consumer: Inbound Message Request 2
+  Note right of Mailbox: Processing EVENT1<br>Queue EVENT2
+  Mailbox->>Machine: {type: EVENT1}
   Machine->>Service: {type: LOG_COMMAND}
   Machine->>Service: {type: DB_QUERY}
-  Note right of Machine: Outbound Message Responses
+  Note right of Machine: Multiple Outbound Message Requests
   Service->>Machine: {type: LOG_COMMAND_RESPONSE}
   Service->>Machine: {type: DB_QUERY_RESPONSE}
-  Note right of Mailbox: Internal Response
-  Machine-->>Mailbox: {type: QUERY_RESPONSE}
-  Note right of Consumer: Inbound Message Response
-  Mailbox->>Consumer: {type: QUERY_RESPONSE}
+  Note right of Machine: Multiple Outbound Message Responses
+  Machine->>Mailbox: {type: EVENT1_RESPONSE}
+  Mailbox->>Consumer: {type: EVENT1_RESPONSE}
+  Note right of Consumer: Inbound Message Response 1
+  Note right of Mailbox: Dequeue EVENT2<br>Processing EVENT2
+  Mailbox-->>Machine: {type: EVENT2}
 ```
 
 Caution: be aware of the dead lock if your two actors call each other in the same machine.
