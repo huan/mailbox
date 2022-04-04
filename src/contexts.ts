@@ -196,11 +196,11 @@ const condEventCanBeAcceptedByChildOf = (childId = MAILBOX_TARGET_MACHINE_ID) =>
     !!childSnapshotOf(childId)(state).can(event)
 
 /**
- * Send an event to the current processing message of the Mailbox.
+ * Send an event as response to the current processing message of Mailbox.
  *
  *  send the CHILD_RESPONSE.payload.message to the child message origin
  */
-const sendChildReply = (machineName: string) => actions.choose<Context, ReturnType<typeof events.CHILD_REPLY>>([
+const sendChildResponse = (machineName: string) => actions.choose<Context, ReturnType<typeof events.CHILD_REPLY>>([
   {
     /**
      * I. validate the event, make it as the reply of actor if it valid
@@ -211,7 +211,7 @@ const sendChildReply = (machineName: string) => actions.choose<Context, ReturnTy
       // 2. the message has valid origin for which we are going to reply to
       && !!childMessageOrigin(ctx),
     actions: [
-      actions.log((ctx, e) => `contexts.sendChildReply [${e.payload.message.type}] to [${childMessage(ctx)?.type}]@${childMessageOrigin(ctx)}`, machineName),
+      actions.log((ctx, e) => `contexts.sendChildResponse [${e.payload.message.type}] to [${childMessage(ctx)?.type}]@${childMessageOrigin(ctx)}`, machineName),
       actions.send(
         (_, e) => e.payload.message,
         { to: ctx => childMessageOrigin(ctx)! },
@@ -223,7 +223,7 @@ const sendChildReply = (machineName: string) => actions.choose<Context, ReturnTy
    */
   {
     actions: [
-      actions.log((_, e, { _event }) => `contexts.sendChildReply dead letter [${e.payload.message.type}]@${_event.origin || ''}`, machineName),
+      actions.log((_, e, { _event }) => `contexts.sendChildResponse dead letter [${e.payload.message.type}]@${_event.origin || ''}`, machineName),
       actions.send((_, e, { _event }) => events.DEAD_LETTER(
         e.payload.message,
         `message ${e.payload.message.type}@${_event.origin || ''} dropped`,
@@ -392,7 +392,7 @@ export {
    * actions.send(...)
    */
   sendChildMessage,
-  sendChildReply,
+  sendChildResponse,
   /**
    * ctx.message helpers
    */

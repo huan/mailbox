@@ -294,7 +294,7 @@ sequenceDiagram
   Mailbox-->>Machine: {type: EVENT2}
 ```
 
-Caution: be aware of the dead lock if your two actors call each other in the same machine.
+> Caution: be aware of the dead lock if your have two actors call each other in the same machine.
 
 ## Actor Mailbox Concept
 

@@ -1,6 +1,4 @@
 #!/usr/bin/env -S node --no-warnings --loader ts-node/esm
-/* eslint-disable sort-keys */
-
 import {
   test,
 }                   from 'tstest'
@@ -13,7 +11,7 @@ import {
 
 import * as duck  from '../duck/mod.js'
 
-import * as MailboxActions  from './mod.js'
+import { reply }  from './reply.js'
 
 /**
  * Issue #11 - Race condition: Mailbox think the target machine is busy when it's not
@@ -26,7 +24,7 @@ test('reply()', async t => {
     states: {
       idle: {
         entry: [
-          MailboxActions.reply('FIRST_LINE'),
+          reply('FIRST_LINE'),
           actions.sendParent('SECOND_LINE'),
         ],
       },

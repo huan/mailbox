@@ -173,7 +173,7 @@ function wrap <
            */
           [types.CHILD_REPLY]: {
             actions: [
-              contexts.sendChildReply(MAILBOX_ADDRESS_NAME),
+              contexts.sendChildResponse(MAILBOX_ADDRESS_NAME),
             ],
           },
         },

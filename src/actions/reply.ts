@@ -17,7 +17,6 @@
  *   limitations under the License.
  *
  */
-/* eslint-disable sort-keys */
 import {
   actions,
   SendActionOptions,

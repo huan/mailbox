@@ -30,7 +30,7 @@ test('Mailbox.from(DingDong.machine) as an actor should enforce process messages
 
   const mailbox = Mailbox.from(DingDong.machine) as Mailbox.impls.Mailbox
   mailbox.open()
-  const interpreter = mailbox.debug.interpreter!
+  const interpreter = mailbox.internal.interpreter
 
   const eventList: AnyEventObject[] = []
   interpreter
@@ -69,7 +69,7 @@ test('parentMachine with invoke.src=Mailbox.address(DingDong.machine) should pro
   )
 
   const mailbox = Mailbox.from(DingDong.machine) as Mailbox.impls.Mailbox
-  const machine = mailbox.debug.machine
+  const machine = mailbox.internal.machine
 
   const CHILD_ID = 'mailbox-child-id'
 
@@ -137,7 +137,7 @@ test('Mailbox.from(CoffeeMaker.machine) as an actor should enforce process messa
 
   const mailbox = Mailbox.from(CoffeeMaker.machine) as Mailbox.impls.Mailbox
   mailbox.open()
-  const interpreter = mailbox.debug.interpreter!
+  const interpreter = mailbox.internal.interpreter!
 
   const eventList: AnyEventObject[] = []
 
