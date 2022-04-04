@@ -323,8 +323,8 @@ Actors have mailboxes.
 
 ### XState Machine
 
-1. Must `sendParent(Mailbox.Actions.sendParentIdle('machine-name'))` when it's ready to receive message (in `states.idle` for example)
-1. All events that received in `states.idle` must make a `external` trancition by adding a `target` entry, so that the `staes.idle` state will be entered again, which will emit the `sendParent(Mailbox.Actions.sendParentIdle('machine-name'))` to let the Mailbox.address know it's ready to receive message.
+1. The `Mailbox.actions.idle('machine-name')('reason')` action must be put inside the `entry` action of when it's ready to receive message (in `states.idle` for example)
+1. All events that received in `states.idle` must make a `external` trancition by adding a `target` entry, so that the `states.idle` state will be entered again, which will emit the `Mailbox.actions.idle('machine-name')('reason')` to parent (Mailbox) to let the Mailbox know the machine is ready to receive the next message.
 
 Learn more from [validate.ts source code](validate.ts)
 
