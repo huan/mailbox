@@ -130,7 +130,7 @@ function wrap <
           },
           [states.checking]: {
             entry: [
-              actions.log((_, e) => `states.queue.checking.entry <- [DISPATCH(${(e as ReturnType<typeof events.DISPATCH>).payload.debug})]`, MAILBOX_ADDRESS_NAME),
+              actions.log((_, e) => `states.queue.checking.entry <- [DISPATCH(${(e as ReturnType<typeof events.DISPATCH>).payload.data})]`, MAILBOX_ADDRESS_NAME),
             ],
             always: [
               {
@@ -203,7 +203,7 @@ function wrap <
               },
               [types.NEW_MESSAGE]: {
                 actions: [
-                  actions.log((_, e) => `states.child.idle.on.NEW_MESSAGE (${(e as ReturnType<typeof events.NEW_MESSAGE>).payload.debug})`, MAILBOX_ADDRESS_NAME) as any,
+                  actions.log((_, e) => `states.child.idle.on.NEW_MESSAGE (${(e as ReturnType<typeof events.NEW_MESSAGE>).payload.data})`, MAILBOX_ADDRESS_NAME) as any,
                   actions.send(_ => events.DISPATCH(types.NEW_MESSAGE)) as any,
                 ],
               },

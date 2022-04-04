@@ -32,8 +32,8 @@ function stripPayloadDebug (
     return event.map(e => stripPayloadDebug(e))
   }
 
-  if ('payload' in event && 'debug' in event['payload']) {
-    (event['payload'] as any).debug = undefined
+  if ('payload' in event && 'data' in event['payload']) {
+    (event['payload'] as any).data = undefined
   }
 
   return event

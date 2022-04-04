@@ -32,7 +32,7 @@ import { types }  from './types.js'
  *  it must be send whenever the child machine is idle.
  *  so that the Mailbox can be able to send messages to the child machine
  */
-const payloadChildIdle  = (debug?: string) => ({ debug })
+const payloadChildIdle  = (data?: string) => ({ data })
 export const CHILD_IDLE = createAction(types.CHILD_IDLE,  payloadChildIdle)()
 
 const payloadChildReply = (message: EventObject)  => ({ message })
@@ -41,20 +41,20 @@ export const CHILD_REPLY = createAction(types.CHILD_REPLY, payloadChildReply)()
 /**
  * events of: queue
  */
-const payloadNewMessage   = (debug?: string) => ({ debug })
+const payloadNewMessage   = (data?: string) => ({ data })
 export const NEW_MESSAGE  = createAction(types.NEW_MESSAGE, payloadNewMessage)()
 
-const payloadDispatch = (debug?: string) => ({ debug })
+const payloadDispatch = (data?: string) => ({ data })
 export const DISPATCH = createAction(types.DISPATCH, payloadDispatch)()
 
 const payloadDequeue  = (message: contexts.AnyEventObjectExt) => ({ message })
 export const DEQUEUE  = createAction(types.DEQUEUE, payloadDequeue)()
 
 /**
- * events for : debugging
+ * events for : dataging
  */
-const payloadReset  = (debug?: string) => ({ debug })
+const payloadReset  = (data?: string) => ({ data })
 export const RESET  = createAction(types.RESET, payloadReset)()
 
-const payloadDeadLetter   = (message: AnyEventObject, debug?: string) => ({ message, debug })
+const payloadDeadLetter   = (message: AnyEventObject, data?: string) => ({ message, data })
 export const DEAD_LETTER  = createAction(types.DEAD_LETTER, payloadDeadLetter)()
