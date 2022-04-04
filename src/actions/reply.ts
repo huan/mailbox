@@ -23,37 +23,7 @@ import {
   SendActionOptions,
 }                         from 'xstate'
 
-import { events }         from './duck/mod.js'
-
-import { isMailboxType }  from './is-mailbox-type.js'
-import * as contexts      from './contexts.js'
-
-export const idle = (name: string) => (data: string) => {
-  const moduleName = `${name}<Mailbox>`
-
-  return actions.choose([
-    {
-      /**
-       * If the transition event is a Mailbox type events (system messages):
-       *  then do not trigger DISPATCH event
-       *  because only non-mailbox-type events need to check QUEUE
-       */
-      cond: (_, e) => isMailboxType(e.type),
-      actions: [
-        actions.log((_, e) => `actions.idle [${e.type}] is MailboxType: skipped`, moduleName),
-      ],
-    },
-    {
-      /**
-       * send CHILD_IDLE event to the mailbox for receiving new messages
-       */
-      actions: [
-        actions.log((_, _e) => `actions.idle -> [CHILD_IDLE(${data})]`, moduleName),
-        actions.sendParent(_ => events.CHILD_IDLE(data)),
-      ],
-    },
-  ]) as any
-}
+import { events }         from '../duck/mod.js'
 
 /**
  * Huan(202112): for child, respond the mailbox implict or explicit?
@@ -97,31 +67,4 @@ export const reply: typeof actions.sendParent = (event, options) => {
       delayedOptions,
     )
   }
-}
-
-/**
- * Send events to child except:
- *  1. Mailbox type
- *  2. send from Child
- */
-export const proxyToChild = (name: string) => (childId: string) => {
-  const moduleName = `Mailbox<${name}>`
-  return actions.choose([
-    {
-      // 1. Mailbox.Types.* is system messages, skip them
-      cond: (_, e) => isMailboxType(e.type),
-      actions: [],  // skip
-    },
-    {
-      // 2. Child events (origin from child machine) are handled by child machine, skip them
-      cond: (_, __, meta) => contexts.condEventSentFromChildOf(childId)(meta),
-      actions: [],  // skip
-    },
-    {
-      actions: [
-        actions.send((_, e) => e, { to: childId }),
-        actions.log((_, e, { _event }) => `actions.proxyToChild [${e.type}]@${_event.origin || ''} -> ${childId}`, moduleName),
-      ],
-    },
-  ])
 }

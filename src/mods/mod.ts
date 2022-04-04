@@ -1,6 +1,6 @@
 export { from }             from '../from.js'
 export type { Options }     from '../options.js'
-export * as actions         from '../actions.js'
+export * as actions         from '../actions/mod.js'
 export { events, types }    from '../duck/mod.js'
 export * as nil             from '../nil.js'
 export type { Address }     from '../address.js'

@@ -11,9 +11,9 @@ import {
   interpret,
 }                 from 'xstate'
 
-import * as duck  from './duck/mod.js'
+import * as duck  from '../duck/mod.js'
 
-import * as MailboxActions  from './actions.js'
+import * as MailboxActions  from './mod.js'
 
 /**
  * Issue #11 - Race condition: Mailbox think the target machine is busy when it's not
