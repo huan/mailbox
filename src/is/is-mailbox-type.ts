@@ -1,4 +1,4 @@
-import { types } from './duck/types.js'
+import { types } from '../duck/types.js'
 
 /**
  * The default mailbox consists of two queues of messages: system messages and user messages.

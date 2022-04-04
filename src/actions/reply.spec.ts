@@ -31,13 +31,13 @@ test('reply()', async t => {
     },
   })
 
-  const testMachine = createMachine({
+  const consumerMachine = createMachine({
     invoke: {
       src: targetMachine,
     },
   })
 
-  const interpreter = interpret(testMachine)
+  const interpreter = interpret(consumerMachine)
   const eventList: AnyEventObject[] = []
   interpreter
     .onEvent(e => eventList.push(e))

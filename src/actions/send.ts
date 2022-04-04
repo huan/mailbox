@@ -17,26 +17,28 @@
  *   limitations under the License.
  *
  */
-import { createMachine }  from 'xstate'
+import type { actions }  from 'xstate'
 
-import type { Options }   from './impls/mod.js'
-
-import { from }   from './from.js'
+import { Address, AddressImpl, Mailbox }    from '../impls/mod.js'
+import { isMailbox, isAddress }             from '../is/mod.js'
 
 /**
- * Null destinations for Machine, Mailbox, Address, and Logger
+ * Send events to an Mailbox Address target
+ *
+ * @param { Mailbox | Address | string } target
  */
-const machine = createMachine<{}>({})
-const mailbox = from(machine)
-mailbox.open()
+export const send: (target: string | Address | Mailbox) => typeof actions.send
+  = target => (event, options) => {
 
-const address = mailbox.address
+    const address = typeof target === 'string' ? AddressImpl.from(target)
+      : isAddress(target) ? target
+        : isMailbox(target) ? target.address
+          : undefined
 
-const logger: Options['logger'] = () => {}
+    if (!address) {
+      throw new Error(`address not found for target "${target}"`)
+    }
 
-export {
-  mailbox,
-  machine,
-  address,
-  logger,
-}
+    return address.send(event, options)
+
+  }

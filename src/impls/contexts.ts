@@ -34,12 +34,9 @@ import {
   EventObject,
 }                     from 'xstate'
 
-import {
-  states,
-  events,
-}                   from './duck/mod.js'
+import { states, events }   from '../duck/mod.js'
+import { isMailboxType }    from '../is/mod.js'
 
-import { isMailboxType }              from './is-mailbox-type.js'
 import { MAILBOX_TARGET_MACHINE_ID }  from './constants.js'
 
 const metaSymKey = Symbol('meta')

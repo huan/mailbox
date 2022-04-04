@@ -19,9 +19,12 @@
  */
 import type { EventObject, StateMachine } from 'xstate'
 
-import { MailboxImpl }              from './mailbox-implementation.js'
-import type { IMailbox, Options }   from './mailbox-interface.js'
-import { wrap }                     from './wrap.js'
+import {
+  type Mailbox,
+  type Options,
+  MailboxImpl,
+  wrap,
+}                 from './impls/mod.js'
 
 /**
  * Create a Mailbox from the target machine
@@ -41,7 +44,7 @@ function from<
     TEvent
   >,
   options?: Options,
-): IMailbox<TEvent> {
+): Mailbox<TEvent> {
   const wrappedMachine = wrap(machine, options)
   return new MailboxImpl(wrappedMachine, options)
 }

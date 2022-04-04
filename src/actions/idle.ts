@@ -21,8 +21,7 @@
 import { actions }  from 'xstate'
 
 import { events }         from '../duck/mod.js'
-
-import { isMailboxType }  from '../is-mailbox-type.js'
+import { isMailboxType }  from '../is/mod.js'
 
 export const idle = (name: string) => (data: string) => {
   const moduleName = `${name}<Mailbox>`

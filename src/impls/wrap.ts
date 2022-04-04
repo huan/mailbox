@@ -29,17 +29,18 @@ import {
   AnyStateMachine,
 }                   from 'xstate'
 
-import { events, states, types }  from './duck/mod.js'
+import { events, states, types }  from '../duck/mod.js'
 
-import { IS_DEVELOPMENT }     from './config.js'
-import * as contexts          from './contexts.js'
-import type { Event }         from './duck/event-type.js'
-import { validate }           from './validate.js'
-import type { Options }       from './mailbox-interface.js'
+import { IS_DEVELOPMENT }     from '../config.js'
+import type { Event }         from '../duck/event-type.js'
+import { validate }           from '../validate.js'
+
 import {
   MAILBOX_TARGET_MACHINE_ID,
   MAILBOX_NAME,
 }                             from './constants.js'
+import * as contexts          from './contexts.js'
+import type { Options }       from './mailbox-interface.js'
 
 /**
  * Add Mailbox Queue to the targetMachine

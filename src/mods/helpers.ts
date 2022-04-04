@@ -1,3 +1,3 @@
+export { wrap }           from '../impls/mod.js'
+export { isMailboxType }  from '../is/mod.js'
 export { validate }       from '../validate.js'
-export { wrap }           from '../wrap.js'
-export { isMailboxType }  from '../is-mailbox-type.js'

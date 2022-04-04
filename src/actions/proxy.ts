@@ -20,18 +20,16 @@
 /* eslint-disable sort-keys */
 import { actions }  from 'xstate'
 
-import { isMailboxType }  from '../is-mailbox-type.js'
-import * as contexts      from '../contexts.js'
-import type { IMailbox }  from '../mailbox-interface.js'
-import { isMailbox }      from '../is-mailbox.js'
-import type { MailboxImpl } from '../mailbox-implementation.js'
+import { isMailboxType, isMailbox }     from '../is/mod.js'
+import * as contexts                    from '../impls/contexts.js'
+import type { Mailbox, MailboxImpl }    from '../impls/mod.js'
 
 /**
  * Send events to child except:
  *  1. Mailbox type
  *  2. send from Child
  */
-export const proxy = (name: string) => (target: string | IMailbox) => {
+export const proxy = (name: string) => (target: string | Mailbox) => {
   const moduleName = `Mailbox<${name}>`
   return actions.choose([
     {

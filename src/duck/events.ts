@@ -21,7 +21,7 @@
 import { createAction }                       from 'typesafe-actions'
 import type { AnyEventObject, EventObject }   from 'xstate'
 
-import type * as contexts   from '../contexts.js'
+import type { contexts }    from '../impls/mod.js'
 
 import { types }  from './types.js'
 

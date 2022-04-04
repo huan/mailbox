@@ -20,11 +20,9 @@
  * Mailbox provides the address for XState Actors:
  *  @see https://xstate.js.org/docs/guides/actors.html#actor-api
  */
-
-/* eslint-disable sort-keys */
 import type { EventObject, InterpreterOptions }   from 'xstate'
 
-import type { Address }  from './address.js'
+import type { Address }   from './address-interface.js'
 
 export interface Options {
   id?       : string
@@ -36,7 +34,7 @@ export interface Options {
 /**
  * The Mailbox Interface
  */
-export interface IMailbox<
+export interface Mailbox<
   TEvent extends EventObject = EventObject,
 > {
   /**

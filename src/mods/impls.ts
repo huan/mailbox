@@ -1,2 +1,4 @@
-export { MailboxImpl as Mailbox } from '../mailbox-implementation.js'
-export { AddressImpl as Address } from '../address.js'
+export {
+  MailboxImpl as Mailbox,
+  AddressImpl as Address,
+}                           from '../impls/mod.js'

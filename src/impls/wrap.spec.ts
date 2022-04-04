@@ -29,14 +29,14 @@ import {
   State,
 }                         from 'xstate'
 
-import * as Baby        from '../tests/machine-behaviors/baby-machine.js'
-import * as CoffeeMaker from '../tests/machine-behaviors/coffee-maker-machine.js'
+import * as Baby        from '../../tests/machine-behaviors/baby-machine.js'
+import * as CoffeeMaker from '../../tests/machine-behaviors/coffee-maker-machine.js'
 
-import { types, events, states }  from './duck/mod.js'
+import { types, events, states }    from '../duck/mod.js'
+import { stripPayloadDebug }        from '../testing-utils.js'
 
 import type { Context }             from './contexts.js'
 import { wrap, getTargetMachine }   from './wrap.js'
-import { stripPayloadDebug }        from './testing-utils.js'
 
 test('wrap() transition nextState smoke testing', async t => {
   const mailbox = wrap(Baby.machine)

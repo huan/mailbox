@@ -28,40 +28,21 @@ import {
   GuardMeta,
 }                       from 'xstate'
 
-/**
- * Mailbox Address Interface
- *
- * @interface Address
- *
- * All methods in this interface should be as the same interface of the `actions` in `xstate`
- *  so that they will be compatible with `xstate`
- */
-interface Address {
-  send<TContext, TEvent extends EventObject, TSentEvent extends EventObject = AnyEventObject> (
-    event: Event<TSentEvent> | SendExpr<TContext, TEvent, TSentEvent>,
-    options?: SendActionOptions<TContext, TEvent>
-  ): SendAction<TContext, TEvent, TSentEvent>
+import type { Address } from './address-interface'
 
-  condNotOrigin: () => <TContext, TEvent extends EventObject> (
-    _context: TContext,
-    _event: TEvent,
-    meta: GuardMeta<TContext, TEvent>,
-  ) => boolean
-}
-
-class AddressImpl implements Address {
+export class AddressImpl implements Address {
 
   static from (address: string): Address {
     return new AddressImpl(address)
   }
 
   protected constructor (
-    protected _address: string,
+    public id: string,
   ) {
   }
 
   toString () {
-    return this._address
+    return this.id
   }
 
   /**
@@ -80,7 +61,7 @@ class AddressImpl implements Address {
     return actions.send(event, {
       delay: 0,
       ...options,
-      to: this._address,
+      to: this.id,
     })
   }
 
@@ -92,12 +73,7 @@ class AddressImpl implements Address {
       _context: TContext,
       _event: TEvent,
       meta: GuardMeta<TContext, TEvent>,
-    ) => meta._event.origin !== this._address
+    ) => meta._event.origin !== this.id
   }
 
-}
-
-export {
-  type Address,
-  AddressImpl,
 }

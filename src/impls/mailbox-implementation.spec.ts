@@ -26,10 +26,10 @@ import {
   interpret,
 }                         from 'xstate'
 
-import * as Baby      from '../tests/machine-behaviors/baby-machine.js'
-import * as DingDong  from '../tests/machine-behaviors/ding-dong-machine.js'
+import * as Baby      from '../../tests/machine-behaviors/baby-machine.js'
+import * as DingDong  from '../../tests/machine-behaviors/ding-dong-machine.js'
 
-import * as Mailbox   from './mods/mod.js'
+import * as Mailbox   from '../mods/mod.js'
 
 test('Mailbox.from() smoke testing (w/BabyMachine)', async t => {
   const sandbox = sinon.createSandbox({

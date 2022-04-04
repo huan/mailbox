@@ -17,26 +17,33 @@
  *   limitations under the License.
  *
  */
-import { createMachine }  from 'xstate'
-
-import type { Options }   from './impls/mod.js'
-
-import { from }   from './from.js'
+import type {
+  EventObject,
+  AnyEventObject,
+  Event,
+  SendExpr,
+  SendActionOptions,
+  SendAction,
+  GuardMeta,
+}                       from 'xstate'
 
 /**
- * Null destinations for Machine, Mailbox, Address, and Logger
+ * Mailbox Address Interface
+ *
+ * @interface Address
+ *
+ * All methods in this interface should be as the same interface of the `actions` in `xstate`
+ *  so that they will be compatible with `xstate`
  */
-const machine = createMachine<{}>({})
-const mailbox = from(machine)
-mailbox.open()
+export interface Address {
+  send<TContext, TEvent extends EventObject, TSentEvent extends EventObject = AnyEventObject> (
+    event: Event<TSentEvent> | SendExpr<TContext, TEvent, TSentEvent>,
+    options?: SendActionOptions<TContext, TEvent>
+  ): SendAction<TContext, TEvent, TSentEvent>
 
-const address = mailbox.address
-
-const logger: Options['logger'] = () => {}
-
-export {
-  mailbox,
-  machine,
-  address,
-  logger,
+  condNotOrigin: () => <TContext, TEvent extends EventObject> (
+    _context: TContext,
+    _event: TEvent,
+    meta: GuardMeta<TContext, TEvent>,
+  ) => boolean
 }

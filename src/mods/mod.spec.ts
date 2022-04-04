@@ -33,6 +33,7 @@ test('mod.actions.*', async t => {
   t.ok(mod.actions.idle instanceof Function, 'should export idle')
   t.ok(mod.actions.proxy instanceof Function, 'should export proxy')
   t.ok(mod.actions.reply instanceof Function, 'should export reply')
+  t.ok(mod.actions.send instanceof Function, 'should export send')
 })
 
 test('mod.nil.*', async t => {
@@ -53,6 +54,7 @@ test('helpers.*', async t => {
 test('mod.*', async t => {
   t.ok(mod.from instanceof Function, 'should export from')
   t.ok(mod.isMailbox instanceof Function, 'should export isMailbox')
+  t.ok(mod.isAddress instanceof Function, 'should export isAddress')
   t.ok(mod.events, 'should export events')
   t.ok(mod.types, 'should export types')
   t.ok(mod.VERSION, 'should export VERSION')

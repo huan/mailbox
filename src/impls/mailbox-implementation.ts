@@ -33,22 +33,24 @@ import {
 }                           from 'xstate'
 import EventEmitter         from 'events'
 
-import * as duck  from './duck/mod.js'
+import * as duck  from '../duck/mod.js'
 
-import { isMailboxType }              from './is-mailbox-type.js'
-import type * as contexts             from './contexts.js'
-import type { Event }                 from './duck/event-type.js'
-import { AddressImpl, type Address }  from './address.js'
-import { MAILBOX_TARGET_MACHINE_ID }  from './constants.js'
+import { isMailboxType }              from '../is/mod.js'
+import type { Event }                 from '../duck/event-type.js'
+
+import type { Address }               from './address-interface.js'
 import { getTargetMachine }           from './wrap.js'
-import type { IMailbox, Options }     from './mailbox-interface.js'
+import type * as contexts             from './contexts.js'
+import { MAILBOX_TARGET_MACHINE_ID }  from './constants.js'
+import type { Mailbox, Options }      from './mailbox-interface.js'
+import { AddressImpl }                from './address-implementation.js'
 
 /**
  * The Mailbox Class Implementation
  */
 export class MailboxImpl<
   TEvent extends EventObject = EventObject,
-> extends EventEmitter implements IMailbox {
+> extends EventEmitter implements Mailbox {
 
   /**
    * Address of the Mailbox
