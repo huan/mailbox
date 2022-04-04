@@ -18,12 +18,13 @@
  *
  */
 /* eslint-disable sort-keys */
-import { actions, ActorRef } from 'xstate'
+import { actions }  from 'xstate'
 
 import { isMailboxType }  from '../is-mailbox-type.js'
 import * as contexts      from '../contexts.js'
 import type { IMailbox }  from '../mailbox-interface.js'
 import { isMailbox }      from '../is-mailbox.js'
+import type { MailboxImpl } from '../mailbox-implementation.js'
 
 /**
  * Send events to child except:
@@ -47,10 +48,16 @@ export const proxy = (name: string) => (target: string | IMailbox) => {
     },
     {
       actions: [
-        /**
-         * Huan(202204): TODO: make sure the `as ActorRef<any>` compatible with XState & Mailbox
-         */
-        actions.send((_, e) => e, { to: () => target as any as ActorRef<any> }),
+        actions.send((_, e) => e, {
+          to: isMailbox(target)
+            /**
+             * Huan(202204):
+             *  If target is Mailbox, then use its internal interpreter as the target ActorRef
+             *  so that it can receive the event with the `origin` source.
+             */
+            ? () => (target as MailboxImpl).internal.interpreter
+            : target,
+        }),
         actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin || ''} -> ${target}`, moduleName),
       ],
     },

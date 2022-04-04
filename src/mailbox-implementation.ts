@@ -71,9 +71,11 @@ export class MailboxImpl<
   private _opened:boolean = false
 
   /**
-   * For DEBUG only
+   * @private This is not a public API
+   *  It's only for private usage
+   *  and may be changed or removed without prior notice.
    */
-  readonly debug: {
+  readonly internal: {
     /**
      * Mailbox machine & interpreter (wrapped the original StateMachine)
      */
@@ -131,7 +133,7 @@ export class MailboxImpl<
     this.address = AddressImpl.from(this._interpreter.sessionId)
     this.id = this._interpreter.sessionId
 
-    this.debug = {
+    this.internal = {
       machine: wrappedMachine,
       interpreter: this._interpreter,
       target: {
@@ -170,7 +172,7 @@ export class MailboxImpl<
      * Huan(202203): FIXME:
      *  will ` ActorRef<any, any> as AnyInterpreter` be a problem?
      */
-    this.debug.target.interpreter = this._interpreter.children
+    this.internal.target.interpreter = this._interpreter.children
       .get(MAILBOX_TARGET_MACHINE_ID) as AnyInterpreter
   }
 
@@ -180,7 +182,7 @@ export class MailboxImpl<
   close (): void {
     this._interpreter.stop()
 
-    this.debug.target.interpreter = undefined
+    this.internal.target.interpreter = undefined
     this._opened = false
   }
 
