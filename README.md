@@ -31,6 +31,11 @@ The design of Mailbox is very like the the Akka Actor Model:
 - Address has been abstracted by a `Address` class for actors
 - Unit tests covered
 
+## Voice of Developers
+
+> This project raises an interesting tension between statecharts and actors. By default, statecharts process events immediately while actors (by means of message queues) give you granular control of when to process the next event. ([link](https://twitter.com/chrisshank23/status/1510786425276416004))  
+> &mdash; [@chrisshank23](https://twitter.com/chrisshank23), core member of StateML
+
 ## TODO
 
 - [ ] Address supports remote actor
@@ -103,13 +108,13 @@ const machine = createMachine({
 })
 ```
 
-If there's a new customer come in, and he/she want coffee, we can get a cup then fill coffee to the cup then delive a cup of coffee to our customer. Everything is fine as far as we know.
+If there's a new customer come in, and he/she want coffee, we can get a cup then fill coffee to the cup then deliver a cup of coffee to our customer. Everything is fine so far so good.
 
-However, two customer come in, and they talk to us at the same time and each customer want a cup of coffee. After we received the first request(event/message), we are starting to get cup and can not listen to another request anymore, which will result an event (the second one) lost (a Dead Letter).
+However, when there are two customer coming in together, and they talk to us at the same time and each customer want a cup of coffee. After we received the first request(event/message), we are starting to get cup and can not listen to another request anymore, which will result an event (the second one) lost (a Dead Letter).
 
 ## The Solution
 
-An actor should read the messages to process from its mailbox. A mailbox is an event proxy that holds messages and deals with the backpressure. When the actor can continue processing the next event, it receives the next event from the mailbox.
+An actor should read the messages to process from its mailbox. A mailbox is an event proxy that holds messages and deals with the backpressure. When the actor have finished processing the current event, it will receive(pull) the next event from the mailbox.
 
 [Mailbox](https://www.npmjs.com/package/mailbox) for rescue.
 
