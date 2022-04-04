@@ -431,7 +431,8 @@ See: [XState Docs - Batched Events](https://xstate.js.org/docs/guides/interpreta
 
 Refactoring APIs
 
-1. Supports `actions.proxy(mailbox)`
+1. Supports `Mailbox.actions.proxy(name)(target)` to proxy all events to a target (`string` id, `Address`, or `Mailbox`)
+1. Supports `Mailbox.actions.send(target)(event, options)` where the target can be a `string` id, `Address`, or `Mailbox` for convenience.
 
 ### v0.4 (Apr 1, 2022)
 
