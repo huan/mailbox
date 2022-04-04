@@ -11,6 +11,11 @@ interface FunctionMap {
 type Factory = (...args: any[]) => StateMachine<any, any, any>
 
 /**
+ * Huan(202204): under construction
+ * TODO: design and use it
+ */
+
+/**
  * The Interface for a State Machine module
  *  so that it can be easily imported and used by Mailbox
  */

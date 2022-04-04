@@ -38,35 +38,23 @@ import * as duck  from './duck/mod.js'
 import { isMailboxType }              from './is-mailbox-type.js'
 import type * as contexts             from './contexts.js'
 import type { Event }                 from './duck/event-type.js'
-import type { Options }               from './options.js'
 import { AddressImpl, type Address }  from './address.js'
 import { MAILBOX_TARGET_MACHINE_ID }  from './constants.js'
 import { getTargetMachine }           from './wrap.js'
-
-/**
- * The Mailbox Interface
- */
-interface Interface<
-  TEvent extends EventObject = EventObject,
-> {
-  address: Address
-  send (event: TEvent | TEvent['type']): void
-  open (): void
-  close (): void
-  on (name: 'event', listener: (event: TEvent) => void): void
-}
+import type { IMailbox, Options }     from './mailbox-interface.js'
 
 /**
  * The Mailbox Class Implementation
  */
-class MailboxImpl<
+export class MailboxImpl<
   TEvent extends EventObject = EventObject,
-> extends EventEmitter implements Interface {
+> extends EventEmitter implements IMailbox {
 
   /**
    * Address of the Mailbox
    */
   readonly address: Address
+  readonly id: string // string value of address
 
   /**
    * XState interpreter for Mailbox
@@ -141,6 +129,7 @@ class MailboxImpl<
     })
 
     this.address = AddressImpl.from(this._interpreter.sessionId)
+    this.id = this._interpreter.sessionId
 
     this.debug = {
       machine: wrappedMachine,
@@ -149,6 +138,10 @@ class MailboxImpl<
         machine: getTargetMachine(wrappedMachine),
       },
     }
+  }
+
+  override toString () {
+    return `Mailbox<${this.id}>`
   }
 
   /**
@@ -191,9 +184,4 @@ class MailboxImpl<
     this._opened = false
   }
 
-}
-
-export {
-  type Interface,
-  MailboxImpl,
 }

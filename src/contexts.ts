@@ -174,11 +174,19 @@ const childSnapshotOf = (childId: string) => (state: State<Context, EventObject,
 }
 
 /**
- * Check condition of whether an event is sent from the child id (with currying)
+ * Check condition of whether an event is sent from the session/child id (with currying)
  */
-const condEventSentFromChildOf = (childId: string) =>
-  (meta: GuardMeta<Context, AnyEventObject>) =>
-    !!(meta._event.origin) && meta._event.origin === childSessionIdOf(childId)(meta.state.children)
+const condEventSentFrom = (id: string) =>
+  (meta: GuardMeta<any, AnyEventObject>): boolean => !!(meta._event.origin) && (
+    /**
+     * 1. `source` as `sessionId` (origin)
+     */
+    meta._event.origin === id
+    /**
+     * 2. `source` as `childId`
+     */
+    || meta._event.origin === childSessionIdOf(id)(meta.state.children)
+  )
 
 /**
  * Check condition of whether an event can be accepted by the child id (with currying)
@@ -274,7 +282,7 @@ const queueAcceptingMessageWithCapacity = (machineName: string) => (capacity = I
   },
   {
     // 2. Child events (origin from child machine) are handled by child machine, skip them
-    cond: (_, __, meta) => condEventSentFromChildOf(MAILBOX_TARGET_MACHINE_ID)(meta),
+    cond: (_, __, meta) => condEventSentFrom(MAILBOX_TARGET_MACHINE_ID)(meta),
     actions: [],  // skip
   },
   {
@@ -402,6 +410,6 @@ export {
   /**
    * cond: ...
    */
-  condEventSentFromChildOf,
+  condEventSentFrom,
   condEventCanBeAcceptedByChildOf,
 }

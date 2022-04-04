@@ -35,7 +35,7 @@ import { IS_DEVELOPMENT }     from './config.js'
 import * as contexts          from './contexts.js'
 import type { Event }         from './duck/event-type.js'
 import { validate }           from './validate.js'
-import type { Options }       from './options.js'
+import type { Options }       from './mailbox-interface.js'
 import {
   MAILBOX_TARGET_MACHINE_ID,
   MAILBOX_NAME,
@@ -49,8 +49,8 @@ import {
  * @returns Wrapped targetMachine with Mailbox Queue
  */
 function wrap <
+  TContext extends any,
   TEvent extends EventObject,
-  TContext extends {},
 > (
   targetMachine: StateMachine<
     TContext,

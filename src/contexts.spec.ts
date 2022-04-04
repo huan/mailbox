@@ -1,10 +1,7 @@
 #!/usr/bin/env -S node --no-warnings --loader ts-node/esm
 /* eslint-disable sort-keys */
 
-import {
-  test,
-  sinon,
-}                   from 'tstest'
+import { test, sinon }    from 'tstest'
 import {
   actions,
   ActorRef,
@@ -12,7 +9,7 @@ import {
   GuardMeta,
   interpret,
   SCXML,
-}                 from 'xstate'
+}                         from 'xstate'
 
 import * as contexts                  from './contexts.js'
 import { MAILBOX_TARGET_MACHINE_ID }  from './constants.js'
@@ -87,10 +84,10 @@ test('condEventSentFromChildOf', async t => {
     state: { children: CHILDREN },
   } as GuardMeta<any, any>
 
-  t.ok(contexts.condEventSentFromChildOf(MAILBOX_TARGET_MACHINE_ID)(META), 'should return true if the event origin is the child session id')
+  t.ok(contexts.condEventSentFrom(MAILBOX_TARGET_MACHINE_ID)(META), 'should return true if the event origin is the child session id')
 
   META._event.origin = undefined
-  t.notOk(contexts.condEventSentFromChildOf(MAILBOX_TARGET_MACHINE_ID)(META), 'should return false if the event origin is undefined')
+  t.notOk(contexts.condEventSentFrom(MAILBOX_TARGET_MACHINE_ID)(META), 'should return false if the event origin is undefined')
 })
 
 test('condEventCanBeAcceptedByChildOf()', async t => {

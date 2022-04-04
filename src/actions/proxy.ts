@@ -18,17 +18,19 @@
  *
  */
 /* eslint-disable sort-keys */
-import { actions } from 'xstate'
+import { actions, ActorRef } from 'xstate'
 
 import { isMailboxType }  from '../is-mailbox-type.js'
 import * as contexts      from '../contexts.js'
+import type { IMailbox }  from '../mailbox-interface.js'
+import { isMailbox }      from '../is-mailbox.js'
 
 /**
  * Send events to child except:
  *  1. Mailbox type
  *  2. send from Child
  */
-export const proxy = (name: string) => (childOrSessionId: string) => {
+export const proxy = (name: string) => (target: string | IMailbox) => {
   const moduleName = `Mailbox<${name}>`
   return actions.choose([
     {
@@ -38,15 +40,18 @@ export const proxy = (name: string) => (childOrSessionId: string) => {
     },
     {
       // 2. Child events (origin from child machine) are handled by child machine, skip them
-      cond: (_, __, meta) =>
-        (!!(meta._event.origin) && meta._event.origin === childOrSessionId)
-        || contexts.condEventSentFromChildOf(childOrSessionId)(meta),
-      actions: [],  // skip
+      cond: (_, __, meta) => isMailbox(target)
+        ? contexts.condEventSentFrom(String(target.address))(meta)
+        : contexts.condEventSentFrom(target)(meta),
+      actions: [],  // do nothing when the event is sent from the target.
     },
     {
       actions: [
-        actions.send((_, e) => e, { to: childOrSessionId }),
-        actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin || ''} -> ${childOrSessionId}`, moduleName),
+        /**
+         * Huan(202204): TODO: make sure the `as ActorRef<any>` compatible with XState & Mailbox
+         */
+        actions.send((_, e) => e, { to: () => target as any as ActorRef<any> }),
+        actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin || ''} -> ${target}`, moduleName),
       ],
     },
   ])

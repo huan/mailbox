@@ -20,7 +20,7 @@
 import { createMachine }  from 'xstate'
 
 import { from }           from './from.js'
-import type { Options }   from './options.js'
+import type { Options }   from './mailbox-interface.js'
 
 /**
  * Null destinations for Machine, Mailbox, Address, and Logger

@@ -60,7 +60,7 @@ function container (machine: StateMachine<any, any, any>) {
               // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
               cond: (_, e, meta) => true
                 && !isMailboxType(e.type)
-                && !contexts.condEventSentFromChildOf(CHILD_ID)(meta),
+                && !contexts.condEventSentFrom(CHILD_ID)(meta),
               actions: [
                 actions.send((_, e) => e, { to: CHILD_ID }),
               ],

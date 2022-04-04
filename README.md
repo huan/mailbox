@@ -422,9 +422,11 @@ See: [XState Docs - Batched Events](https://xstate.js.org/docs/guides/interpreta
 
 ## History
 
-### main v0.5
+### main v0.6
 
 Refactoring APIs
+
+1. Supports `actions.proxy(mailbox)`
 
 ### v0.4 (Apr 1, 2022)
 
