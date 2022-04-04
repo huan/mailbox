@@ -8,7 +8,7 @@ async function main () {
 
   mailbox.open()
   assert.ok(mailbox.address, 'should get address from mailbox')
-  assert.equal(mailbox.address, mailbox.id, 'should be same as mailbox.id')
+  assert.equal(String(mailbox.address), mailbox.id, 'should be same as mailbox.id')
   assert.notEqual(Mailbox.VERSION, '0.0.0', 'version must be updated instead of 0.0.0 before publish!')
 
   console.log(`Mailbox v${Mailbox.VERSION} smoke testing passed!`)
