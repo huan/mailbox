@@ -39,7 +39,7 @@ import { isMailboxType }              from '../is/mod.js'
 import type { Event }                 from '../duck/event-type.js'
 
 import type { Address }               from './address-interface.js'
-import { getTargetMachine }           from './wrap.js'
+import { getTargetMachine }           from './get-target-machine.js'
 import type * as contexts             from './contexts.js'
 import { MAILBOX_TARGET_MACHINE_ID }  from './constants.js'
 import type { Mailbox, Options }      from './mailbox-interface.js'
