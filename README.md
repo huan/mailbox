@@ -4,6 +4,7 @@
 [![NPM](https://github.com/huan/mailbox/workflows/NPM/badge.svg)](https://github.com/huan/mailbox/actions?query=workflow%3ANPM)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-blue.svg)](https://www.typescriptlang.org/)
 [![ES Modules](https://img.shields.io/badge/ES-Modules-brightgreen)](https://github.com/Chatie/tsconfig/issues/16)
+[![Powered by Ducks](https://img.shields.io/badge/Powered%20by-Ducks-yellowgreen)](https://github.com/huan/ducks#3-ducksify-extension-currying--ducksify-interface)
 
 Mailbox is an NPM module built on top of the XState machine, by adding a message queue to the XState machine and letting the machine decide when to process the next message.
 
