@@ -22,10 +22,11 @@ import { test }  from 'tstest'
 
 import * as mod   from './mod.js'
 
-test('mod.impls.*', async t => {
-  t.ok(mod.impls, 'should export impls')
-  t.ok(mod.impls.Address instanceof Function, 'should export Address')
-  t.ok(mod.impls.Mailbox instanceof Function, 'should export Mailbox')
+test('mod.*', async t => {
+  t.ok(mod.from instanceof Function, 'should export from')
+  t.ok(mod.isMailbox instanceof Function, 'should export isMailbox')
+  t.ok(mod.isAddress instanceof Function, 'should export isAddress')
+  t.ok(mod.VERSION, 'should export VERSION')
 })
 
 test('mod.actions.*', async t => {
@@ -51,11 +52,18 @@ test('helpers.*', async t => {
   t.ok(mod.helpers.wrap, 'should export wrap')
 })
 
-test('mod.*', async t => {
-  t.ok(mod.from instanceof Function, 'should export from')
-  t.ok(mod.isMailbox instanceof Function, 'should export isMailbox')
-  t.ok(mod.isAddress instanceof Function, 'should export isAddress')
+test('mod.impls.*', async t => {
+  t.ok(mod.impls, 'should export impls')
+  t.ok(mod.impls.Address instanceof Function, 'should export Address')
+  t.ok(mod.impls.Mailbox instanceof Function, 'should export Mailbox')
+})
+
+test('mod.events.*', async t => {
   t.ok(mod.events, 'should export events')
+  t.ok(mod.events.CHILD_IDLE, 'should export events.CHILD_IDLE')
+})
+
+test('mod.types.*', async t => {
   t.ok(mod.types, 'should export types')
-  t.ok(mod.VERSION, 'should export VERSION')
+  t.ok(mod.types.CHILD_IDLE, 'should export types.CHILD_IDLE')
 })
