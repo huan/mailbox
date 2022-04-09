@@ -22,7 +22,7 @@ import type { actions }  from 'xstate'
 import { Address, AddressImpl, Mailbox }    from '../impls/mod.js'
 
 /**
- * Send events to an Mailbox Address target
+ * Send events to an target (Mailbox Address)
  *
  * @param { Mailbox | Address | string } target address
  */

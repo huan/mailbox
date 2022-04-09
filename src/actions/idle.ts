@@ -20,8 +20,8 @@
 /* eslint-disable sort-keys */
 import { actions }  from 'xstate'
 
-import { events }         from '../duck/mod.js'
-import { isMailboxType }  from '../is/mod.js'
+import * as duck    from '../duck/mod.js'
+import * as is      from '../is/mod.js'
 
 export const idle = (name: string) => (data: string) => {
   const moduleName = `${name}<Mailbox>`
@@ -33,7 +33,7 @@ export const idle = (name: string) => (data: string) => {
        *  then do not trigger DISPATCH event
        *  because only non-mailbox-type events need to check QUEUE
        */
-      cond: (_, e) => isMailboxType(e.type),
+      cond: (_, e) => is.isMailboxType(e.type),
       actions: [
         actions.log((_, e) => `actions.idle [${e.type}] is MailboxType: skipped`, moduleName),
       ],
@@ -44,7 +44,7 @@ export const idle = (name: string) => (data: string) => {
        */
       actions: [
         actions.log((_, _e) => `actions.idle -> [CHILD_IDLE(${data})]`, moduleName),
-        actions.sendParent(_ => events.CHILD_IDLE(data)),
+        actions.sendParent(_ => duck.events.CHILD_IDLE(data)),
       ],
     },
   ]) as any

@@ -20,42 +20,40 @@
 /* eslint-disable sort-keys */
 import { actions }  from 'xstate'
 
-import { isMailboxType, isMailbox }     from '../is/mod.js'
-import * as contexts                    from '../impls/contexts.js'
-import type { Mailbox, MailboxImpl }    from '../impls/mod.js'
+import * as is      from '../is/mod.js'
+import * as impls   from '../impls/mod.js'
+
+import { send } from './send.js'
 
 /**
- * Send events to child except:
+ * Send (proxy) all events to target.
+ *
+ * It will skip the below two type of events:
  *  1. Mailbox type
  *  2. send from Child
+ *
+ * And send all other events to the target address,
+ * by setting the `origin` to the current machine address.
+ *
+ * @param name Machine Name
+ * @param target {string | Address | Mailbox} the target address
  */
-export const proxy = (name: string) => (target: string | Mailbox) => {
+export const proxy = (name: string) => (target: string | impls.Address | impls.Mailbox) => {
   const moduleName = `Mailbox<${name}>`
+
   return actions.choose([
     {
-      // 1. Mailbox.Types.* is system messages, skip them
-      cond: (_, e) => isMailboxType(e.type),
-      actions: [],  // skip
-    },
-    {
-      // 2. Child events (origin from child machine) are handled by child machine, skip them
-      cond: (_, __, meta) => isMailbox(target)
-        ? contexts.condEventSentFrom(String(target.address))(meta)
-        : contexts.condEventSentFrom(target)(meta),
-      actions: [],  // do nothing when the event is sent from the target.
+      cond: (_, e, meta) => (
+        // 1. Mailbox.Types.* is system messages, skip them
+        is.isMailboxType(e.type)
+        // 2. Child events (origin from child machine) are handled by child machine, skip them
+        || impls.contexts.condEventSentFrom(target)(meta)
+      ),
+      actions: [],  // do nothing when the event is sent from the mailbox / target.
     },
     {
       actions: [
-        actions.send((_, e) => e, {
-          to: isMailbox(target)
-            /**
-             * Huan(202204):
-             *  If target is Mailbox, then use its internal interpreter as the target ActorRef
-             *  so that it can receive the event with the `origin` source.
-             */
-            ? () => (target as MailboxImpl).internal.interpreter
-            : target,
-        }),
+        send(target)((_, e) => e),
         actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin || ''} -> ${target}`, moduleName),
       ],
     },

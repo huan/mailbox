@@ -34,9 +34,12 @@ import {
   EventObject,
 }                     from 'xstate'
 
-import { states, events }   from '../duck/mod.js'
-import { isMailboxType }    from '../is/mod.js'
+import * as duck    from '../duck/mod.js'
+import * as is      from '../is/mod.js'
+import * as impls   from '../impls/mod.js'
 
+import type { Address }               from './address-interface.js'
+import type { Mailbox }               from './mailbox-interface.js'
 import { MAILBOX_TARGET_MACHINE_ID }  from './constants.js'
 
 const metaSymKey = Symbol('meta')
@@ -133,30 +136,36 @@ const unwrapEvent = (e: AnyEventObjectExt): AnyEventObject => {
 
 /**
  * Get session id by child id (with currying) from children
+ * @param childId child id
+ * @param children children
+ * @returns session id
+ *
+ * If the `childId` is a not valid childId, will return `undefined`
  */
-const childSessionIdOf = (childId: string) => (children?: Record<string, ActorRef<any, any>>) => {
-  if (!children) {
-    return undefined
-  }
+const childSessionIdOf: (childId: string) => (children?: Record<string, ActorRef<any, any>>) => undefined | string
+  = childId => children => {
+    if (!children) {
+      return undefined
+    }
 
-  const child = children[childId] as undefined | Interpreter<any>
-  if (!child) {
-    throw new Error('can not found child id ' + childId)
-  }
+    const child = children[childId] as undefined | Interpreter<any>
+    if (!child) {
+      throw new Error('can not found child id ' + childId)
+    }
 
-  if (!child.sessionId) {
-    /**
-     * Huan(202112):
-     *
-     * When we are not using the interpreter, we can not get the sessionId
-     * for example, we are usint the `machine.transition(event)`
-     */
-    // console.error(new Error('can not found child sessionId from ' + CHILD_MACHINE_ID))
-    return undefined
-  }
+    if (!child.sessionId) {
+      /**
+       * Huan(202112):
+       *
+       * When we are not using the interpreter, we can not get the sessionId
+       * for example, we are usint the `machine.transition(event)`
+       */
+      // console.error(new Error('can not found child sessionId from ' + CHILD_MACHINE_ID))
+      return undefined
+    }
 
-  return child.sessionId
-}
+    return child.sessionId
+  }
 
 /**
  * Get snapshot by child id (with currying) from state
@@ -173,17 +182,23 @@ const childSnapshotOf = (childId: string) => (state: State<Context, EventObject,
 /**
  * Check condition of whether an event is sent from the session/child id (with currying)
  */
-const condEventSentFrom = (id: string) =>
-  (meta: GuardMeta<any, AnyEventObject>): boolean => !!(meta._event.origin) && (
+const condEventSentFrom = (target: string | Address | Mailbox) => {
+  /**
+   * Convert `target` to address id first
+   */
+  const address = String(impls.AddressImpl.from(target))
+
+  return (meta: GuardMeta<any, AnyEventObject>): boolean => !!(meta._event.origin) && (
     /**
      * 1. `source` as `sessionId` (origin)
      */
-    meta._event.origin === id
+    meta._event.origin === address
     /**
      * 2. `source` as `childId`
      */
-    || meta._event.origin === childSessionIdOf(id)(meta.state.children)
+    || meta._event.origin === childSessionIdOf(address)(meta.state.children)
   )
+}
 
 /**
  * Check condition of whether an event can be accepted by the child id (with currying)
@@ -197,7 +212,7 @@ const condEventCanBeAcceptedByChildOf = (childId = MAILBOX_TARGET_MACHINE_ID) =>
  *
  *  send the CHILD_RESPONSE.payload.message to the child message origin
  */
-const sendChildResponse = (machineName: string) => actions.choose<Context, ReturnType<typeof events.CHILD_REPLY>>([
+const sendChildResponse = (machineName: string) => actions.choose<Context, ReturnType<typeof duck.events.CHILD_REPLY>>([
   {
     /**
      * I. validate the event, make it as the reply of actor if it valid
@@ -221,7 +236,7 @@ const sendChildResponse = (machineName: string) => actions.choose<Context, Retur
   {
     actions: [
       actions.log((_, e, { _event }) => `contexts.sendChildResponse dead letter [${e.payload.message.type}]@${_event.origin || ''}`, machineName),
-      actions.send((_, e, { _event }) => events.DEAD_LETTER(
+      actions.send((_, e, { _event }) => duck.events.DEAD_LETTER(
         e.payload.message,
         `message ${e.payload.message.type}@${_event.origin || ''} dropped`,
       )),
@@ -274,7 +289,7 @@ const queueMessageOrigin = (ctx: Context) => metaOrigin(queueMessage(ctx))
 const queueAcceptingMessageWithCapacity = (machineName: string) => (capacity = Infinity) => actions.choose<Context, AnyEventObject>([
   {
     // 1. Mailbox.Types.* is system messages, skip them
-    cond: (_, e) => isMailboxType(e.type),
+    cond: (_, e) => is.isMailboxType(e.type),
     actions: [],  // skip
   },
   {
@@ -286,11 +301,11 @@ const queueAcceptingMessageWithCapacity = (machineName: string) => (capacity = I
     /**
      * 3. If the child is idle, add the incoming message to queue by wrapping the `_event.origin` meta data
      */
-    cond: (_, __, { state }) => state.matches({ child: states.idle }),
+    cond: (_, __, { state }) => state.matches({ child: duck.states.idle }),
     actions: [
       actions.log((_, e, { _event }) => `contexts.queueAcceptingMessageWithCapacity(${capacity}) queue [${e.type}]@${_event.origin || ''} for child(idle)`, machineName),
       assignEnqueue,  // <- wrapping `_event.origin` inside
-      actions.send((_, e) => events.NEW_MESSAGE(e.type)),
+      actions.send((_, e) => duck.events.NEW_MESSAGE(e.type)),
     ],
   },
   /**
@@ -316,7 +331,7 @@ const queueAcceptingMessageWithCapacity = (machineName: string) => (capacity = I
     cond: ctx => queueSize(ctx) > capacity,
     actions: [
       actions.log((ctx, e, { _event }) => `contexts.queueAcceptingMessageWithCapacity(${capacity}) dead letter [${e.type}]@${_event.origin || ''} because queueSize(${queueSize(ctx)}) > capacity(${capacity}): child(busy) out of capacity`, machineName),
-      actions.send((ctx, e) => events.DEAD_LETTER(e, `queueSize(${queueSize(ctx)} out of capacity(${capacity})`)),
+      actions.send((ctx, e) => duck.events.DEAD_LETTER(e, `queueSize(${queueSize(ctx)} out of capacity(${capacity})`)),
     ],
   },
   {
@@ -326,7 +341,7 @@ const queueAcceptingMessageWithCapacity = (machineName: string) => (capacity = I
     actions: [
       actions.log((_, e, { _event }) => `contexts.queueAcceptingMessageWithCapacity(${capacity}) queue [${e.type}]@${_event.origin || ''} to child(busy)`, machineName),
       assignEnqueue,  // <- wrapping `_event.origin` inside
-      actions.send((_, e) => events.NEW_MESSAGE(e.type)),
+      actions.send((_, e) => duck.events.NEW_MESSAGE(e.type)),
     ],
   },
 
@@ -354,7 +369,7 @@ const childMessageType = (ctx: Context) => childMessage(ctx)?.type
 /**
  * Save the message(event) in DEQUEUE event to ctx.message
  */
-const assignChildMessage = actions.assign<Context, ReturnType<typeof events.DEQUEUE>>({
+const assignChildMessage = actions.assign<Context, ReturnType<typeof duck.events.DEQUEUE>>({
   message: (_, e) => e.payload.message,
 })
 
