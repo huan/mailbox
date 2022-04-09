@@ -20,25 +20,14 @@
 import type { actions }  from 'xstate'
 
 import { Address, AddressImpl, Mailbox }    from '../impls/mod.js'
-import { isMailbox, isAddress }             from '../is/mod.js'
 
 /**
  * Send events to an Mailbox Address target
  *
- * @param { Mailbox | Address | string } target
+ * @param { Mailbox | Address | string } target address
  */
 export const send: (target: string | Address | Mailbox) => typeof actions.send
-  = target => (event, options) => {
-
-    const address = typeof target === 'string' ? AddressImpl.from(target)
-      : isAddress(target) ? target
-        : isMailbox(target) ? target.address
-          : undefined
-
-    if (!address) {
-      throw new Error(`address not found for target "${target}"`)
-    }
-
-    return address.send(event, options)
-
-  }
+  = target => (event, options) =>
+    AddressImpl
+      .from(target)
+      .send(event, options)

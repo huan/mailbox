@@ -28,12 +28,30 @@ import {
   GuardMeta,
 }                       from 'xstate'
 
-import type { Address } from './address-interface'
+import * as is from '../is/mod.js'
+
+import type { Address } from './address-interface.js'
+import type { Mailbox } from './mailbox-interface.js'
 
 export class AddressImpl implements Address {
 
-  static from (address: string): Address {
-    return new AddressImpl(address)
+  /**
+   * @param { string | Mailbox | Address } target address
+   */
+  static from (target: string | Address | Mailbox): Address {
+
+    if (typeof target === 'string') {
+      return new AddressImpl(target)
+
+    } else if (is.isAddress(target)) {
+      return target
+
+    } else if (is.isMailbox(target)) {
+      return target.address
+
+    } else {
+      throw new Error('unknown target type: ' + target)
+    }
   }
 
   protected constructor (
