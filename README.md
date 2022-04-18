@@ -470,7 +470,11 @@ See: [XState Docs - Batched Events](https://xstate.js.org/docs/guides/interpreta
 
 ## History
 
-### main v0.6
+### main v0.7
+
+Add `Duckula` Interface for modulize Mailbox Actor. ([Issue #1](https://github.com/huan/mailbox/issues/1))
+
+### v0.6 (Apr 10, 2022)
 
 Refactoring APIs
 
