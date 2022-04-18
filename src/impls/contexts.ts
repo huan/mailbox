@@ -202,6 +202,8 @@ const condEventSentFrom = (target: string | Address | Mailbox) => {
 
 /**
  * Check condition of whether an event can be accepted by the child id (with currying)
+ *
+ * @deprecated we do not check "can be accepted by child" any more. Huan(202204)
  */
 const condEventCanBeAcceptedByChildOf = (childId = MAILBOX_TARGET_MACHINE_ID) =>
   (state: State<any, EventObject, any, any>, event: string) =>
