@@ -72,10 +72,11 @@
     "ws": "^8.5.0"
   },
   "dependencies": {
-    "typesafe-actions": "^5.1.0"
+    "typesafe-actions": "^5.1.0",
+    "utility-types": "^3.10.0",
+    "xstate": "^4.30.6"
   },
   "peerDependencies": {
-    "xstate": "^4.30.6"
   },
   "files": [
     "dist",
