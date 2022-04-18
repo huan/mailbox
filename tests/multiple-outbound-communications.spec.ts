@@ -88,6 +88,7 @@ test('Mailbox can make outbound communication when it has lots of queued inbound
         entry: [
           Mailbox.actions.reply(ctx => ({ type: 'DONG', counts: ctx.counts })),
         ],
+        always: 'idle',
       },
     },
   })
@@ -121,6 +122,12 @@ test('Mailbox can make outbound communication when it has lots of queued inbound
     .start()
 
   interpreter.send({ type: 'DING' })
+  // ;(mailbox as Mailbox.impls.Mailbox).internal.target.interpreter?.onTransition(trans => {
+  //   console.info('## Transition for main:', '(' + trans.history?.value + ') + [' + trans.event.type + '] = (' + trans.value + ')')
+  // })
+  // ;(serviceMailbox as Mailbox.impls.Mailbox).internal.target.interpreter?.onTransition(trans => {
+  //   console.info('## Transition for service:', '(' + trans.history?.value + ') + [' + trans.event.type + '] = (' + trans.value + ')')
+  // })
 
   await sandbox.clock.runAllAsync()
   // eventList.forEach(e => console.info(e))

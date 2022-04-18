@@ -342,13 +342,6 @@ const childMessageOrigin = (ctx: Context) => metaOrigin(childMessage(ctx))
 const childMessageType = (ctx: Context) => childMessage(ctx)?.type
 
 /**
- * Save the message(event) in DEQUEUE event to ctx.message
- */
-const assignChildMessage = actions.assign<Context, ReturnType<typeof duck.events.DEQUEUE>>({
-  message: (_, e) => e.payload.message,
-})
-
-/**
  * Send ctx.message (current message) to child
  */
 const sendChildMessage = actions.send<Context, any>(
@@ -374,7 +367,6 @@ export {
   assignEnqueue,
   assignDequeue,
   assignEmptyQueue,
-  assignChildMessage,
   /**
    * actions.send(...)
    */

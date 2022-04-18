@@ -170,10 +170,14 @@ export function wrap <
         initial: states.idle,
         on: {
           /**
+           * XState state.exit.actions & micro transitions will be executed in the next state #4
+           *  @link https://github.com/huan/mailbox/issues/4
+           *
            * No matter idle or busy: the child may send reponse message at any time.
            */
           [types.CHILD_REPLY]: {
             actions: [
+              actions.log((_, e) => `states.child.on.CHILD_REPLY [${(e as ReturnType<typeof events.CHILD_REPLY>).payload.message.type}]`, MAILBOX_ADDRESS_NAME),
               contexts.sendChildResponse(MAILBOX_ADDRESS_NAME),
             ],
           },
@@ -198,7 +202,9 @@ export function wrap <
               [types.DEQUEUE]: {
                 actions: [
                   actions.log((_, e) => `states.child.idle.on.DEQUEUE [${(e as ReturnType<typeof events.DEQUEUE>).payload.message.type}]@${contexts.metaOrigin((e as ReturnType<typeof events.DEQUEUE>).payload.message)}`, MAILBOX_ADDRESS_NAME) as any,
-                  contexts.assignChildMessage,
+                  actions.assign<contexts.Context, ReturnType<typeof events.DEQUEUE>>({
+                    message: (_, e) => e.payload.message,
+                  }),
                 ],
                 target: states.busy,
               },
@@ -221,6 +227,12 @@ export function wrap <
                   actions.log((_, __, meta) => `states.busy.on.CHILD_IDLE child address "@${meta._event.origin}"`, MAILBOX_ADDRESS_NAME) as any,
                 ],
                 target: states.idle,
+              },
+              [types.CHILD_REPLY]: {
+                actions: [
+                  actions.log((_, e) => `states.child.busy.on.CHILD_REPLY [${(e as ReturnType<typeof events.CHILD_REPLY>).payload.message.type}]`, MAILBOX_ADDRESS_NAME),
+                  contexts.sendChildResponse(MAILBOX_ADDRESS_NAME),
+                ],
               },
             },
           },
