@@ -214,7 +214,7 @@ const condEventCanBeAcceptedByChildOf = (childId = MAILBOX_TARGET_MACHINE_ID) =>
  *
  *  send the CHILD_RESPONSE.payload.message to the child message origin
  */
-const sendChildResponse = (machineName: string) => actions.choose<Context, ReturnType<typeof duck.events.CHILD_REPLY>>([
+const sendChildResponse = (machineName: string) => actions.choose<Context, ReturnType<typeof duck.Event.CHILD_REPLY>>([
   {
     /**
      * I. validate the event, make it as the reply of actor if it valid
@@ -238,7 +238,7 @@ const sendChildResponse = (machineName: string) => actions.choose<Context, Retur
   {
     actions: [
       actions.log((_, e, { _event }) => `contexts.sendChildResponse dead letter [${e.payload.message.type}]@${_event.origin || ''}`, machineName),
-      actions.send((_, e, { _event }) => duck.events.DEAD_LETTER(
+      actions.send((_, e, { _event }) => duck.Event.DEAD_LETTER(
         e.payload.message,
         `message ${e.payload.message.type}@${_event.origin || ''} dropped`,
       )),
@@ -306,7 +306,7 @@ const queueAcceptingMessageWithCapacity = (machineName: string) => (capacity = I
     cond: ctx => queueSize(ctx) > capacity,
     actions: [
       actions.log((ctx, e, { _event }) => `contexts.queueAcceptingMessageWithCapacity(${capacity}) dead letter [${e.type}]@${_event.origin || ''} because queueSize(${queueSize(ctx)}) > capacity(${capacity}): child(busy) out of capacity`, machineName),
-      actions.send((ctx, e) => duck.events.DEAD_LETTER(e, `queueSize(${queueSize(ctx)} out of capacity(${capacity})`)),
+      actions.send((ctx, e) => duck.Event.DEAD_LETTER(e, `queueSize(${queueSize(ctx)} out of capacity(${capacity})`)),
     ],
   },
   {
@@ -316,7 +316,7 @@ const queueAcceptingMessageWithCapacity = (machineName: string) => (capacity = I
     actions: [
       actions.log((_, e, { _event }) => `contexts.queueAcceptingMessageWithCapacity(${capacity}) queue [${e.type}]@${_event.origin || ''} to child(busy)`, machineName),
       assignEnqueue,  // <- wrapping `_event.origin` inside
-      actions.send((_, e) => duck.events.NEW_MESSAGE(e.type)),
+      actions.send((_, e) => duck.Event.NEW_MESSAGE(e.type)),
     ],
   },
 

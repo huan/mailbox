@@ -30,7 +30,7 @@ const duckula = Mailbox.duckularize({
   initialContext: {} as Context,
 })
 
-const DELAY_MS = 10
+export const DELAY_MS = 10
 
 const machine = createMachine<
   ReturnType<typeof duckula.initialContext>,
