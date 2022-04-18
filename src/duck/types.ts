@@ -29,6 +29,7 @@ enum Type {
    */
   DEAD_LETTER = 'mailbox/DEAD_LETTER',
   RESET       = 'mailbox/RESET',
+  TOGGLE      = 'mailbox/TOGGLE',
 
   /**
    * sub state types of: queue

@@ -58,3 +58,5 @@ export const RESET  = createAction(types.RESET, payloadReset)()
 
 const payloadDeadLetter   = (message: AnyEventObject, data?: string) => ({ message, data })
 export const DEAD_LETTER  = createAction(types.DEAD_LETTER, payloadDeadLetter)()
+
+export const TOGGLE = createAction(types.TOGGLE)()

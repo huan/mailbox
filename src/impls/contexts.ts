@@ -341,14 +341,6 @@ const childMessageOrigin = (ctx: Context) => metaOrigin(childMessage(ctx))
  */
 const childMessageType = (ctx: Context) => childMessage(ctx)?.type
 
-/**
- * Send ctx.message (current message) to child
- */
-const sendChildMessage = actions.send<Context, any>(
-  ctx => childMessage(ctx)!,
-  { to: MAILBOX_TARGET_MACHINE_ID },
-) as any
-
 /**************
  *
  * exports
@@ -370,7 +362,6 @@ export {
   /**
    * actions.send(...)
    */
-  sendChildMessage,
   sendChildResponse,
   /**
    * ctx.message helpers
