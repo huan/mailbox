@@ -31,7 +31,7 @@ import {
 
 import * as duck            from './duck/mod.js'
 import { isMailboxType }    from './is/mod.js'
-import { contexts }         from './context/mod.js'
+import * as context         from './context/mod.js'
 
 /**
  * Make the machine the child of the container to ready for testing
@@ -60,7 +60,7 @@ function container (machine: StateMachine<any, any, any>) {
               // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
               cond: (_, e, meta) => true
                 && !isMailboxType(e.type)
-                && !contexts.condEventSentFrom(CHILD_ID)(meta),
+                && !context.conds.condEventSentFrom(CHILD_ID)(meta),
               actions: [
                 actions.send((_, e) => e, { to: CHILD_ID }),
               ],

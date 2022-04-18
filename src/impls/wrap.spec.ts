@@ -35,7 +35,7 @@ import CoffeeMaker, {
 }                                     from '../../tests/machine-behaviors/coffee-maker-machine.js'
 
 import * as duck          from '../duck/mod.js'
-import type { Context }   from '../context/contexts.js'
+import type { Context }   from '../context/mod.js'
 
 import { stripPayloadDebug }    from '../testing-utils.js'
 

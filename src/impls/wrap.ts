@@ -30,7 +30,7 @@ import {
 }                   from 'xstate'
 
 import * as duck        from '../duck/mod.js'
-import * as contexts    from '../context/contexts.js'
+import * as context    from '../context/mod.js'
 
 import { IS_DEVELOPMENT }     from '../config.js'
 import { validate }           from '../validate.js'
@@ -78,7 +78,7 @@ export function wrap <
   // https://xstate.js.org/docs/guides/context.html#initial-context
 
   const machine = createMachine<
-    contexts.Context,
+    context.Context,
     /**
      * add child event types to mailbox event types
      *
@@ -97,7 +97,7 @@ export function wrap <
      *  factory call to make sure the contexts will not be modified
      *  by mistake from other machines
      */
-    context: () => contexts.initialContext(),
+    context: () => context.initialContext(),
     /**
      * Issue statelyai/xstate#2891:
      *  The context provided to the expr inside a State
@@ -115,7 +115,7 @@ export function wrap <
         initial: duck.State.Idle,
         on: {
           '*': {
-            actions: contexts.queueAcceptingMessageWithCapacity(MAILBOX_ADDRESS_NAME)(normalizedOptions.capacity),
+            actions: context.queue.queueAcceptingMessageWithCapacity(MAILBOX_ADDRESS_NAME)(normalizedOptions.capacity),
           },
         },
         states: {
@@ -150,7 +150,7 @@ export function wrap <
               actions.log(
                 (ctx, e) => [
                   'states.queue.Busy.entry queue size = ',
-                  contexts.queueSize(ctx),
+                  context.queue.queueSize(ctx),
                   ' [DISPATCH(',
                   (e as duck.Event['DISPATCH']).payload.data,
                   ')]',
@@ -158,12 +158,12 @@ export function wrap <
                 MAILBOX_ADDRESS_NAME,
               ),
 
-              actions.choose<contexts.Context, duck.Event['DISPATCH']>([
+              actions.choose<context.Context, duck.Event['DISPATCH']>([
                 {
-                  cond: ctx => contexts.queueSize(ctx) > 0,
+                  cond: ctx => context.queue.queueSize(ctx) > 0,
                   actions: [
-                    actions.log(ctx => `states.queue.Busy.entry [${contexts.queueMessageType(ctx)}]@${contexts.queueMessageOrigin(ctx)}`, MAILBOX_ADDRESS_NAME),
-                    actions.send(ctx => duck.Event.DEQUEUE(contexts.queueMessage(ctx)!)),
+                    actions.log(ctx => `states.queue.Busy.entry [${context.queue.queueMessageType(ctx)}]@${context.queue.queueMessageOrigin(ctx)}`, MAILBOX_ADDRESS_NAME),
+                    actions.send(ctx => duck.Event.DEQUEUE(context.queue.queueMessage(ctx)!)),
                   ],
                 },
                 {
@@ -175,11 +175,11 @@ export function wrap <
             ],
             always: duck.State.Idle,
             exit: [
-              contexts.assignDequeue,
+              context.assign.assignDequeue,
               actions.choose([
                 {
-                  cond: ctx => contexts.queueSize(ctx) <= 0,
-                  actions: contexts.assignEmptyQueue,
+                  cond: ctx => context.queue.queueSize(ctx) <= 0,
+                  actions: context.assign.assignEmptyQueue,
                 },
               ]),
             ],
@@ -199,7 +199,7 @@ export function wrap <
           [duck.Type.CHILD_REPLY]: {
             actions: [
               actions.log((_, e) => `states.child.on.CHILD_REPLY [${(e as duck.Event['CHILD_REPLY']).payload.message.type}]`, MAILBOX_ADDRESS_NAME),
-              contexts.sendChildResponse(MAILBOX_ADDRESS_NAME),
+              context.send.sendChildResponse(MAILBOX_ADDRESS_NAME),
             ],
           },
         },
@@ -252,10 +252,10 @@ export function wrap <
           [duck.State.Busy]: {
             entry: [
               actions.log((_, e) => `states.child.Busy.entry DEQUEUE [${(e as duck.Event['DEQUEUE']).payload.message.type}]`, MAILBOX_ADDRESS_NAME),
-              actions.assign<contexts.Context, duck.Event['DEQUEUE']>({
+              actions.assign<context.Context, duck.Event['DEQUEUE']>({
                 message: (_, e) => e.payload.message,
               }),
-              actions.send<contexts.Context, duck.Event['DEQUEUE']>(
+              actions.send<context.Context, duck.Event['DEQUEUE']>(
                 (_, e) => e.payload.message,
                 { to: MAILBOX_TARGET_MACHINE_ID },
               ),
@@ -270,7 +270,7 @@ export function wrap <
               [duck.Type.CHILD_REPLY]: {
                 actions: [
                   actions.log((_, e) => `states.child.Busy.on.CHILD_REPLY [${(e as duck.Event['CHILD_REPLY']).payload.message.type}]`, MAILBOX_ADDRESS_NAME),
-                  contexts.sendChildResponse(MAILBOX_ADDRESS_NAME),
+                  context.send.sendChildResponse(MAILBOX_ADDRESS_NAME),
                 ],
               },
               [duck.Type.CHLID_TOGGLE]: duck.State.Idle,

@@ -35,7 +35,7 @@ import EventEmitter         from 'events'
 
 import * as duck            from '../duck/mod.js'
 import { isMailboxType }    from '../is/mod.js'
-import type * as contexts   from '../context/contexts.js'
+import type { Context }     from '../context/mod.js'
 
 import type { Address }               from './address-interface.js'
 import { getTargetMachine }           from './get-target-machine.js'
@@ -60,7 +60,7 @@ export class MailboxImpl<
    * XState interpreter for Mailbox
    */
   private readonly _interpreter: Interpreter<
-    contexts.Context,
+    Context,
     any,
     duck.Event[keyof duck.Event] | { type: TEvent['type'] }
   >
@@ -95,7 +95,7 @@ export class MailboxImpl<
      * The wrapped original StateMachine, by the wrap() function for satisfing the Mailbox Queue API
      */
     wrappedMachine: StateMachine<
-      contexts.Context,
+      Context,
       any,
       duck.Event[keyof duck.Event] | { type: TEvent['type'] },
       any,

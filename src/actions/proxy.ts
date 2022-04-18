@@ -22,7 +22,7 @@ import { actions }  from 'xstate'
 
 import * as is            from '../is/mod.js'
 import type * as impls    from '../impls/mod.js'
-import * as contexts      from '../context/contexts.js'
+import * as context       from '../context/mod.js'
 
 import { send } from './send.js'
 
@@ -48,7 +48,7 @@ export const proxy = (name: string) => (target: string | impls.Address | impls.M
         // 1. Mailbox.Types.* is system messages, skip them
         is.isMailboxType(e.type)
         // 2. Child events (origin from child machine) are handled by child machine, skip them
-        || contexts.condEventSentFrom(target)(meta)
+        || context.conds.condEventSentFrom(target)(meta)
       ),
       actions: [],  // do nothing when the event is sent from the mailbox / target.
     },

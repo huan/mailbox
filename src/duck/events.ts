@@ -21,7 +21,7 @@
 import { createAction }                       from 'typesafe-actions'
 import type { AnyEventObject, EventObject }   from 'xstate'
 
-import type { contexts }    from '../context/mod.js'
+import type * as context  from '../context/mod.js'
 
 import * as types   from './types.js'
 
@@ -47,7 +47,7 @@ export const NEW_MESSAGE  = createAction(types.NEW_MESSAGE, payloadNewMessage)()
 const payloadDispatch = (data?: string) => ({ data })
 export const DISPATCH = createAction(types.DISPATCH, payloadDispatch)()
 
-const payloadDequeue  = (message: contexts.AnyEventObjectExt) => ({ message })
+const payloadDequeue  = (message: context.origin.AnyEventObjectExt) => ({ message })
 export const DEQUEUE  = createAction(types.DEQUEUE, payloadDequeue)()
 
 /**
