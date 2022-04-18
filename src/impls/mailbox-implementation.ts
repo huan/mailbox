@@ -33,14 +33,12 @@ import {
 }                           from 'xstate'
 import EventEmitter         from 'events'
 
-import * as duck  from '../duck/mod.js'
-
-import { isMailboxType }              from '../is/mod.js'
-import type { Event }                 from '../duck/event-type.js'
+import * as duck            from '../duck/mod.js'
+import { isMailboxType }    from '../is/mod.js'
+import type { Context }     from '../context/mod.js'
 
 import type { Address }               from './address-interface.js'
 import { getTargetMachine }           from './get-target-machine.js'
-import type * as contexts             from './contexts.js'
 import { MAILBOX_TARGET_MACHINE_ID }  from './constants.js'
 import type { Mailbox, Options }      from './mailbox-interface.js'
 import { AddressImpl }                from './address-implementation.js'
@@ -62,9 +60,9 @@ export class MailboxImpl<
    * XState interpreter for Mailbox
    */
   private readonly _interpreter: Interpreter<
-    contexts.Context,
+    Context,
     any,
-    Event | { type: TEvent['type'] }
+    duck.Event[keyof duck.Event] | { type: TEvent['type'] }
   >
 
   /**
@@ -97,9 +95,9 @@ export class MailboxImpl<
      * The wrapped original StateMachine, by the wrap() function for satisfing the Mailbox Queue API
      */
     wrappedMachine: StateMachine<
-      contexts.Context,
+      Context,
       any,
-      Event | { type: TEvent['type'] },
+      duck.Event[keyof duck.Event] | { type: TEvent['type'] },
       any,
       any,
       any,
@@ -124,7 +122,7 @@ export class MailboxImpl<
       if (/^xstate\./i.test(event.type)) {
         // 1. skip for XState system events
         return
-      } else if (isMailboxType(event.type) && event.type !== duck.types.DEAD_LETTER) {
+      } else if (isMailboxType(event.type) && event.type !== duck.Type.DEAD_LETTER) {
         // 2. skip for Mailbox system events
         return
       }

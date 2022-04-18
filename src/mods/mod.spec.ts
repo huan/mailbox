@@ -58,12 +58,12 @@ test('mod.impls.*', async t => {
   t.ok(mod.impls.Mailbox instanceof Function, 'should export Mailbox')
 })
 
-test('mod.events.*', async t => {
-  t.ok(mod.events, 'should export events')
-  t.ok(mod.events.CHILD_IDLE, 'should export events.CHILD_IDLE')
+test('mod.Event.*', async t => {
+  t.ok(mod.Event, 'should export Event')
+  t.ok(mod.Event.CHILD_IDLE, 'should export Event.CHILD_IDLE')
 })
 
-test('mod.types.*', async t => {
-  t.ok(mod.types, 'should export types')
-  t.ok(mod.types.CHILD_IDLE, 'should export types.CHILD_IDLE')
+test('mod.Type.*', async t => {
+  t.ok(mod.Type, 'should export Type')
+  t.ok(mod.Type.CHILD_IDLE, 'should export Type.CHILD_IDLE')
 })

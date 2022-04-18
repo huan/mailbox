@@ -49,7 +49,7 @@ test('reply()', async t => {
     [
       { type: 'xstate.init' },
       { type: 'SECOND_LINE' },
-      duck.events.CHILD_REPLY({ type: 'FIRST_LINE' }),
+      duck.Event.CHILD_REPLY({ type: 'FIRST_LINE' }),
     ],
     'should send reply event to parent in the next event loop',
   )

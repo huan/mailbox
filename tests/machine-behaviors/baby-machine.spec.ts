@@ -15,7 +15,7 @@ import {
 
 import * as Mailbox   from '../../src/mods/mod.js'
 
-import * as Baby    from './baby-machine.js'
+import Baby    from './baby-machine.js'
 
 test('babyMachine smoke testing with asleep under mock clock', async t => {
   const sandbox = sinon.createSandbox({
@@ -29,8 +29,7 @@ test('babyMachine smoke testing with asleep under mock clock', async t => {
     initial: 'testing',
     invoke: {
       id: CHILD_ID,
-      src: Baby.machine,
-      // autoForward: true,
+      src: Baby.machine.withContext({}),
     },
     states: {
       testing: {},
@@ -63,7 +62,7 @@ test('babyMachine smoke testing with asleep under mock clock', async t => {
   })
 
   const babyState   = () => babyRef().getSnapshot().value
-  const babyContext = () => babyRef().getSnapshot().context as Baby.Context
+  const babyContext = () => babyRef().getSnapshot().context as ReturnType<typeof Baby.initialContext>
 
   const SLEEP_MS = 10
   /**
@@ -73,7 +72,7 @@ test('babyMachine smoke testing with asleep under mock clock', async t => {
   const AFTER_CRY_MS   = 4
   const AFTER_SLEEP_MS = 3
 
-  t.equal(babyState(), Baby.states.awake, 'babyMachine initial state should be awake')
+  t.equal(babyState(), Baby.State.awake, 'babyMachine initial state should be awake')
   t.same(babyEventList, [
     { type: 'xstate.init' },
   ], 'should have initial event list from child')
@@ -81,9 +80,9 @@ test('babyMachine smoke testing with asleep under mock clock', async t => {
     proxyEventList,
     [
       { type: 'xstate.init' },
-      Mailbox.events.CHILD_IDLE('awake'),
-      Mailbox.events.CHILD_REPLY(
-        Baby.events.PLAY(),
+      Mailbox.Event.CHILD_IDLE('awake'),
+      Mailbox.Event.CHILD_REPLY(
+        Baby.Event.PLAY(),
       ),
     ],
     'should have initial event CHILD_IDLE & CHILD_REPLY(PLAY) sent',
@@ -94,20 +93,20 @@ test('babyMachine smoke testing with asleep under mock clock', async t => {
    */
   proxyEventList.length = 0
   babyEventList.length = 0
-  babyRef().send(Baby.events.SLEEP(SLEEP_MS))
-  t.equal(babyState(), Baby.states.asleep, 'babyMachine state should be asleep')
+  babyRef().send(Baby.Event.SLEEP(SLEEP_MS))
+  t.equal(babyState(), Baby.State.asleep, 'babyMachine state should be asleep')
   t.equal(babyContext().ms, SLEEP_MS, `babyMachine context.ms should be ${SLEEP_MS}`)
   t.same(babyEventList.map(e => e.type), [
-    Baby.types.SLEEP,
+    Baby.Type.SLEEP,
   ], 'should have SLEEP event on child')
   await sandbox.clock.tickAsync(0)
   // proxyEventList.forEach(e => console.info(e))
   t.same(
     proxyEventList, [
-      Baby.events.EAT(),
-      Baby.events.REST(),
-      Baby.events.DREAM(),
-    ].map(Mailbox.events.CHILD_REPLY),
+      Baby.Event.EAT(),
+      Baby.Event.REST(),
+      Baby.Event.DREAM(),
+    ].map(Mailbox.Event.CHILD_REPLY),
     'should have CHILD_IDLE & CHILD_REPLY event list for parent',
   )
 
@@ -116,12 +115,12 @@ test('babyMachine smoke testing with asleep under mock clock', async t => {
    */
   proxyEventList.length = 0
   babyEventList.length = 0
-  babyRef().send(Baby.events.SLEEP(SLEEP_MS * 1e9)) // a very long time
-  t.equal(babyState(), Baby.states.asleep, 'babyMachine state should be asleep')
+  babyRef().send(Baby.Event.SLEEP(SLEEP_MS * 1e9)) // a very long time
+  t.equal(babyState(), Baby.State.asleep, 'babyMachine state should be asleep')
   t.equal(babyContext().ms, SLEEP_MS, `babyMachine context.ms should still be ${SLEEP_MS} (new event has been dropped by machine)`)
   t.same(proxyEventList, [], 'should no more response when asleep for parent')
   t.same(babyEventList, [
-    Baby.events.SLEEP(SLEEP_MS * 1e9),
+    Baby.Event.SLEEP(SLEEP_MS * 1e9),
   ], 'should has SLEEP event on child')
 
   /**
@@ -130,7 +129,7 @@ test('babyMachine smoke testing with asleep under mock clock', async t => {
   proxyEventList.length = 0
   babyEventList.length = 0
   await sandbox.clock.tickAsync(BEFORE_CRY_MS)
-  t.equal(babyState(), Baby.states.asleep, `babyMachine state should be asleep after 1st ${BEFORE_CRY_MS} ms`)
+  t.equal(babyState(), Baby.State.asleep, `babyMachine state should be asleep after 1st ${BEFORE_CRY_MS} ms`)
   t.equal(babyContext().ms, SLEEP_MS, `babyMachine context.ms should be ${SLEEP_MS} (new event has been dropped) after 1st ${BEFORE_CRY_MS} ms`)
   t.same(proxyEventList, [], `should no more response after 1st ${BEFORE_CRY_MS} ms for parent`)
   t.same(babyEventList, [], `should no more response after 1st ${BEFORE_CRY_MS} ms for parent`)
@@ -141,12 +140,12 @@ test('babyMachine smoke testing with asleep under mock clock', async t => {
   proxyEventList.length = 0
   babyEventList.length = 0
   await sandbox.clock.tickAsync(AFTER_CRY_MS)
-  t.equal(babyState(), Baby.states.asleep, `babyMachine state should be asleep after 2nd ${AFTER_CRY_MS} ms`)
+  t.equal(babyState(), Baby.State.asleep, `babyMachine state should be asleep after 2nd ${AFTER_CRY_MS} ms`)
   t.equal(babyContext().ms, SLEEP_MS, `babyMachine context.ms should be ${SLEEP_MS} (new event has been dropped) after 2nd ${AFTER_CRY_MS} ms`)
   t.same(
     proxyEventList,
     [
-      Mailbox.events.CHILD_REPLY(Baby.events.CRY()),
+      Mailbox.Event.CHILD_REPLY(Baby.Event.CRY()),
     ],
     'should cry in middle night (after 2nd 4 ms) for parent',
   )
@@ -164,10 +163,10 @@ test('babyMachine smoke testing with asleep under mock clock', async t => {
   proxyEventList.length = 0
   babyEventList.length  = 0
   await sandbox.clock.tickAsync(AFTER_SLEEP_MS)
-  t.equal(babyState(), Baby.states.awake, 'babyMachine state should be awake after sleep')
+  t.equal(babyState(), Baby.State.awake, 'babyMachine state should be awake after sleep')
   t.equal(babyContext().ms, undefined, 'babyMachine context.ms should be cleared after sleep')
   t.same(proxyEventList.map(e => e.type), [
-    Mailbox.types.CHILD_IDLE,
+    Mailbox.Type.CHILD_IDLE,
   ], 'should be IDLE after night')
 
   /**
@@ -175,9 +174,9 @@ test('babyMachine smoke testing with asleep under mock clock', async t => {
    */
   await sandbox.clock.tickAsync(1)
   t.same(proxyEventList.map(e => e.type), [
-    Mailbox.types.CHILD_IDLE,
-    Mailbox.types.CHILD_REPLY,
-    Mailbox.types.CHILD_REPLY,
+    Mailbox.Type.CHILD_IDLE,
+    Mailbox.Type.CHILD_REPLY,
+    Mailbox.Type.CHILD_REPLY,
   ], 'should pee after night and start paly in the morning, sent to parent')
   t.same(babyEventList.map(e => e.type), [
     'xstate.after(ms)#baby.baby/asleep',

@@ -1,3 +1,4 @@
+/* eslint-disable sort-keys */
 /**
  *   Wechaty Open Source Software - https://github.com/wechaty
  *
@@ -17,23 +18,33 @@
  *   limitations under the License.
  *
  */
+import { actions, AnyEventObject }    from 'xstate'
+
+import type { Context }   from './context.js'
+import * as origin        from './origin.js'
 
 /**
- * sub state types of: child
+ * wrap an event as a message and enqueue it to ctx.queue as a new message
  */
-export const CHILD_IDLE    = 'mailbox/CHILD_IDLE'
-export const CHILD_REPLY   = 'mailbox/CHLID_REPLY'
-export const CHLID_TOGGLE  = 'mailbox/CHILD_TOGGLE'
+export const enqueue = actions.assign<Context, AnyEventObject>({
+  queue: (ctx, e, { _event }) => [
+    ...ctx.queue,
+    origin.wrapEvent(e, _event.origin),
+  ],
+})
 
 /**
- * sub state types of: queue
+ * dequeue ctx.queue by updating the index by increasing 1 (current message pointer move forward)
  */
-export const NEW_MESSAGE  = 'mailbox/NEW_MESSAGE'
-export const DEQUEUE      = 'mailbox/DEQUEUE'
-export const DISPATCH     = 'mailbox/DISPATCH'
+export const dequeue = actions.assign<Context>({
+  // message: ctx => ctx.queue.shift()!,
+  index: ctx => ctx.index + 1,
+}) as any
 
 /**
- * types of: debug
+ * Reset the queue and index
  */
-export const DEAD_LETTER = 'mailbox/DEAD_LETTER'
-export const RESET       = 'mailbox/RESET'
+export const emptyQueue = actions.assign<Context>({
+  index: _ => 0,
+  queue: _ => [],
+}) as any

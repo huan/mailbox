@@ -19,9 +19,10 @@ test('Mailbox can make outbound communication when it has lots of queued inbound
     initial: 'idle',
     states: {
       idle: {
+        entry: Mailbox.actions.idle('service')('idle'),
         on: {
           DING: 'ding',
-          '*': Mailbox.actions.idle('service')('idle'),
+          '*': 'idle',
         },
       },
       ding: {
@@ -55,9 +56,10 @@ test('Mailbox can make outbound communication when it has lots of queued inbound
     },
     states: {
       idle: {
+        entry: Mailbox.actions.idle('main')('idle'),
         on: {
           DING: 'ding',
-          '*': Mailbox.actions.idle('main')('idle'),
+          '*': 'idle',
         },
       },
       ding: {
@@ -86,6 +88,7 @@ test('Mailbox can make outbound communication when it has lots of queued inbound
         entry: [
           Mailbox.actions.reply(ctx => ({ type: 'DONG', counts: ctx.counts })),
         ],
+        always: 'idle',
       },
     },
   })
@@ -119,6 +122,12 @@ test('Mailbox can make outbound communication when it has lots of queued inbound
     .start()
 
   interpreter.send({ type: 'DING' })
+  // ;(mailbox as Mailbox.impls.Mailbox).internal.target.interpreter?.onTransition(trans => {
+  //   console.info('## Transition for main:', '(' + trans.history?.value + ') + [' + trans.event.type + '] = (' + trans.value + ')')
+  // })
+  // ;(serviceMailbox as Mailbox.impls.Mailbox).internal.target.interpreter?.onTransition(trans => {
+  //   console.info('## Transition for service:', '(' + trans.history?.value + ') + [' + trans.event.type + '] = (' + trans.value + ')')
+  // })
 
   await sandbox.clock.runAllAsync()
   // eventList.forEach(e => console.info(e))
@@ -128,6 +137,10 @@ test('Mailbox can make outbound communication when it has lots of queued inbound
     { type: 'DING' },
     { type: 'DONG', counts: [ 1, 2, 3 ] },
   ], 'should get events from all DING events')
+
+  // console.info('Service address', (serviceMailbox as Mailbox.impls.Mailbox).internal.target.interpreter?.sessionId, '<' + String(serviceMailbox.address) + '>')
+  // console.info('Main address', (mailbox as Mailbox.impls.Mailbox).internal.target.interpreter?.sessionId, '<' + String(mailbox.address) + '>')
+  // console.info('Consumer address', interpreter.sessionId)
 
   mailbox.close()
   sandbox.restore()

@@ -7,8 +7,8 @@ import {
   createMachine,
 }                   from 'xstate'
 
-import * as DingDong  from '../tests/machine-behaviors/ding-dong-machine.js'
-import * as Baby      from '../tests/machine-behaviors/baby-machine.js'
+import DingDong  from '../tests/machine-behaviors/ding-dong-machine.js'
+import Baby      from '../tests/machine-behaviors/baby-machine.js'
 
 import { validate } from './validate.js'
 

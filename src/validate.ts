@@ -29,9 +29,9 @@ import {
   EventObject,
 }                   from 'xstate'
 
-import { types, events }  from './duck/mod.js'
-import { isMailboxType }  from './is/mod.js'
-import { contexts }       from './impls/mod.js'
+import * as duck            from './duck/mod.js'
+import { isMailboxType }    from './is/mod.js'
+import * as context         from './context/mod.js'
 
 /**
  * Make the machine the child of the container to ready for testing
@@ -60,7 +60,7 @@ function container (machine: StateMachine<any, any, any>) {
               // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
               cond: (_, e, meta) => true
                 && !isMailboxType(e.type)
-                && !contexts.condEventSentFrom(CHILD_ID)(meta),
+                && !context.conds.eventSentFrom(CHILD_ID)(meta),
               actions: [
                 actions.send((_, e) => e, { to: CHILD_ID }),
               ],
@@ -90,7 +90,7 @@ function validateInitializing (
 
   const EXPECTED_INIT_EVENT_TYPES = [
     'xstate.init',
-    types.CHILD_IDLE,
+    duck.Type.CHILD_IDLE,
   ]
   // console.info(eventList)
   const actualInitEvents = eventList
@@ -120,8 +120,8 @@ function validateReceiveFormOtherEvent (
 
   const actualIdleEvents = eventList
     .map(e => e.type)
-    .filter(t => t === types.CHILD_IDLE)
-  const EXPECTED_CHILD_IDLE_EVENTS = [ types.CHILD_IDLE ]
+    .filter(t => t === duck.Type.CHILD_IDLE)
+  const EXPECTED_CHILD_IDLE_EVENTS = [ duck.Type.CHILD_IDLE ]
   assert.deepEqual(
     actualIdleEvents,
     EXPECTED_CHILD_IDLE_EVENTS,
@@ -145,11 +145,11 @@ function validateReceiveFormOtherEvents (
     ))
   const EXPECTED_CHILD_IDLE_EVENTS = Array
     .from({ length: TOTAL_EVENT_NUM })
-    .fill(types.CHILD_IDLE)
+    .fill(duck.Type.CHILD_IDLE)
   interpreter.send(randomEvents)
   const actualIdelEvents = eventList
     .map(e => e.type)
-    .filter(t => t === types.CHILD_IDLE)
+    .filter(t => t === duck.Type.CHILD_IDLE)
   assert.deepEqual(actualIdelEvents, EXPECTED_CHILD_IDLE_EVENTS, `should send ${TOTAL_EVENT_NUM} CHILD_IDLE events to parent when it has finished process ${TOTAL_EVENT_NUM} of other events`)
 }
 
@@ -162,7 +162,7 @@ function validateSkipMailboxEvents (
   eventList: AnyEventObject[],
 ): void {
   const mailboxEventList = Object
-    .values(events)
+    .values(duck.Event)
     .map(e => e())
 
   mailboxEventList.forEach(mailboxEvent => {

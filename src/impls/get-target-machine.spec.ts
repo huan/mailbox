@@ -18,13 +18,14 @@
  */
 import { test }    from 'tstest'
 
-import * as Baby    from '../../tests/machine-behaviors/baby-machine.js'
+import Baby    from '../../tests/machine-behaviors/baby-machine.js'
 
 import { wrap }               from './wrap.js'
 import { getTargetMachine }   from './get-target-machine.js'
 
 test('getTargetMachine()', async t => {
-  const wrappedMachine = wrap(Baby.machine)
+  const machine = Baby.machine.withContext(Baby.initialContext())
+  const wrappedMachine = wrap(machine)
   const targetMachine = getTargetMachine(wrappedMachine)
-  t.equal(targetMachine, Baby.machine, 'should return target machine')
+  t.equal(targetMachine, machine, 'should return target machine')
 })

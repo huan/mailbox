@@ -1,4 +1,6 @@
+/* eslint-disable no-redeclare */
 /* eslint-disable sort-keys */
+import { createAction } from 'typesafe-actions'
 import {
   createMachine,
   actions,
@@ -10,7 +12,6 @@ enum State {
   awake   = 'baby/awake',
   asleep  = 'baby/asleep',
 }
-const states = State
 
 enum Type {
   SLEEP = 'baby/SLEEP',
@@ -23,26 +24,27 @@ enum Type {
   REST = 'baby/REST',
   EAT  = 'baby/EAT',
 }
-const types = Type
 
-const events = {
-  SLEEP : (ms: number)  => ({ type: types.SLEEP, ms }),
+const Event = {
+  SLEEP : createAction(Type.SLEEP, (ms: number) => ({ ms }))(),
   // asleep
-  DREAM : ()  => ({ type: types.DREAM }),
-  CRY   : ()  => ({ type: types.CRY   }),
-  PEE   : ()  => ({ type: types.PEE   }),
+  DREAM : createAction(Type.DREAM)(),
+  CRY   : createAction(Type.CRY)(),
+  PEE   : createAction(Type.PEE)(),
   // awake
-  PLAY : () => ({ type: types.PLAY  }),
-  REST : () => ({ type: types.REST  }),
-  EAT  : () => ({ type: types.EAT   }),
-}
-
-type Events = typeof events
-type Event   = ReturnType<typeof events.SLEEP>
+  PLAY : createAction(Type.PLAY)(),
+  REST : createAction(Type.REST)(),
+  EAT  : createAction(Type.EAT)(),
+} as const
 
 type Context = { ms?: number }
 
-const MACHINE_NAME = 'BabyMachine'
+const duckula = Mailbox.duckularize({
+  id: 'BabyActor',
+  events: Event,
+  states: State,
+  initialContext: {} as Context,
+})
 
 /**
  * AWAKE
@@ -54,25 +56,28 @@ const MACHINE_NAME = 'BabyMachine'
  *  - CRY
  *  - PEE
  */
-const machine = createMachine<Context, Event, any>({
-  context: {},
+const machine = createMachine<
+  ReturnType<typeof duckula.initialContext>,
+  ReturnType<typeof duckula.Event[keyof typeof duckula.Event]>,
+  any
+>({
   id: 'baby',
-  initial: states.awake,
+  initial: duckula.State.awake,
   states: {
-    [states.awake]: {
+    [duckula.State.awake]: {
       entry: [
-        actions.log((_, e, { _event }) => `states.awake.entry <- [${e.type}]@${_event.origin}`, MACHINE_NAME),
-        Mailbox.actions.idle(MACHINE_NAME)('awake'),
-        Mailbox.actions.reply(events.PLAY()),
+        actions.log((_, e, { _event }) => `states.awake.entry <- [${e.type}]@${_event.origin}`, duckula.id),
+        Mailbox.actions.idle(duckula.id)('awake'),
+        Mailbox.actions.reply(Event.PLAY()),
       ],
       exit: [
-        actions.log('states.awake.exit', MACHINE_NAME),
+        actions.log('states.awake.exit', duckula.id),
         /**
          * FIXME: Huan(202112): uncomment the below `sendParent` line
          *  https://github.com/statelyai/xstate/issues/2880
          */
-        // actions.sendParent(events.EAT()),
-        Mailbox.actions.reply(events.EAT()),
+        // actions.sendParent(Event.EAT()),
+        Mailbox.actions.reply(Event.EAT()),
       ],
       on: {
         /**
@@ -84,38 +89,38 @@ const machine = createMachine<Context, Event, any>({
          *    by waiting a IDLE event feedback whenever it has sent an event to the target.
          */
         '*': {
-          target: states.awake,
+          target: duckula.State.awake,
           actions: [
-            actions.log((_, e, { _event }) => `states.awake.on.* <- [${e.type}]@${_event.origin || ''}`, MACHINE_NAME),
+            actions.log((_, e, { _event }) => `states.awake.on.* <- [${e.type}]@${_event.origin || ''}`, duckula.id),
           ],
         },
-        [types.SLEEP]: {
-          target: states.asleep,
+        [Type.SLEEP]: {
+          target: duckula.State.asleep,
           actions: [
-            actions.log((_, e) => `states.awake.on.SLEEP ${JSON.stringify(e)}`, MACHINE_NAME),
-            Mailbox.actions.reply(events.REST()),
+            actions.log((_, e) => `states.awake.on.SLEEP ${JSON.stringify(e)}`, duckula.id),
+            Mailbox.actions.reply(Event.REST()),
           ],
         },
       },
     },
-    [states.asleep]: {
+    [duckula.State.asleep]: {
       entry: [
-        actions.log((_, e) => `states.asleep.entry ${JSON.stringify(e)}`, MACHINE_NAME),
+        actions.log((_, e) => `states.asleep.entry ${JSON.stringify(e)}`, duckula.id),
         // Huan(202112): move this assign to previous state.on(SLEEP)
         //  FIXME: `(parameter) e: never` (after move to previous state.on.SLEEP)
-        actions.assign({ ms: (_, e) => e.ms }),
-        Mailbox.actions.reply(events.DREAM()),
+        actions.assign({ ms: (_, e) => (e as ReturnType<typeof duckula.Event['SLEEP']>).payload.ms }),
+        Mailbox.actions.reply(Event.DREAM()),
       ],
       exit: [
-        actions.log(_ => 'states.asleep.exit', MACHINE_NAME),
+        actions.log(_ => 'states.asleep.exit', duckula.id),
         actions.assign({ ms: _ => undefined }),
-        Mailbox.actions.reply(events.PEE()),
+        Mailbox.actions.reply(Event.PEE()),
       ],
       after: {
         cryMs: {
-          actions: Mailbox.actions.reply(events.CRY()),
+          actions: Mailbox.actions.reply(Event.CRY()),
         },
-        ms: states.awake,
+        ms: duckula.State.awake,
       },
     },
   },
@@ -134,14 +139,5 @@ const machine = createMachine<Context, Event, any>({
   },
 })
 
-export {
-  type Context,
-  type State,
-  type Type,
-  type Event,
-  type Events,
-  events,
-  machine,
-  states,
-  types,
-}
+duckula.machine = machine
+export default duckula as Required<typeof duckula>

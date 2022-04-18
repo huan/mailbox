@@ -1,13 +1,3 @@
-export {
-  types,
-  type Type,
-}                   from './types.js'
-export type {
-  Events,
-  Event,
-}                   from './event-type.js'
-export * as events  from './events.js'
-export {
-  states,
-  type State,
-}                   from './states.js'
+export *  from './type-fancy-enum.js'
+export *  from './event-fancy-enum.js'
+export *  from './state-fancy-enum.js'

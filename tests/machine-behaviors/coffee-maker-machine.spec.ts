@@ -15,7 +15,7 @@ import {
 
 import * as Mailbox   from '../../src/mods/mod.js'
 
-import * as CoffeeMaker from './coffee-maker-machine.js'
+import CoffeeMaker from './coffee-maker-machine.js'
 
 test('CoffeeMaker.machine smoke testing', async t => {
   const CUSTOMER = 'John'
@@ -31,12 +31,12 @@ test('CoffeeMaker.machine smoke testing', async t => {
     initial: 'testing',
     invoke: {
       id: CHILD_ID,
-      src: CoffeeMaker.machine,
+      src: CoffeeMaker.machine.withContext({}),
     },
     states: {
       testing: {
         on: {
-          [CoffeeMaker.types.MAKE_ME_COFFEE]: {
+          [CoffeeMaker.Type.MAKE_ME_COFFEE]: {
             actions: actions.send((_, e) => e, { to: CHILD_ID }),
           },
         },
@@ -57,13 +57,13 @@ test('CoffeeMaker.machine smoke testing', async t => {
   })
 
   interpreter.start()
-  interpreter.send(CoffeeMaker.events.MAKE_ME_COFFEE(CUSTOMER))
+  interpreter.send(CoffeeMaker.Event.MAKE_ME_COFFEE(CUSTOMER))
   t.same(
     eventList.map(e => e.type),
     [
       'xstate.init',
-      Mailbox.types.CHILD_IDLE,
-      CoffeeMaker.types.MAKE_ME_COFFEE,
+      Mailbox.Type.CHILD_IDLE,
+      CoffeeMaker.Type.MAKE_ME_COFFEE,
     ],
     'should have received init/RECEIVE/MAKE_ME_COFFEE events after initializing',
   )
@@ -72,9 +72,9 @@ test('CoffeeMaker.machine smoke testing', async t => {
   await sandbox.clock.runAllAsync()
   t.same(
     eventList
-      .filter(e => e.type === Mailbox.types.CHILD_REPLY),
+      .filter(e => e.type === Mailbox.Type.CHILD_REPLY),
     [
-      Mailbox.events.CHILD_REPLY(CoffeeMaker.events.COFFEE(CUSTOMER)),
+      Mailbox.Event.CHILD_REPLY(CoffeeMaker.Event.COFFEE(CUSTOMER)),
     ],
     'should have received COFFEE/RECEIVE events after runAllAsync',
   )
@@ -89,16 +89,16 @@ test('XState machine will lost incoming messages(events) when receiving multiple
   })
 
   const ITEM_NUMBERS = [ ...Array(10).keys() ]
-  const MAKE_ME_COFFEE_EVENT_LIST = ITEM_NUMBERS.map(i => CoffeeMaker.events.MAKE_ME_COFFEE(String(i)))
-  const COFFEE_EVENT_LIST         = ITEM_NUMBERS.map(i => CoffeeMaker.events.COFFEE(String(i)))
+  const MAKE_ME_COFFEE_EVENT_LIST = ITEM_NUMBERS.map(i => CoffeeMaker.Event.MAKE_ME_COFFEE(String(i)))
+  const COFFEE_EVENT_LIST         = ITEM_NUMBERS.map(i => CoffeeMaker.Event.COFFEE(String(i)))
 
   const containerMachine = createMachine({
     invoke: {
       id: 'child',
-      src: CoffeeMaker.machine,
+      src: CoffeeMaker.machine.withContext({}),
     },
     on: {
-      [CoffeeMaker.types.MAKE_ME_COFFEE]: {
+      [CoffeeMaker.Type.MAKE_ME_COFFEE]: {
         actions: [
           actions.send((_, e) => e, { to: 'child' }),
         ],
@@ -120,10 +120,10 @@ test('XState machine will lost incoming messages(events) when receiving multiple
   // eventList.forEach(e => console.info(e))
   t.same(
     eventList
-      .filter(e => e.type === Mailbox.types.CHILD_REPLY),
+      .filter(e => e.type === Mailbox.Type.CHILD_REPLY),
     [
       COFFEE_EVENT_LIST.map(e =>
-        Mailbox.events.CHILD_REPLY(e),
+        Mailbox.Event.CHILD_REPLY(e),
       )[0],
     ],
     `should only get 1 COFFEE event no matter how many MAKE_ME_COFFEE events we sent (at the same time, total: ${MAKE_ME_COFFEE_EVENT_LIST.length})`,

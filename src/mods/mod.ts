@@ -8,7 +8,14 @@ export {
   isAddress,
 }                           from '../is/mod.js'
 export * as actions         from '../actions/mod.js'
-export { events, types }    from '../duck/mod.js'
+export {
+  Event,
+  Type,
+}                           from '../duck/mod.js'
+export {
+  duckularize,
+  type Duckula,
+}                           from '../duckula/mod.js'
 
 export { from }       from '../from.js'
 export * as nil       from '../nil.js'

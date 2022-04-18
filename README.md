@@ -199,6 +199,48 @@ TASK_RECEIVED
 # testing mailbox-ed machine ... done
 ```
 
+## Duckula Specification
+
+The `Duckula` is like [Duck](https://github.com/huan/ducks#3-ducksify-extension-currying--ducksify-interface) for Mailbox Actors.
+
+![Duckula Specification for Mailbox Actor](docs/images/duckula.png)
+
+> Image credit: [Papercraft Count Duckula](https://www.deviantart.com/cyberdrone/art/Cubeecraft-Count-Duckula-409375145)
+
+The specification has rules that a Mailbox Actor module:
+
+1. MUST export a `id` of type `string`
+1. MUST export a `machine` of type XState machine
+1. MUST export a `initialContext` of type `function`, with the `Context` typing, which is the initial context of the machine
+1. MUST export a `Event` of type map of `function` which is event creators
+1. MUST export a `Type` of type map of `string` which is event types, values in the form `npm-module-or-app/EVENT_TYPE`
+1. MUST export a `State` of type map of `string` which is states, values in the form `npm-module-or-app/StateName`
+1. MUST be `UPPER_SNAKE_CASE` for the keys of `Event` and `Type`
+1. MUST be `UpperCamelCase` for the keys of `State`
+
+> Similiar ideas: [Duckula for Clojure](https://github.com/nomnom-insights/nomnom.duckula)
+
+### Duckula Interface
+
+```ts
+interface Duckula <...> {
+  id: TID
+  Type: TType
+  Event: TEvent
+  State: TState
+  machine: TMachine
+  initialContext: () => TContext
+}
+```
+
+Read the source code at [src/duckula/duckula.ts](https://github.com/huan/mailbox/blob/main/src/duckula/duckula.ts)
+
+### Duckula Examples
+
+1. Ding Dong Machine: <https://github.com/huan/mailbox/blob/main/tests/machine-behaviors/ding-dong-machine.ts>
+1. Coffee Maker Machine: <https://github.com/huan/mailbox/blob/main/tests/machine-behaviors/coffee-maker-machine.ts>
+1. Baby Machine: <https://github.com/huan/mailbox/blob/main/tests/machine-behaviors/baby-machine.ts>
+
 ## References
 
 ```ts
@@ -428,7 +470,12 @@ See: [XState Docs - Batched Events](https://xstate.js.org/docs/guides/interpreta
 
 ## History
 
-### main v0.6
+### main v0.7
+
+1. Add `Duckula` Interface for modulize Mailbox Actor. ([Issue #1](https://github.com/huan/mailbox/issues/1))
+1. Fix the race condition bug by simplifing the queue state management to be atomic. ([Issue #5](https://github.com/huan/mailbox/issues/5))
+
+### v0.6 (Apr 10, 2022)
 
 Refactoring APIs
 
