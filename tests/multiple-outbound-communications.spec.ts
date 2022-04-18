@@ -19,9 +19,10 @@ test('Mailbox can make outbound communication when it has lots of queued inbound
     initial: 'idle',
     states: {
       idle: {
+        entry: Mailbox.actions.idle('service')('idle'),
         on: {
           DING: 'ding',
-          '*': Mailbox.actions.idle('service')('idle'),
+          '*': 'idle',
         },
       },
       ding: {
@@ -55,9 +56,10 @@ test('Mailbox can make outbound communication when it has lots of queued inbound
     },
     states: {
       idle: {
+        entry: Mailbox.actions.idle('main')('idle'),
         on: {
           DING: 'ding',
-          '*': Mailbox.actions.idle('main')('idle'),
+          '*': 'idle',
         },
       },
       ding: {
@@ -128,6 +130,10 @@ test('Mailbox can make outbound communication when it has lots of queued inbound
     { type: 'DING' },
     { type: 'DONG', counts: [ 1, 2, 3 ] },
   ], 'should get events from all DING events')
+
+  // console.info('Service address', (serviceMailbox as Mailbox.impls.Mailbox).internal.target.interpreter?.sessionId, '<' + String(serviceMailbox.address) + '>')
+  // console.info('Main address', (mailbox as Mailbox.impls.Mailbox).internal.target.interpreter?.sessionId, '<' + String(mailbox.address) + '>')
+  // console.info('Consumer address', interpreter.sessionId)
 
   mailbox.close()
   sandbox.restore()

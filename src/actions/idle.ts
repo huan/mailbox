@@ -35,7 +35,7 @@ export const idle = (name: string) => (data: string) => {
        */
       cond: (_, e) => is.isMailboxType(e.type),
       actions: [
-        actions.log((_, e) => `actions.idle [${e.type}] is MailboxType: skipped`, moduleName),
+        actions.log((_, e) => `actions.idle ignore Mailbox internal event [${e.type}]`, moduleName),
       ],
     },
     {
@@ -43,8 +43,8 @@ export const idle = (name: string) => (data: string) => {
        * send CHILD_IDLE event to the mailbox for receiving new messages
        */
       actions: [
-        actions.log((_, _e) => `actions.idle -> [CHILD_IDLE(${data})]`, moduleName),
-        actions.sendParent(_ => duck.events.CHILD_IDLE(data)),
+        actions.log(`actions.idle -> [CHILD_IDLE(${data})]`, moduleName),
+        actions.sendParent(duck.events.CHILD_IDLE(data)),
       ],
     },
   ]) as any

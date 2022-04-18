@@ -288,45 +288,18 @@ const queueMessageOrigin = (ctx: Context) => metaOrigin(queueMessage(ctx))
 
 const queueAcceptingMessageWithCapacity = (machineName: string) => (capacity = Infinity) => actions.choose<Context, AnyEventObject>([
   {
-    // 1. Mailbox.Types.* is system messages, skip them
+    // 1.1. Ignore all Mailbox.Types.* because they are internal messages
     cond: (_, e) => is.isMailboxType(e.type),
     actions: [],  // skip
   },
   {
-    // 2. Child events (origin from child machine) are handled by child machine, skip them
+    // 1.2. Ignore Child events (origin from child machine) because they are sent from the child machine
     cond: (_, __, meta) => condEventSentFrom(MAILBOX_TARGET_MACHINE_ID)(meta),
     actions: [],  // skip
   },
   {
     /**
-     * 3. If the child is idle, add the incoming message to queue by wrapping the `_event.origin` meta data
-     */
-    cond: (_, __, { state }) => state.matches({ child: duck.states.idle }),
-    actions: [
-      actions.log((_, e, { _event }) => `contexts.queueAcceptingMessageWithCapacity(${capacity}) queue [${e.type}]@${_event.origin || ''} for child(idle)`, machineName),
-      assignEnqueue,  // <- wrapping `_event.origin` inside
-      actions.send((_, e) => duck.events.NEW_MESSAGE(e.type)),
-    ],
-  },
-  /**
-   *
-   * Child is **BUSY**
-   *
-   */
-  {
-    /**
-     * 4. Forward to child when the child can accept this new arrived event even it's busy
-     *    for prevent deaadlock when child actor want to receive events at BUSY state.
-     */
-    cond: (_, e, { state }) => condEventCanBeAcceptedByChildOf(MAILBOX_TARGET_MACHINE_ID)(state, e.type),
-    actions: [
-      actions.log((_, e) => `contexts.queueAcceptingMessageWithCapacity(${capacity}) forward [${e.type}](acceptable) to child(busy)`, machineName),
-      actions.forwardTo(MAILBOX_TARGET_MACHINE_ID), // <- keep the original of event by forwarding(`forwardTo`, instead of `send`) it
-    ],
-  },
-  {
-    /**
-     * 5. Bounded mailbox: out of capicity, send them to Dead Letter Queue (DLQ)
+     * 2. Bounded mailbox: out of capicity, send them to Dead Letter Queue (DLQ)
      */
     cond: ctx => queueSize(ctx) > capacity,
     actions: [
@@ -336,7 +309,7 @@ const queueAcceptingMessageWithCapacity = (machineName: string) => (capacity = I
   },
   {
     /**
-     * 6. Add incoming message to queue by wrapping the `_event.origin` meta data
+     * 3. Add incoming message to queue by wrapping the `_event.origin` meta data
      */
     actions: [
       actions.log((_, e, { _event }) => `contexts.queueAcceptingMessageWithCapacity(${capacity}) queue [${e.type}]@${_event.origin || ''} to child(busy)`, machineName),

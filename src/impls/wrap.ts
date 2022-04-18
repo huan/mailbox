@@ -63,7 +63,7 @@ export function wrap <
    * when in developement mode, we will validate the targetMachine
    */
   if (IS_DEVELOPMENT && !validate(targetMachine)) {
-    throw new Error('Mailbox.address: targetMachine is not valid')
+    throw new Error('Mailbox.wrap: invalid targetMachine!')
   }
 
   // console.info('TESTING:', targetMachine.id, new Error().stack)
@@ -108,6 +108,7 @@ export function wrap <
      * @see https://github.com/statelyai/xstate/issues/2891
      */
     preserveActionOrder: true,
+
     states: {
       queue: {
         /**
@@ -215,7 +216,12 @@ export function wrap <
               contexts.sendChildMessage,
             ],
             on: {
-              [types.CHILD_IDLE]: states.idle,
+              [types.CHILD_IDLE]: {
+                actions: [
+                  actions.log((_, __, meta) => `states.busy.on.CHILD_IDLE child address "@${meta._event.origin}"`, MAILBOX_ADDRESS_NAME) as any,
+                ],
+                target: states.idle,
+              },
             },
           },
         },
