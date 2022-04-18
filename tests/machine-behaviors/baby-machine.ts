@@ -140,5 +140,4 @@ const machine = createMachine<
 })
 
 duckula.machine = machine
-
 export default duckula as Required<typeof duckula>
