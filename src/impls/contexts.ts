@@ -278,6 +278,13 @@ const assignEmptyQueue = actions.assign<Context>({
   index: _ => 0,
 }) as any
 
+const assign = {
+  enqueue: assignEnqueue,
+  dequeue: assignDequeue,
+  emptyQueue: assignEmptyQueue,
+}
+void assign
+
 const queueSize          = (ctx: Context) => ctx.queue.length - ctx.index
 const queueMessage       = (ctx: Context) => ctx.queue[ctx.index]
 const queueMessageType   = (ctx: Context) => ctx.queue[ctx.index]?.type
@@ -321,6 +328,15 @@ const queueAcceptingMessageWithCapacity = (machineName: string) => (capacity = I
   },
 
 ]) as any
+
+const queue = {
+  size: queueSize,
+  message: queueMessage,
+  messageType: queueMessageType,
+  messageOrigin: queueMessageOrigin,
+  acceptingMessageWithCapacity: queueAcceptingMessageWithCapacity,
+}
+void queue
 
 /**************************
  *

@@ -26,14 +26,14 @@ export const CHILD_REPLY   = 'mailbox/CHLID_REPLY'
 export const CHLID_TOGGLE  = 'mailbox/CHILD_TOGGLE'
 
 /**
+ * sub state types of: queue
+ */
+export const NEW_MESSAGE  = 'mailbox/NEW_MESSAGE'
+export const DEQUEUE      = 'mailbox/DEQUEUE'
+export const DISPATCH     = 'mailbox/DISPATCH'
+
+/**
  * types of: debug
  */
 export const DEAD_LETTER = 'mailbox/DEAD_LETTER'
 export const RESET       = 'mailbox/RESET'
-
-/**
- * sub state types of: queue
- */
-export const NEW_MESSAGE = 'mailbox/NEW_MESSAGE'
-export const DEQUEUE     = 'mailbox/DEQUEUE'
-export const DISPATCH    = 'mailbox/DISPATCH'

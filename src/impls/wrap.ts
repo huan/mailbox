@@ -33,7 +33,6 @@ import * as duck    from '../duck/mod.js'
 
 import { IS_DEVELOPMENT }     from '../config.js'
 import { validate }           from '../validate.js'
-
 import {
   MAILBOX_TARGET_MACHINE_ID,
   MAILBOX_NAME,
@@ -65,8 +64,6 @@ export function wrap <
   if (IS_DEVELOPMENT && !validate(targetMachine)) {
     throw new Error('Mailbox.wrap: invalid targetMachine!')
   }
-
-  // console.info('TESTING:', targetMachine.id, new Error().stack)
 
   const MAILBOX_ADDRESS_NAME = `${targetMachine.id}<${MAILBOX_NAME}>`
 
@@ -112,46 +109,71 @@ export function wrap <
     states: {
       queue: {
         /**
-         * queue states transitions are all SYNC
+         * To be confirmed: queue states transitions are all SYNC
+         * Huan(202204) what if there's any `actions.log` in the entry/exit?
          */
-        initial: duck.State.Listening,
+        initial: duck.State.Idle,
         on: {
           '*': {
             actions: contexts.queueAcceptingMessageWithCapacity(MAILBOX_ADDRESS_NAME)(normalizedOptions.capacity),
           },
         },
         states: {
-          [duck.State.Listening]: {
+
+          /**
+           *
+           * Queue State.Idle
+           *
+           * 1. received DISPATCH -> transit to Busy
+           *
+           */
+          [duck.State.Idle]: {
             entry: [
-              actions.log('State.queue.Listening.entry', MAILBOX_ADDRESS_NAME),
+              actions.log('states.queue.Idle.entry', MAILBOX_ADDRESS_NAME),
             ],
             on: {
-              [duck.Type.DISPATCH]: duck.State.Checking,
+              [duck.Type.DISPATCH]: duck.State.Busy,
             },
           },
-          [duck.State.Checking]: {
+
+          /**
+           *
+           * Queue State.Busy
+           *
+           * 1. transited to Busy -> emit DEQUEUE if queue size > 0
+           * 2. transit to Idle
+           * 3. assignDequeue
+           * 4. assignEmptyQueue if queue size <= 0
+           */
+          [duck.State.Busy]: {
             entry: [
-              actions.log((_, e) => `State.queue.Checking.entry <- [DISPATCH(${(e as duck.Event['DISPATCH']).payload.data})]`, MAILBOX_ADDRESS_NAME),
+              actions.log(
+                (ctx, e) => [
+                  'states.queue.Busy.entry queue size = ',
+                  contexts.queueSize(ctx),
+                  ' [DISPATCH(',
+                  (e as duck.Event['DISPATCH']).payload.data,
+                  ')]',
+                ].join(''),
+                MAILBOX_ADDRESS_NAME,
+              ),
+
+              actions.choose<contexts.Context, duck.Event['DISPATCH']>([
+                {
+                  cond: ctx => contexts.queueSize(ctx) > 0,
+                  actions: [
+                    actions.log(ctx => `states.queue.Busy.entry [${contexts.queueMessageType(ctx)}]@${contexts.queueMessageOrigin(ctx)}`, MAILBOX_ADDRESS_NAME),
+                    actions.send(ctx => duck.Event.DEQUEUE(contexts.queueMessage(ctx)!)),
+                  ],
+                },
+                {
+                  actions: [
+                    actions.log('states.queue.Busy.entry queue is empty', MAILBOX_ADDRESS_NAME),
+                  ],
+                },
+              ]),
             ],
-            always: [
-              {
-                cond: ctx => contexts.queueSize(ctx) > 0,
-                actions: [
-                  actions.log(ctx => `State.queue.Checking.always -> dequeuing (queue size ${contexts.queueSize(ctx)} > 0)`, MAILBOX_ADDRESS_NAME),
-                ],
-                target: duck.State.Dequeuing,
-              },
-              {
-                actions: actions.log('State.queue.Checking.always -> listening (queue is empty)', MAILBOX_ADDRESS_NAME),
-                target: duck.State.Listening,
-              },
-            ],
-          },
-          [duck.State.Dequeuing]: {
-            entry: [
-              actions.log(ctx => `State.queue.Dequeuing.entry [${contexts.queueMessageType(ctx)}]@${contexts.queueMessageOrigin(ctx)}`, MAILBOX_ADDRESS_NAME),
-              actions.send(ctx => duck.Event.DEQUEUE(contexts.queueMessage(ctx)!)),
-            ],
+            always: duck.State.Idle,
             exit: [
               contexts.assignDequeue,
               actions.choose([
@@ -161,7 +183,6 @@ export function wrap <
                 },
               ]),
             ],
-            always: duck.State.Listening,
           },
         },
       },
@@ -177,28 +198,30 @@ export function wrap <
            */
           [duck.Type.CHILD_REPLY]: {
             actions: [
-              actions.log((_, e) => `State.child.on.CHILD_REPLY [${(e as duck.Event['CHILD_REPLY']).payload.message.type}]`, MAILBOX_ADDRESS_NAME),
+              actions.log((_, e) => `states.child.on.CHILD_REPLY [${(e as duck.Event['CHILD_REPLY']).payload.message.type}]`, MAILBOX_ADDRESS_NAME),
               contexts.sendChildResponse(MAILBOX_ADDRESS_NAME),
             ],
           },
         },
         states: {
+
           /**
            *
-           * State.Idle:
+           * Child State.Idle:
            *
            * 1. transited to idle     -> emit DISPATCH
            * 2. received NEW_MESSAGE  -> emit DISPATCH
-           * 3. received DEQUEUE      -> transit to duck.state.Busy
+           * 3. received DEQUEUE      -> transit to Busy
            *
            */
+
           [duck.State.Idle]: {
             /**
              * DISPATCH event MUST be only send from child.idle
              *  because it will drop the current message and dequeue the next one
              */
             entry: [
-              actions.log('State.child.Idle.entry', MAILBOX_ADDRESS_NAME),
+              actions.log('states.child.Idle.entry', MAILBOX_ADDRESS_NAME),
               actions.send(duck.Event.DISPATCH(duck.State.Idle)),
             ],
             on: {
@@ -209,24 +232,26 @@ export function wrap <
               [duck.Type.DEQUEUE]: duck.State.Busy,
               [duck.Type.NEW_MESSAGE]: {
                 actions: [
-                  actions.log((_, e) => `State.child.Idle.on.NEW_MESSAGE (${(e as duck.Event['NEW_MESSAGE']).payload.data})`, MAILBOX_ADDRESS_NAME) as any,
+                  actions.log((_, e) => `states.child.Idle.on.NEW_MESSAGE (${(e as duck.Event['NEW_MESSAGE']).payload.data})`, MAILBOX_ADDRESS_NAME) as any,
                   actions.send(_ => duck.Event.DISPATCH(duck.Type.NEW_MESSAGE)),
                 ],
               },
             },
           },
+
           /**
            *
-           * State.Busy
+           * Child State.Busy
            *
            * 1. transited to busy     -> unwrap message from DEQUEUE event, then a) save it to `context.message`, and b) send it to child
            * 2. received CHILD_REPLY  -> unwrap message from CHILD_REPLY event, then reply it to the sender of `context.message`
-           * 3. received CHLID_IDLE   -> transit to duck.state.Idle
+           * 3. received CHLID_IDLE   -> transit to Idle
            *
            */
+
           [duck.State.Busy]: {
             entry: [
-              actions.log((_, e) => `State.child.Busy.entry DEQUEUE [${(e as duck.Event['DEQUEUE']).payload.message.type}]`, MAILBOX_ADDRESS_NAME),
+              actions.log((_, e) => `states.child.Busy.entry DEQUEUE [${(e as duck.Event['DEQUEUE']).payload.message.type}]`, MAILBOX_ADDRESS_NAME),
               actions.assign<contexts.Context, duck.Event['DEQUEUE']>({
                 message: (_, e) => e.payload.message,
               }),
@@ -238,13 +263,13 @@ export function wrap <
             on: {
               [duck.Type.CHILD_IDLE]: {
                 actions: [
-                  actions.log((_, __, meta) => `State.child.Busy.on.CHILD_IDLE child address "@${meta._event.origin}"`, MAILBOX_ADDRESS_NAME) as any,
+                  actions.log((_, __, meta) => `states.child.Busy.on.CHILD_IDLE child address "@${meta._event.origin}"`, MAILBOX_ADDRESS_NAME) as any,
                   actions.send(duck.Event.CHILD_TOGGLE()),
                 ],
               },
               [duck.Type.CHILD_REPLY]: {
                 actions: [
-                  actions.log((_, e) => `State.child.Busy.on.CHILD_REPLY [${(e as duck.Event['CHILD_REPLY']).payload.message.type}]`, MAILBOX_ADDRESS_NAME),
+                  actions.log((_, e) => `states.child.Busy.on.CHILD_REPLY [${(e as duck.Event['CHILD_REPLY']).payload.message.type}]`, MAILBOX_ADDRESS_NAME),
                   contexts.sendChildResponse(MAILBOX_ADDRESS_NAME),
                 ],
               },

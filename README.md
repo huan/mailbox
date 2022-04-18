@@ -472,7 +472,8 @@ See: [XState Docs - Batched Events](https://xstate.js.org/docs/guides/interpreta
 
 ### main v0.7
 
-Add `Duckula` Interface for modulize Mailbox Actor. ([Issue #1](https://github.com/huan/mailbox/issues/1))
+1. Add `Duckula` Interface for modulize Mailbox Actor. ([Issue #1](https://github.com/huan/mailbox/issues/1))
+1. Fix the race condition bug by simplifing the queue state management to be atomic. ([Issue #5](https://github.com/huan/mailbox/issues/5))
 
 ### v0.6 (Apr 10, 2022)
 
