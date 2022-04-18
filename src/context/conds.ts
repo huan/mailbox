@@ -19,8 +19,6 @@
  */
 import type {
   AnyEventObject,
-  ActorRef,
-  Interpreter,
   GuardMeta,
   State,
   EventObject,
@@ -32,56 +30,13 @@ import type { Address }               from '../impls/address-interface.js'
 import type { Mailbox }               from '../impls/mailbox-interface.js'
 import { MAILBOX_TARGET_MACHINE_ID }  from '../impls/constants.js'
 
-import type { Context } from './context.js'
+import type { Context }       from './context.js'
+import { childSessionIdOf }   from './child-session-id-of.js'
+
 /**
- * Get session id by child id (with currying) from children
- * @param childId child id
- * @param children children
- * @returns session id
- *
- * If the `childId` is a not valid childId, will return `undefined`
+ * Check condition of whether an event is sent from the session/child id (with currying)
  */
-export const childSessionIdOf: (childId: string) => (children?: Record<string, ActorRef<any, any>>) => undefined | string
-  = childId => children => {
-    if (!children) {
-      return undefined
-    }
-
-    const child = children[childId] as undefined | Interpreter<any>
-    if (!child) {
-      throw new Error('can not found child id ' + childId)
-    }
-
-    if (!child.sessionId) {
-      /**
-       * Huan(202112):
-       *
-       * When we are not using the interpreter, we can not get the sessionId
-       * for example, we are usint the `machine.transition(event)`
-       */
-      // console.error(new Error('can not found child sessionId from ' + CHILD_MACHINE_ID))
-      return undefined
-    }
-
-    return child.sessionId
-  }
-
-/**
-* Get snapshot by child id (with currying) from state
-*/
-export const childSnapshotOf = (childId: string) => (state: State<Context, EventObject, any, any>) => {
-  const child = state.children[childId]
-  if (!child) {
-    throw new Error('can not found child id ' + childId)
-  }
-
-  return child.getSnapshot()
-}
-
-/**
-* Check condition of whether an event is sent from the session/child id (with currying)
-*/
-export const condEventSentFrom = (target: string | Address | Mailbox) => {
+export const eventSentFrom = (target: string | Address | Mailbox) => {
   /**
    * Convert `target` to address id first
    */
@@ -100,10 +55,23 @@ export const condEventSentFrom = (target: string | Address | Mailbox) => {
 }
 
 /**
-* Check condition of whether an event can be accepted by the child id (with currying)
-*
-* @deprecated we do not check "can be accepted by child" any more. Huan(202204)
-*/
-export const condEventCanBeAcceptedByChildOf = (childId = MAILBOX_TARGET_MACHINE_ID) =>
+ * Get snapshot by child id (with currying) from state
+ * @deprecated used by `eventCanBeAcceptedByChildOf` only
+ */
+export const childSnapshotOf = (childId: string) => (state: State<Context, EventObject, any, any>) => {
+  const child = state.children[childId]
+  if (!child) {
+    throw new Error('can not found child id ' + childId)
+  }
+
+  return child.getSnapshot()
+}
+
+/**
+ * Check condition of whether an event can be accepted by the child id (with currying)
+ *
+ * @deprecated we do not check "can be accepted by child" any more. Huan(202204)
+ */
+export const eventCanBeAcceptedByChildOf = (childId = MAILBOX_TARGET_MACHINE_ID) =>
   (state: State<any, EventObject, any, any>, event: string) =>
     !!childSnapshotOf(childId)(state).can(event)

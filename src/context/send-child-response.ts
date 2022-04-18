@@ -28,10 +28,9 @@ import { actions }    from 'xstate'
 import * as duck                        from '../duck/mod.js'
 import { MAILBOX_TARGET_MACHINE_ID }    from '../impls/constants.js'
 
-import type { Context }   from './context.js'
-
-import * as conds   from './conds.js'
-import * as child   from './child.js'
+import * as child             from './child.js'
+import type { Context }       from './context.js'
+import { childSessionIdOf }   from './child-session-id-of.js'
 
 /**
  * Send an event as response to the current processing message of Mailbox.
@@ -45,14 +44,14 @@ export const sendChildResponse = (machineName: string) => actions.choose<Context
      */
     cond: (ctx, _, { _event, state }) =>
       // 1. current event is sent from CHILD_MACHINE_ID
-      (!!_event.origin && _event.origin === conds.childSessionIdOf(MAILBOX_TARGET_MACHINE_ID)(state.children))
+      (!!_event.origin && _event.origin === childSessionIdOf(MAILBOX_TARGET_MACHINE_ID)(state.children))
       // 2. the message has valid origin for which we are going to reply to
-      && !!child.childMessageOrigin(ctx),
+      && !!child.messageOrigin(ctx),
     actions: [
-      actions.log((ctx, e) => `contexts.sendChildResponse [${e.payload.message.type}] to [${child.childMessage(ctx)?.type}]@${child.childMessageOrigin(ctx)}`, machineName),
+      actions.log((ctx, e) => `contexts.sendChildResponse [${e.payload.message.type}] to [${child.message(ctx)?.type}]@${child.messageOrigin(ctx)}`, machineName),
       actions.send(
         (_, e) => e.payload.message,
-        { to: ctx => child.childMessageOrigin(ctx)! },
+        { to: ctx => child.messageOrigin(ctx)! },
       ),
     ],
   },

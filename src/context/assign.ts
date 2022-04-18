@@ -26,7 +26,7 @@ import * as origin        from './origin.js'
 /**
  * wrap an event as a message and enqueue it to ctx.queue as a new message
  */
-export const assignEnqueue = actions.assign<Context, AnyEventObject>({
+export const enqueue = actions.assign<Context, AnyEventObject>({
   queue: (ctx, e, { _event }) => [
     ...ctx.queue,
     origin.wrapEvent(e, _event.origin),
@@ -36,7 +36,7 @@ export const assignEnqueue = actions.assign<Context, AnyEventObject>({
 /**
  * dequeue ctx.queue by updating the index by increasing 1 (current message pointer move forward)
  */
-export const assignDequeue = actions.assign<Context>({
+export const dequeue = actions.assign<Context>({
   // message: ctx => ctx.queue.shift()!,
   index: ctx => ctx.index + 1,
 }) as any
@@ -44,7 +44,7 @@ export const assignDequeue = actions.assign<Context>({
 /**
  * Reset the queue and index
  */
-export const assignEmptyQueue = actions.assign<Context>({
+export const emptyQueue = actions.assign<Context>({
   index: _ => 0,
   queue: _ => [],
 }) as any

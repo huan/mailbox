@@ -48,7 +48,7 @@ export const proxy = (name: string) => (target: string | impls.Address | impls.M
         // 1. Mailbox.Types.* is system messages, skip them
         is.isMailboxType(e.type)
         // 2. Child events (origin from child machine) are handled by child machine, skip them
-        || context.conds.condEventSentFrom(target)(meta)
+        || context.conds.eventSentFrom(target)(meta)
       ),
       actions: [],  // do nothing when the event is sent from the mailbox / target.
     },

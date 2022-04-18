@@ -33,10 +33,10 @@ test('condEventSentFromChildOf', async t => {
     state: { children: CHILDREN },
   } as GuardMeta<any, any>
 
-  t.ok(conds.condEventSentFrom(MAILBOX_TARGET_MACHINE_ID)(META), 'should return true if the event origin is the child session id')
+  t.ok(conds.eventSentFrom(MAILBOX_TARGET_MACHINE_ID)(META), 'should return true if the event origin is the child session id')
 
   META._event.origin = undefined
-  t.notOk(conds.condEventSentFrom(MAILBOX_TARGET_MACHINE_ID)(META), 'should return false if the event origin is undefined')
+  t.notOk(conds.eventSentFrom(MAILBOX_TARGET_MACHINE_ID)(META), 'should return false if the event origin is undefined')
 })
 
 test('condEventCanBeAcceptedByChildOf()', async t => {
@@ -63,11 +63,11 @@ test('condEventCanBeAcceptedByChildOf()', async t => {
       PARENT_TEST: {
         actions: actions.choose([
           {
-            cond: (_, __, { state }) => conds.condEventCanBeAcceptedByChildOf(CHILD_ID)(state, 'UNKNOWN'),
+            cond: (_, __, { state }) => conds.eventCanBeAcceptedByChildOf(CHILD_ID)(state, 'UNKNOWN'),
             actions: () => spy('UNKONWN'),
           },
           {
-            cond: (_, __, { state }) => conds.condEventCanBeAcceptedByChildOf(CHILD_ID)(state, 'CHILD_TEST'),
+            cond: (_, __, { state }) => conds.eventCanBeAcceptedByChildOf(CHILD_ID)(state, 'CHILD_TEST'),
             actions: () => spy('CHILD_TEST'),
           },
         ]),

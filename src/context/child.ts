@@ -4,14 +4,14 @@ import type { Context }   from './context.js'
 /**
  * The current message(event) that is being processed by the Mailbox system
  */
-export const childMessage = (ctx: Context) => ctx.message
+export const message = (ctx: Context) => ctx.message
 
 /**
  * The origin (machine session, mailbox address) of the current message(event)
  */
-export const childMessageOrigin = (ctx: Context) => origin.metaOrigin(childMessage(ctx))
+export const messageOrigin = (ctx: Context) => origin.metaOrigin(message(ctx))
 
 /**
  * The type of the current message(event)
  */
-export const childMessageType = (ctx: Context) => childMessage(ctx)?.type
+export const messageType = (ctx: Context) => message(ctx)?.type

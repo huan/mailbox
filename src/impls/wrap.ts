@@ -115,7 +115,7 @@ export function wrap <
         initial: duck.State.Idle,
         on: {
           '*': {
-            actions: context.queue.queueAcceptingMessageWithCapacity(MAILBOX_ADDRESS_NAME)(normalizedOptions.capacity),
+            actions: context.queue.acceptingMessageWithCapacity(MAILBOX_ADDRESS_NAME)(normalizedOptions.capacity),
           },
         },
         states: {
@@ -150,7 +150,7 @@ export function wrap <
               actions.log(
                 (ctx, e) => [
                   'states.queue.Busy.entry queue size = ',
-                  context.queue.queueSize(ctx),
+                  context.queue.size(ctx),
                   ' [DISPATCH(',
                   (e as duck.Event['DISPATCH']).payload.data,
                   ')]',
@@ -160,10 +160,10 @@ export function wrap <
 
               actions.choose<context.Context, duck.Event['DISPATCH']>([
                 {
-                  cond: ctx => context.queue.queueSize(ctx) > 0,
+                  cond: ctx => context.queue.size(ctx) > 0,
                   actions: [
-                    actions.log(ctx => `states.queue.Busy.entry [${context.queue.queueMessageType(ctx)}]@${context.queue.queueMessageOrigin(ctx)}`, MAILBOX_ADDRESS_NAME),
-                    actions.send(ctx => duck.Event.DEQUEUE(context.queue.queueMessage(ctx)!)),
+                    actions.log(ctx => `states.queue.Busy.entry [${context.queue.messageType(ctx)}]@${context.queue.messageOrigin(ctx)}`, MAILBOX_ADDRESS_NAME),
+                    actions.send(ctx => duck.Event.DEQUEUE(context.queue.message(ctx)!)),
                   ],
                 },
                 {
@@ -175,11 +175,11 @@ export function wrap <
             ],
             always: duck.State.Idle,
             exit: [
-              context.assign.assignDequeue,
+              context.assign.dequeue,
               actions.choose([
                 {
-                  cond: ctx => context.queue.queueSize(ctx) <= 0,
-                  actions: context.assign.assignEmptyQueue,
+                  cond: ctx => context.queue.size(ctx) <= 0,
+                  actions: context.assign.emptyQueue,
                 },
               ]),
             ],
@@ -199,7 +199,7 @@ export function wrap <
           [duck.Type.CHILD_REPLY]: {
             actions: [
               actions.log((_, e) => `states.child.on.CHILD_REPLY [${(e as duck.Event['CHILD_REPLY']).payload.message.type}]`, MAILBOX_ADDRESS_NAME),
-              context.send.sendChildResponse(MAILBOX_ADDRESS_NAME),
+              context.sendChildResponse(MAILBOX_ADDRESS_NAME),
             ],
           },
         },
@@ -270,7 +270,7 @@ export function wrap <
               [duck.Type.CHILD_REPLY]: {
                 actions: [
                   actions.log((_, e) => `states.child.Busy.on.CHILD_REPLY [${(e as duck.Event['CHILD_REPLY']).payload.message.type}]`, MAILBOX_ADDRESS_NAME),
-                  context.send.sendChildResponse(MAILBOX_ADDRESS_NAME),
+                  context.sendChildResponse(MAILBOX_ADDRESS_NAME),
                 ],
               },
               [duck.Type.CHLID_TOGGLE]: duck.State.Idle,

@@ -17,16 +17,16 @@ test('assignEnqueue', async t => {
     },
   }
 
-  t.equal(assign.assignEnqueue.type, 'xstate.assign', 'should be in `assign` type')
+  t.equal(assign.enqueue.type, 'xstate.assign', 'should be in `assign` type')
 
-  const queue = (assign.assignEnqueue.assignment as any).queue(CONTEXT, EVENT, { _event: { origin: 'test-origin' } })
+  const queue = (assign.enqueue.assignment as any).queue(CONTEXT, EVENT, { _event: { origin: 'test-origin' } })
   t.same(queue, [ EVENT ], 'should enqueue event to context.queue')
 })
 
 test('assignEmptyQueue()', async t => {
-  const queue = assign.assignEmptyQueue.assignment.queue({} as any)
+  const queue = assign.emptyQueue.assignment.queue({} as any)
   t.same(queue, [], 'should be empty queue')
-  const index = assign.assignEmptyQueue.assignment.index({} as any)
+  const index = assign.emptyQueue.assignment.index({} as any)
   t.equal(index, 0, 'should be index 0')
 })
 
@@ -42,7 +42,7 @@ test('assignDequeue()', async t => {
   CONTEXT.queue = [ EVENT ]
 
   t.same(CONTEXT.queue, [ EVENT ], 'should be one EVENT before dequeue event')
-  const index = assign.assignDequeue.assignment.index(CONTEXT, undefined, { _event: {} })
+  const index = assign.dequeue.assignment.index(CONTEXT, undefined, { _event: {} })
   t.same(CONTEXT.queue, [ EVENT ], 'should be one EVENT after dequeue event')
   t.equal(index, 1, 'should be at index 1 after dequeue event')
 })

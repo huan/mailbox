@@ -29,17 +29,17 @@ import * as origin        from './origin.js'
 import * as conds         from './conds.js'
 import * as assign        from './assign.js'
 
-export const queueSize          = (ctx: Context) => ctx.queue.length - ctx.index
-export const queueMessage       = (ctx: Context) => ctx.queue[ctx.index]
-export const queueMessageType   = (ctx: Context) => ctx.queue[ctx.index]?.type
+export const size          = (ctx: Context) => ctx.queue.length - ctx.index
+export const message       = (ctx: Context) => ctx.queue[ctx.index]
+export const messageType   = (ctx: Context) => ctx.queue[ctx.index]?.type
 
 /**
  * `origin` is the session id of the child machine
  *  we use it as the `address` of the Mailbox.
  */
-export const queueMessageOrigin = (ctx: Context) => origin.metaOrigin(queueMessage(ctx))
+export const messageOrigin = (ctx: Context) => origin.metaOrigin(message(ctx))
 
-export const queueAcceptingMessageWithCapacity = (machineName: string) => (capacity = Infinity) => actions.choose<Context, AnyEventObject>([
+export const acceptingMessageWithCapacity = (machineName: string) => (capacity = Infinity) => actions.choose<Context, AnyEventObject>([
   {
     // 1.1. Ignore all Mailbox.Types.* because they are internal messages
     cond: (_, e) => is.isMailboxType(e.type),
@@ -47,17 +47,17 @@ export const queueAcceptingMessageWithCapacity = (machineName: string) => (capac
   },
   {
     // 1.2. Ignore Child events (origin from child machine) because they are sent from the child machine
-    cond: (_, __, meta) => conds.condEventSentFrom(MAILBOX_TARGET_MACHINE_ID)(meta),
+    cond: (_, __, meta) => conds.eventSentFrom(MAILBOX_TARGET_MACHINE_ID)(meta),
     actions: [],  // skip
   },
   {
     /**
      * 2. Bounded mailbox: out of capicity, send them to Dead Letter Queue (DLQ)
      */
-    cond: ctx => queueSize(ctx) > capacity,
+    cond: ctx => size(ctx) > capacity,
     actions: [
-      actions.log((ctx, e, { _event }) => `contexts.queueAcceptingMessageWithCapacity(${capacity}) dead letter [${e.type}]@${_event.origin || ''} because queueSize(${queueSize(ctx)}) > capacity(${capacity}): child(busy) out of capacity`, machineName),
-      actions.send((ctx, e) => duck.Event.DEAD_LETTER(e, `queueSize(${queueSize(ctx)} out of capacity(${capacity})`)),
+      actions.log((ctx, e, { _event }) => `contexts.queueAcceptingMessageWithCapacity(${capacity}) dead letter [${e.type}]@${_event.origin || ''} because queueSize(${size(ctx)}) > capacity(${capacity}): child(busy) out of capacity`, machineName),
+      actions.send((ctx, e) => duck.Event.DEAD_LETTER(e, `queueSize(${size(ctx)} out of capacity(${capacity})`)),
     ],
   },
   {
@@ -66,7 +66,7 @@ export const queueAcceptingMessageWithCapacity = (machineName: string) => (capac
      */
     actions: [
       actions.log((_, e, { _event }) => `contexts.queueAcceptingMessageWithCapacity(${capacity}) queue [${e.type}]@${_event.origin || ''} to child(busy)`, machineName),
-      assign.assignEnqueue,  // <- wrapping `_event.origin` inside
+      assign.enqueue,  // <- wrapping `_event.origin` inside
       actions.send((_, e) => duck.Event.NEW_MESSAGE(e.type)),
     ],
   },
