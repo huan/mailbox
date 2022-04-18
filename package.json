@@ -1,6 +1,6 @@
 {
   "name": "mailbox",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Mailbox is for converting a XState Machine to the REAL Actor",
   "type": "module",
   "exports": {
@@ -76,8 +76,7 @@
     "utility-types": "^3.10.0",
     "xstate": "^4.30.6"
   },
-  "peerDependencies": {
-  },
+  "peerDependencies": {},
   "files": [
     "dist",
     "src"
