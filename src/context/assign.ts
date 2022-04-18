@@ -39,12 +39,12 @@ export const enqueue = actions.assign<Context, AnyEventObject>({
 export const dequeue = actions.assign<Context>({
   // message: ctx => ctx.queue.shift()!,
   index: ctx => ctx.index + 1,
-}) as any
+})
 
 /**
  * Reset the queue and index
  */
 export const emptyQueue = actions.assign<Context>({
-  index: _ => 0,
-  queue: _ => [],
-}) as any
+  index: () => 0,
+  queue: () => [],
+})

@@ -39,6 +39,12 @@ export const messageType   = (ctx: Context) => ctx.queue[ctx.index]?.type
  */
 export const messageOrigin = (ctx: Context) => origin.metaOrigin(message(ctx))
 
+/**
+ * 1. Skip Mailbox internal event
+ * 2. skip Child event
+ * 3. send(drop) letter to DLQ if capacity overflow
+ * 4. emit NEW_MESSAGE after enqueue the message to the queue
+ */
 export const acceptingMessageWithCapacity = (machineName: string) => (capacity = Infinity) => actions.choose<Context, AnyEventObject>([
   {
     // 1.1. Ignore all Mailbox.Types.* because they are internal messages

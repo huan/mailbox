@@ -30,7 +30,6 @@ export const CHLID_TOGGLE  = 'mailbox/CHILD_TOGGLE'
  */
 export const NEW_MESSAGE  = 'mailbox/NEW_MESSAGE'
 export const DEQUEUE      = 'mailbox/DEQUEUE'
-export const DISPATCH     = 'mailbox/DISPATCH'
 
 /**
  * types of: debug
