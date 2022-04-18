@@ -16,8 +16,8 @@ import {
 
 import * as Mailbox   from '../src/mods/mod.js'
 
-import * as DingDong    from './machine-behaviors/ding-dong-machine.js'
-import * as CoffeeMaker from './machine-behaviors/coffee-maker-machine.js'
+import DingDong    from './machine-behaviors/ding-dong-machine.js'
+import CoffeeMaker from './machine-behaviors/coffee-maker-machine.js'
 
 test('Mailbox.from(DingDong.machine) as an actor should enforce process messages one by one', async t => {
   const sandbox = sinon.createSandbox({
@@ -25,10 +25,10 @@ test('Mailbox.from(DingDong.machine) as an actor should enforce process messages
   })
 
   const ITEM_NUMBERS = [ ...Array(3).keys() ]
-  const DING_EVENT_LIST = ITEM_NUMBERS.map(i => DingDong.events.DING(i))
-  const DONG_EVENT_LIST = ITEM_NUMBERS.map(i => DingDong.events.DONG(i))
+  const DING_EVENT_LIST = ITEM_NUMBERS.map(i => DingDong.Event.DING(i))
+  const DONG_EVENT_LIST = ITEM_NUMBERS.map(i => DingDong.Event.DONG(i))
 
-  const mailbox = Mailbox.from(DingDong.machine) as Mailbox.impls.Mailbox
+  const mailbox = Mailbox.from(DingDong.machine.withContext(DingDong.initialContext())) as Mailbox.impls.Mailbox
   mailbox.open()
   const interpreter = mailbox.internal.interpreter
 
@@ -44,8 +44,8 @@ test('Mailbox.from(DingDong.machine) as an actor should enforce process messages
 
   t.same(
     eventList
-      .filter(e => e.type === Mailbox.types.DEAD_LETTER)
-      .map(e => (e as ReturnType<typeof Mailbox.events.DEAD_LETTER>).payload.message),
+      .filter(e => e.type === Mailbox.Type.DEAD_LETTER)
+      .map(e => (e as ReturnType<typeof Mailbox.Event.DEAD_LETTER>).payload.message),
     DONG_EVENT_LIST,
     `should reply total ${DONG_EVENT_LIST.length} DONG events to ${DING_EVENT_LIST.length} DING events`,
   )
@@ -62,13 +62,13 @@ test('parentMachine with invoke.src=Mailbox.address(DingDong.machine) should pro
   const ITEM_NUMBERS = [ ...Array(3).keys() ]
 
   const DING_EVENT_LIST = ITEM_NUMBERS.map(i =>
-    DingDong.events.DING(i),
+    DingDong.Event.DING(i),
   )
   const DONG_EVENT_LIST = ITEM_NUMBERS.map(i =>
-    DingDong.events.DONG(i),
+    DingDong.Event.DONG(i),
   )
 
-  const mailbox = Mailbox.from(DingDong.machine) as Mailbox.impls.Mailbox
+  const mailbox = Mailbox.from(DingDong.machine.withContext(DingDong.initialContext())) as Mailbox.impls.Mailbox
   const machine = mailbox.internal.machine
 
   const CHILD_ID = 'mailbox-child-id'
@@ -87,7 +87,7 @@ test('parentMachine with invoke.src=Mailbox.address(DingDong.machine) should pro
     states: {
       testing: {
         on: {
-          [DingDong.types.DING]: {
+          [DingDong.Type.DING]: {
             actions: actions.send(
               (_, e) => e,
               { to: CHILD_ID },
@@ -112,7 +112,7 @@ test('parentMachine with invoke.src=Mailbox.address(DingDong.machine) should pro
   await sandbox.clock.runAllAsync()
 
   t.same(
-    eventList.filter(e => e.type === DingDong.types.DONG),
+    eventList.filter(e => e.type === DingDong.Type.DONG),
     DONG_EVENT_LIST,
     `should get replied DONG events from all(${DONG_EVENT_LIST.length}) DING events`,
   )
@@ -129,13 +129,13 @@ test('Mailbox.from(CoffeeMaker.machine) as an actor should enforce process messa
   const ITEM_NUMBERS = [ ...Array(3).keys() ]
 
   const MAKE_ME_COFFEE_EVENT_LIST = ITEM_NUMBERS.map(i =>
-    CoffeeMaker.events.MAKE_ME_COFFEE(String(i)),
+    CoffeeMaker.Event.MAKE_ME_COFFEE(String(i)),
   )
   const EXPECTED_COFFEE_EVENT_LIST = ITEM_NUMBERS.map(i =>
-    CoffeeMaker.events.COFFEE(String(i)),
+    CoffeeMaker.Event.COFFEE(String(i)),
   )
 
-  const mailbox = Mailbox.from(CoffeeMaker.machine) as Mailbox.impls.Mailbox
+  const mailbox = Mailbox.from(CoffeeMaker.machine.withContext(CoffeeMaker.initialContext())) as Mailbox.impls.Mailbox
   mailbox.open()
   const interpreter = mailbox.internal.interpreter!
 
@@ -158,8 +158,8 @@ test('Mailbox.from(CoffeeMaker.machine) as an actor should enforce process messa
 
   t.same(
     eventList
-      .filter(e => e.type === Mailbox.types.DEAD_LETTER)
-      .map(e => (e as ReturnType<typeof Mailbox.events.DEAD_LETTER>).payload.message),
+      .filter(e => e.type === Mailbox.Type.DEAD_LETTER)
+      .map(e => (e as ReturnType<typeof Mailbox.Event.DEAD_LETTER>).payload.message),
     EXPECTED_COFFEE_EVENT_LIST,
     `should reply dead letter of total ${EXPECTED_COFFEE_EVENT_LIST.length} COFFEE events to ${MAKE_ME_COFFEE_EVENT_LIST.length} MAKE_ME_COFFEE events`,
   )

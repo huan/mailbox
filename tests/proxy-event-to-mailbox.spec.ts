@@ -6,14 +6,14 @@ import { createMachine, interpret }   from 'xstate'
 
 import * as Mailbox  from '../src/mods/mod.js'
 
-import * as DingDong  from './machine-behaviors/ding-dong-machine.js'
+import DingDong  from './machine-behaviors/ding-dong-machine.js'
 
 test('proxy() with Mailbox target', async t => {
   const sandbox = sinon.createSandbox({
     useFakeTimers: true,
   })
 
-  const mailbox = Mailbox.from(DingDong.machine)
+  const mailbox = Mailbox.from(DingDong.machine.withContext(DingDong.initialContext()))
   mailbox.open()
 
   const testMachine = createMachine({
@@ -29,14 +29,14 @@ test('proxy() with Mailbox target', async t => {
     .onEvent(e => eventList.push(e))
     .start()
 
-  intepretor.send(DingDong.events.DING(1))
+  intepretor.send(DingDong.Event.DING(1))
   await sandbox.clock.runAllAsync()
 
   console.info(eventList)
   t.same(eventList, [
     { type: 'xstate.init' },
-    DingDong.events.DING(1),
-    DingDong.events.DONG(1),
+    DingDong.Event.DING(1),
+    DingDong.Event.DONG(1),
   ], 'should get ding/dong events')
 
   sandbox.restore()
