@@ -29,7 +29,8 @@ import {
   EventObject,
 }                   from 'xstate'
 
-import * as duck    from '../duck/mod.js'
+import * as duck        from '../duck/mod.js'
+import * as contexts    from '../context/contexts.js'
 
 import { IS_DEVELOPMENT }     from '../config.js'
 import { validate }           from '../validate.js'
@@ -37,7 +38,6 @@ import {
   MAILBOX_TARGET_MACHINE_ID,
   MAILBOX_NAME,
 }                             from './constants.js'
-import * as contexts          from './contexts.js'
 import type { Options }       from './mailbox-interface.js'
 
 /**

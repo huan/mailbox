@@ -31,7 +31,7 @@ import {
 
 import * as duck            from './duck/mod.js'
 import { isMailboxType }    from './is/mod.js'
-import { contexts }         from './impls/mod.js'
+import { contexts }         from './context/mod.js'
 
 /**
  * Make the machine the child of the container to ready for testing

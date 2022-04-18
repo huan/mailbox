@@ -38,9 +38,9 @@ import * as duck    from '../duck/mod.js'
 import * as is      from '../is/mod.js'
 import * as impls   from '../impls/mod.js'
 
-import type { Address }               from './address-interface.js'
-import type { Mailbox }               from './mailbox-interface.js'
-import { MAILBOX_TARGET_MACHINE_ID }  from './constants.js'
+import type { Address }               from '../impls/address-interface.js'
+import type { Mailbox }               from '../impls/mailbox-interface.js'
+import { MAILBOX_TARGET_MACHINE_ID }  from '../impls/constants.js'
 
 const metaSymKey = Symbol('meta')
 

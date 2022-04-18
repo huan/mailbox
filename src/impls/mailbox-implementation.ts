@@ -35,10 +35,10 @@ import EventEmitter         from 'events'
 
 import * as duck            from '../duck/mod.js'
 import { isMailboxType }    from '../is/mod.js'
+import type * as contexts   from '../context/contexts.js'
 
 import type { Address }               from './address-interface.js'
 import { getTargetMachine }           from './get-target-machine.js'
-import type * as contexts             from './contexts.js'
 import { MAILBOX_TARGET_MACHINE_ID }  from './constants.js'
 import type { Mailbox, Options }      from './mailbox-interface.js'
 import { AddressImpl }                from './address-implementation.js'

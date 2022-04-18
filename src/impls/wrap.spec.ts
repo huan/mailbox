@@ -18,7 +18,6 @@
  */
 /* eslint-disable sort-keys */
 
-import { test, sinon }    from 'tstest'
 import {
   interpret,
   createMachine,
@@ -28,17 +27,19 @@ import {
   Interpreter,
   State,
 }                         from 'xstate'
+import { test, sinon }    from 'tstest'
 
 import Baby                           from '../../tests/machine-behaviors/baby-machine.js'
 import CoffeeMaker, {
   DELAY_MS as COFFEE_MAKER_DELAY_MS,
 }                                     from '../../tests/machine-behaviors/coffee-maker-machine.js'
 
-import * as duck                from '../duck/mod.js'
+import * as duck          from '../duck/mod.js'
+import type { Context }   from '../context/contexts.js'
+
 import { stripPayloadDebug }    from '../testing-utils.js'
 
-import type { Context }   from './contexts.js'
-import { wrap }           from './wrap.js'
+import { wrap }   from './wrap.js'
 
 test('wrap() transition nextState smoke testing', async t => {
   const mailbox = wrap(Baby.machine.withContext(Baby.initialContext()))
