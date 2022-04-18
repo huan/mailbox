@@ -22,7 +22,7 @@ import {
   SendActionOptions,
 }                         from 'xstate'
 
-import { events }         from '../duck/mod.js'
+import * as events    from '../duck/events.js'
 
 /**
  * Huan(202112): for child, respond the mailbox implict or explicit?

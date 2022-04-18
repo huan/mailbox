@@ -128,7 +128,7 @@ export function duckularize <
     )
 
   const duckula = {
-    ID: options.id,
+    id: options.id,
     Event,
     State,
     Type,

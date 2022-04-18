@@ -26,7 +26,7 @@ export interface Duckula <
   TContext extends {} = {},
   TMachine extends AnyStateMachine = AnyStateMachine,
 > {
-  ID: TID
+  id: TID
   Type: TType
   Event: TEvent
   State: TState

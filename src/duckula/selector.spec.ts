@@ -11,15 +11,15 @@ import { selector } from './selector.js'
 test('selector() smoke testing', async t => {
 
   const EXPECTED_EVENT = {
-    IDLE: duck.Event.IDLE,
-    NEXT: duck.Event.NEXT,
+    CHILD_IDLE: duck.Event.CHILD_IDLE,
+    CHILD_REPLY: duck.Event.CHILD_REPLY,
   }
 
   const Event = selector([
     duck.Event,
     [
-      'IDLE',
-      'NEXT',
+      'CHILD_IDLE',
+      'CHILD_REPLY',
     ],
   ])
 
@@ -29,15 +29,15 @@ test('selector() smoke testing', async t => {
 test('selector() array typing smoke testing', async t => {
 
   const EXPECTED_EVENT = {
-    IDLE: duck.Event.IDLE,
-    NEXT: duck.Event.NEXT,
+    CHILD_IDLE: duck.Event.CHILD_IDLE,
+    CHILD_REPLY: duck.Event.CHILD_REPLY,
   }
 
   const Event = selector([
     duck.Event,
     [
-      'IDLE',
-      'NEXT',
+      'CHILD_IDLE',
+      'CHILD_REPLY',
     ],
   ])
 
@@ -51,8 +51,8 @@ test('selector() array typing smoke testing', async t => {
 test('selector() object typing smoke testing', async t => {
 
   const EXPECTED_EVENT = {
-    IDLE: duck.Event.IDLE,
-    NEXT: duck.Event.NEXT,
+    CHILD_IDLE: duck.Event.CHILD_IDLE,
+    CHILD_REPLY: duck.Event.CHILD_REPLY,
   }
 
   const Event = selector(EXPECTED_EVENT)

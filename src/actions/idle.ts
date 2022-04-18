@@ -44,7 +44,7 @@ export const idle = (name: string) => (data: string) => {
        */
       actions: [
         actions.log(`actions.idle -> [CHILD_IDLE(${data})]`, moduleName),
-        actions.sendParent(duck.events.CHILD_IDLE(data)),
+        actions.sendParent(duck.Event.CHILD_IDLE(data)),
       ],
     },
   ]) as any

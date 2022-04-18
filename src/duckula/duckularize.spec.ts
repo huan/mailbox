@@ -10,7 +10,7 @@ import { duckularize } from './duckularize.js'
 
 const FIXTURE = {
 
-  ID: 'duckula-id',
+  id: 'duckula-id',
 
   Event: {
     CHILD_IDLE: duck.Event.CHILD_IDLE,
@@ -33,7 +33,7 @@ const FIXTURE = {
 test('duckularize() array param values', async t => {
 
   const duckula = duckularize({
-    id: FIXTURE.ID,
+    id: FIXTURE.id,
     events: [ duck.Event, [
       'CHILD_IDLE',
       'CHILD_REPLY',
@@ -56,7 +56,7 @@ test('duckularize() array param values', async t => {
 test('duckularize() array param typings', async t => {
 
   const duckula = duckularize({
-    id: FIXTURE.ID,
+    id: FIXTURE.id,
     events: [ duck.Event, [
       'CHILD_REPLY',
       'CHILD_IDLE',
@@ -79,7 +79,7 @@ test('duckularize() array param typings', async t => {
 test('duckularize() object param values', async t => {
 
   const duckula = duckularize({
-    id: FIXTURE.ID,
+    id: FIXTURE.id,
     events: FIXTURE.Event,
     states: FIXTURE.State,
     initialContext: FIXTURE.initialContext(),
@@ -102,7 +102,7 @@ test('duckularize() object param values', async t => {
 test('duckularize() object param typings', async t => {
 
   const duckula = duckularize({
-    id: FIXTURE.ID,
+    id: FIXTURE.id,
     events: FIXTURE.Event,
     states: FIXTURE.State,
     initialContext: FIXTURE.initialContext(),
