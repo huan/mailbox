@@ -17,31 +17,23 @@
  *   limitations under the License.
  *
  */
-enum Type {
-  /**
-   * sub state types of: child
-   */
-  CHILD_IDLE  = 'mailbox/CHILD_IDLE',
-  CHILD_REPLY = 'mailbox/CHLID_REPLY',
 
-  /**
-   * types of: debug
-   */
-  DEAD_LETTER = 'mailbox/DEAD_LETTER',
-  RESET       = 'mailbox/RESET',
-  TOGGLE      = 'mailbox/TOGGLE',
+/**
+ * sub state types of: child
+ */
+export const CHILD_IDLE    = 'mailbox/CHILD_IDLE'
+export const CHILD_REPLY   = 'mailbox/CHLID_REPLY'
+export const CHLID_TOGGLE  = 'mailbox/CHILD_TOGGLE'
 
-  /**
-   * sub state types of: queue
-   */
-  NEW_MESSAGE = 'mailbox/NEW_MESSAGE',
-  DEQUEUE     = 'mailbox/DEQUEUE',
-  DISPATCH    = 'mailbox/DISPATCH',
-}
+/**
+ * types of: debug
+ */
+export const DEAD_LETTER = 'mailbox/DEAD_LETTER'
+export const RESET       = 'mailbox/RESET'
 
-const types = Type
-
-export {
-  types,
-  type Type,
-}
+/**
+ * sub state types of: queue
+ */
+export const NEW_MESSAGE = 'mailbox/NEW_MESSAGE'
+export const DEQUEUE     = 'mailbox/DEQUEUE'
+export const DISPATCH    = 'mailbox/DISPATCH'

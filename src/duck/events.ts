@@ -23,7 +23,7 @@ import type { AnyEventObject, EventObject }   from 'xstate'
 
 import type { contexts }    from '../impls/mod.js'
 
-import { types }  from './types.js'
+import * as types   from './types.js'
 
 /**
  * events of: child
@@ -59,4 +59,4 @@ export const RESET  = createAction(types.RESET, payloadReset)()
 const payloadDeadLetter   = (message: AnyEventObject, data?: string) => ({ message, data })
 export const DEAD_LETTER  = createAction(types.DEAD_LETTER, payloadDeadLetter)()
 
-export const TOGGLE = createAction(types.TOGGLE)()
+export const CHILD_TOGGLE = createAction(types.CHLID_TOGGLE)()

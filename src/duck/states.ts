@@ -17,48 +17,40 @@
  *   limitations under the License.
  *
  */
-enum State {
-  /**
-   * Idle Time – Definition, Causes, And How To Reduce It
-   *  @see https://limblecmms.com/blog/idle-time/
-   *
-   * Note: idle & busy are only for Async mode.
-   *  non-async mode should use listening/standby (see below)
-   */
-  idle = 'mailbox/idle',
-  busy = 'mailbox/busy',
 
-  /**
-   * Non-async mode should use listening/standby
-   */
-  listening = 'mailbox/listening',
-  standby   = 'mailbox/standby',
+/**
+ * Idle Time – Definition, Causes, And How To Reduce It
+ *  @see https://limblecmms.com/blog/idle-time/
+ *
+ * Note: idle & busy are only for Async mode.
+ *  non-async mode should use listening/standby (see below)
+ */
+export const Idle = 'mailbox/Idle'
+export const Busy = 'mailbox/Busy'
 
-  /**
-   * Dispatch v.s. Deliver
-   *  - dispatch: internally preparation
-   *  - deliver: externally shipping
-   *
-   *  @see https://tshirtfoundry.zendesk.com/hc/en-gb/articles/200668566-What-s-the-difference-between-dispatch-and-delivery-
-   */
-  dispatching = 'mailbox/dispatching',
-  delivering  = 'mailbox/dilivering',
-  dequeuing   = 'mailbox/dequeuing',
-  checking = 'mailbox/checking',
+/**
+ * Non-async mode should use listening/standby
+ */
+export const Listening = 'mailbox/Listening'
+export const Standby   = 'mailbox/Standby'
 
-  responding = 'mailbox/responding',
+/**
+ * Dispatch v.s. Deliver
+ *  - dispatch: internally preparation
+ *  - deliver: externally shipping
+ *
+ *  @see https://tshirtfoundry.zendesk.com/hc/en-gb/articles/200668566-What-s-the-difference-between-dispatch-and-delivery-
+ */
+export const Dispatching  = 'mailbox/Dispatching'
+export const Delivering   = 'mailbox/Dilivering'
+export const Dequeuing    = 'mailbox/Dequeuing'
+export const Checking     = 'mailbox/Checking'
 
-  resetting = 'mailbox/resetting',
-  spawning  = 'mailbox/spawning',
+export const Responding = 'mailbox/Responding'
 
-  incoming = 'mailbox/incoming',
-  outgoing = 'mailbox/outgoing',
-  routing  = 'mailbox/routing',
-}
+export const Resetting = 'mailbox/Resetting'
+export const Spawning  = 'mailbox/Spawning'
 
-const states = State
-
-export {
-  type State,
-  states,
-}
+export const Incoming = 'mailbox/Incoming'
+export const Outgoing = 'mailbox/Outgoing'
+export const Routing  = 'mailbox/Routing'
