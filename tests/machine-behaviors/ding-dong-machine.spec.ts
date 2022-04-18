@@ -14,7 +14,7 @@ import {
 
 import * as Mailbox   from '../../src/mods/mod.js'
 
-import * as DingDong  from './ding-dong-machine.js'
+import DingDong  from './ding-dong-machine.js'
 
 test('DingDong.machine process one DING event', async t => {
   const sandbox = sinon.createSandbox({
@@ -28,7 +28,7 @@ test('DingDong.machine process one DING event', async t => {
     initial: 'testing',
     invoke: {
       id: CHILD_ID,
-      src: DingDong.machine,
+      src: DingDong.machine.withContext(DingDong.initialContext()),
       autoForward: true,
     },
     states: {
@@ -49,13 +49,13 @@ test('DingDong.machine process one DING event', async t => {
   })
 
   interpreter.start()
-  interpreter.send(DingDong.events.DING(1))
+  interpreter.send(DingDong.Event.DING(1))
   t.same(
     eventList.map(e => e.type),
     [
       'xstate.init',
-      Mailbox.types.CHILD_IDLE,
-      DingDong.types.DING,
+      Mailbox.Type.CHILD_IDLE,
+      DingDong.Type.DING,
     ],
     'should have received init/RECEIVE/DING events after initializing',
   )
@@ -66,8 +66,8 @@ test('DingDong.machine process one DING event', async t => {
   t.same(
     eventList,
     [
-      Mailbox.events.CHILD_IDLE('idle'),
-      Mailbox.events.CHILD_REPLY(DingDong.events.DONG(1)),
+      Mailbox.Event.CHILD_IDLE('idle'),
+      Mailbox.Event.CHILD_REPLY(DingDong.Event.DONG(1)),
     ],
     'should have received DONG/RECEIVE events after runAllAsync',
   )
@@ -84,7 +84,7 @@ test('DingDong.machine process 2+ message at once: only be able to process the f
 
   const containerMachine = createMachine({
     invoke: {
-      src: DingDong.machine,
+      src: DingDong.machine.withContext(DingDong.initialContext()),
       autoForward: true,
     },
     states: {},
@@ -100,17 +100,17 @@ test('DingDong.machine process 2+ message at once: only be able to process the f
     .start()
 
   interpreter.send([
-    DingDong.events.DING(0),
-    DingDong.events.DING(1),
+    DingDong.Event.DING(0),
+    DingDong.Event.DING(1),
   ])
 
   await sandbox.clock.runAllAsync()
   eventList.forEach(e => console.info(e))
   t.same(
     eventList
-      .filter(e => e.type === Mailbox.types.CHILD_REPLY),
+      .filter(e => e.type === Mailbox.Type.CHILD_REPLY),
     [
-      Mailbox.events.CHILD_REPLY(DingDong.events.DONG(0)),
+      Mailbox.Event.CHILD_REPLY(DingDong.Event.DONG(0)),
     ],
     'should reply DONG to the first DING event',
   )
