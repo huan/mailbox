@@ -173,7 +173,7 @@ test('wrap interpret smoke testing: 1 event (with BabyMachine)', async t => {
   t.same(stateList.at(-1)?.value, {
     queue   : states.listening,
     child   : states.busy,
-  }, 'should be state.busy after received the 1st EVENT sleep')
+  }, 'should be state.child.busy after received the 1st EVENT sleep before timeout')
   t.equal(targetContext().queue.length, 0, 'should have 0 event in queue before wakeup')
   t.same(
     stripPayloadDebug(eventList),
@@ -198,6 +198,7 @@ test('wrap interpret smoke testing: 1 event (with BabyMachine)', async t => {
   t.equal(targetContext().queue.length, 0, 'should have 0 event in queue after sleep')
   t.same(eventList.map(e => e.type), [
     types.CHILD_IDLE,
+    types.TOGGLE,
     types.DISPATCH,
   ], 'should receive event child.Types.PLAY after sleep')
 
@@ -326,6 +327,7 @@ test('mailbox interpret smoke testing: 3 parallel EVENTs (with CoffeeMaker)', as
     stripPayloadDebug(eventList),
     [
       events.CHILD_IDLE(),
+      events.TOGGLE(),
       events.DISPATCH(),
       events.DEQUEUE(COFFEE_EVENT_2 as any),
     ],
@@ -361,6 +363,7 @@ test('mailbox interpret smoke testing: 3 parallel EVENTs (with CoffeeMaker)', as
     stripPayloadDebug(eventList),
     [
       events.CHILD_IDLE(),
+      events.TOGGLE(),
       events.DISPATCH(),
       events.DEQUEUE(COFFEE_EVENT_3 as any),
       events.CHILD_REPLY(COFFEE_EVENT_RESPONSE_2),
@@ -384,6 +387,7 @@ test('mailbox interpret smoke testing: 3 parallel EVENTs (with CoffeeMaker)', as
     stripPayloadDebug(eventList),
     [
       events.CHILD_IDLE(),
+      events.TOGGLE(),
       events.DISPATCH(),
       events.CHILD_REPLY(COFFEE_EVENT_RESPONSE_3),
       events.DEAD_LETTER(COFFEE_EVENT_RESPONSE_3),

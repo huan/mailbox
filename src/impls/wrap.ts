@@ -170,10 +170,11 @@ export function wrap <
         initial: states.idle,
         on: {
           /**
+           * Huan(202204): No matter idle or busy: the child may send reponse message at any time.
+           *  TODO: it would be better to remove the state global on.CHILD_REPLY, just leave the state.busy.on.CHILD_REPLY should be better.
+           *
            * XState state.exit.actions & micro transitions will be executed in the next state #4
            *  @link https://github.com/huan/mailbox/issues/4
-           *
-           * No matter idle or busy: the child may send reponse message at any time.
            */
           [types.CHILD_REPLY]: {
             actions: [
@@ -183,6 +184,13 @@ export function wrap <
           },
         },
         states: {
+          /**
+           * State.Idle:
+           *
+           * 1. transited to idle     -> emit DISPATCH
+           * 2. received NEW_MESSAGE  -> emit DISPATCH
+           * 3. received DEQUEUE      -> transit to state.busy
+           */
           [states.idle]: {
             /**
              * SEND event MUST be only send from child.idle
@@ -199,15 +207,7 @@ export function wrap <
                * Huan(202201): remove the `as any` below.
                *  Is this a bug in xstate? to be confirmed. (hope xstate@5 will fix it)
                */
-              [types.DEQUEUE]: {
-                actions: [
-                  actions.log((_, e) => `states.child.idle.on.DEQUEUE [${(e as ReturnType<typeof events.DEQUEUE>).payload.message.type}]@${contexts.metaOrigin((e as ReturnType<typeof events.DEQUEUE>).payload.message)}`, MAILBOX_ADDRESS_NAME) as any,
-                  actions.assign<contexts.Context, ReturnType<typeof events.DEQUEUE>>({
-                    message: (_, e) => e.payload.message,
-                  }),
-                ],
-                target: states.busy,
-              },
+              [types.DEQUEUE]: states.busy,
               [types.NEW_MESSAGE]: {
                 actions: [
                   actions.log((_, e) => `states.child.idle.on.NEW_MESSAGE (${(e as ReturnType<typeof events.NEW_MESSAGE>).payload.data})`, MAILBOX_ADDRESS_NAME) as any,
@@ -216,17 +216,30 @@ export function wrap <
               },
             },
           },
+          /**
+           * State.Busy
+           *
+           * 1. transited to busy     -> unwrap message from DEQUEUE event, then a) save it to `context.message`, and b) send it to child
+           * 2. received CHILD_REPLY  -> unwrap message from CHILD_REPLY event, then reply it to the sender of `context.message`
+           * 3. received CHLID_IDLE   -> transit to state.idle
+           */
           [states.busy]: {
             entry: [
               actions.log((_, e) => `states.child.busy.entry DEQUEUE [${(e as ReturnType<typeof events.DEQUEUE>).payload.message.type}]`, MAILBOX_ADDRESS_NAME),
-              contexts.sendChildMessage,
+              actions.assign<contexts.Context, ReturnType<typeof events.DEQUEUE>>({
+                message: (_, e) => e.payload.message,
+              }),
+              actions.send<contexts.Context, ReturnType<typeof events.DEQUEUE>>(
+                (_, e) => e.payload.message,
+                { to: MAILBOX_TARGET_MACHINE_ID },
+              ),
             ],
             on: {
               [types.CHILD_IDLE]: {
                 actions: [
                   actions.log((_, __, meta) => `states.busy.on.CHILD_IDLE child address "@${meta._event.origin}"`, MAILBOX_ADDRESS_NAME) as any,
+                  actions.send(events.TOGGLE()),
                 ],
-                target: states.idle,
               },
               [types.CHILD_REPLY]: {
                 actions: [
@@ -234,6 +247,7 @@ export function wrap <
                   contexts.sendChildResponse(MAILBOX_ADDRESS_NAME),
                 ],
               },
+              [types.TOGGLE]: states.idle,
             },
           },
         },
