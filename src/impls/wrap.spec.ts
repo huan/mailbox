@@ -34,8 +34,8 @@ import CoffeeMaker, {
   DELAY_MS as COFFEE_MAKER_DELAY_MS,
 }                                     from '../../tests/machine-behaviors/coffee-maker-machine.js'
 
-import * as duck          from '../duck/mod.js'
-import type { Context }   from '../context/mod.js'
+import * as duck      from '../duck/mod.js'
+import * as context   from '../context/mod.js'
 
 import { stripPayloadDebug }    from '../testing-utils.js'
 
@@ -72,7 +72,7 @@ test('wrap interpret smoke testing: 1 event (with BabyMachine)', async t => {
 
   const targetMachine = wrap(Baby.machine.withContext(Baby.initialContext()))
   const interpreter = interpret(targetMachine)
-  const targetContext = () => interpreter.getSnapshot().context as Context
+  const targetContext = () => interpreter.getSnapshot().context as context.Context
 
   const eventList: AnyEventObject[] = []
   const stateList: State<any, any, any, any, any>[] = []
@@ -87,10 +87,7 @@ test('wrap interpret smoke testing: 1 event (with BabyMachine)', async t => {
   /**
    * start (right after)
    */
-  t.same(stateList.at(-1)?.value, {
-    queue : duck.State.Idle,
-    child : duck.State.Idle,
-  }, 'should stay at idle state after start')
+  t.same(stateList.at(-1)?.value, duck.State.Idle, 'should stay at idle state after start')
   t.same(stateList.at(-1)?.context, {
     queue: [],
     index: 0,
@@ -98,14 +95,14 @@ test('wrap interpret smoke testing: 1 event (with BabyMachine)', async t => {
   t.same(eventList.map(e => e.type), [
     'xstate.init',
     duck.Type.CHILD_IDLE,
-    duck.Type.DISPATCH,
-  ], 'should received CHILD_IDLE with DISPATCH event aftrer child sent IDLE')
+  ], 'should received CHILD_IDLE event aftrer child sent IDLE')
 
   /**
    * start (next tick)
    */
   stateList.length = eventList.length = 0
   await sandbox.clock.tickAsync(0)
+  // eventList.forEach(e => console.info(e))
   t.same(eventList.map(e => e.type), [
     duck.Type.CHILD_REPLY,
     duck.Type.DEAD_LETTER,
@@ -123,16 +120,12 @@ test('wrap interpret smoke testing: 1 event (with BabyMachine)', async t => {
    */
   stateList.length = eventList.length = 0
   interpreter.send(SLEEP_EVENT)
-  t.same(stateList.at(-1)?.value, {
-    queue   : duck.State.Idle,
-    child   : duck.State.Busy,
-  }, 'should be state.child.busy after received the 1st EVENT sleep')
+  t.same(stateList.at(-1)?.value, duck.State.Busy, 'should be state.Busy after received the 1st EVENT sleep')
   t.same(
     stripPayloadDebug(eventList),
     [
       SLEEP_EVENT,
       duck.Event.NEW_MESSAGE(),
-      duck.Event.DISPATCH(),
       duck.Event.DEQUEUE(SLEEP_EVENT as any),
     ],
     'should receive event SLEEP with Mailbox system events after received the 1st EVENT sleep',
@@ -143,6 +136,7 @@ test('wrap interpret smoke testing: 1 event (with BabyMachine)', async t => {
    */
   stateList.length = eventList.length = 0
   await sandbox.clock.nextAsync()
+  // eventList.forEach(e => console.info(e))
   t.same(
     stripPayloadDebug(eventList),
     [
@@ -151,7 +145,8 @@ test('wrap interpret smoke testing: 1 event (with BabyMachine)', async t => {
     ],
     'should received CHILD_REPLY & DEAD_LETTER with EAT event',
   )
-  t.equal(targetContext().queue.length, 0, 'should have 0 event in queue after received the 1st EVENT sleep')
+  // console.info(targetContext().queue)
+  t.equal(context.queue.size(targetContext()), 0, 'should have 0 event in queue after received the 1st EVENT sleep')
 
   /**
    * SLEEP event (tick after next tick)
@@ -166,18 +161,15 @@ test('wrap interpret smoke testing: 1 event (with BabyMachine)', async t => {
     ],
     'should received CHILD_REPLAY & DEAD_LETTER with REST event',
   )
-  t.equal(targetContext().queue.length, 0, 'should have 0 event in queue after received the 1st EVENT sleep')
+  t.equal(context.queue.size(targetContext()), 0, 'should have 0 event in queue after received the 1st EVENT sleep')
 
   /**
    * SLEEP event (tick SLEEP_MS -1)
    */
   stateList.length = eventList.length = 0
   await sandbox.clock.tickAsync(SLEEP_MS - 1)
-  t.same(stateList.at(-1)?.value, {
-    queue   : duck.State.Idle,
-    child   : duck.State.Busy,
-  }, 'should be state.child.busy after received the 1st EVENT sleep before timeout')
-  t.equal(targetContext().queue.length, 0, 'should have 0 event in queue before wakeup')
+  t.same(stateList.at(-1)?.value, duck.State.Busy, 'should be state.child.busy after received the 1st EVENT sleep before timeout')
+  t.equal(context.queue.size(targetContext()), 0, 'should have 0 event in queue before wakeup')
   t.same(
     stripPayloadDebug(eventList),
     [
@@ -194,15 +186,11 @@ test('wrap interpret smoke testing: 1 event (with BabyMachine)', async t => {
    */
   stateList.length = eventList.length = 0
   await sandbox.clock.tickAsync(1)
-  t.same(stateList.at(-1)?.value, {
-    queue   : duck.State.Idle,
-    child   : duck.State.Idle,
-  }, 'should be state.busy after received the 1st EVENT sleep')
-  t.equal(targetContext().queue.length, 0, 'should have 0 event in queue after sleep')
+  t.same(stateList.at(-1)?.value, duck.State.Idle, 'should be state.busy after received the 1st EVENT sleep')
+  t.equal(context.queue.size(targetContext()), 0, 'should have 0 event in queue after sleep')
   t.same(eventList.map(e => e.type), [
     duck.Type.CHILD_IDLE,
     duck.Type.CHLID_TOGGLE,
-    duck.Type.DISPATCH,
   ], 'should receive event child.Type.PLAY after sleep')
 
   stateList.length = eventList.length = 0
@@ -233,7 +221,7 @@ test('mailbox interpret smoke testing: 3 parallel EVENTs (with CoffeeMaker)', as
   interpreter.onEvent(e => eventList.push(e))
   interpreter.start()
 
-  const targetContext = () => interpreter.getSnapshot().context as Context
+  const targetContext = () => interpreter.getSnapshot().context as context.Context
   const targetState   = () => interpreter.getSnapshot().value
 
   const COFFEE_EVENT_1 = CoffeeMaker.Event.MAKE_ME_COFFEE('Mary')
@@ -249,21 +237,17 @@ test('mailbox interpret smoke testing: 3 parallel EVENTs (with CoffeeMaker)', as
    */
   eventList.length = 0
   interpreter.send(COFFEE_EVENT_1)
-  t.same(targetState(),  {
-    queue   : duck.State.Idle,
-    child   : duck.State.Busy,
-  }, 'should be state.busy after received the 1st EVENT sleep')
+  t.same(targetState(), duck.State.Busy, 'should be state.busy after received the 1st EVENT sleep')
   t.same(
     stripPayloadDebug(eventList),
     [
       COFFEE_EVENT_1,
       duck.Event.NEW_MESSAGE(),
-      duck.Event.DISPATCH(),
       duck.Event.DEQUEUE(COFFEE_EVENT_1 as any),
     ],
     'should send DING event with mailbox system events after received the 1st EVENT sleep',
   )
-  t.equal(targetContext().queue.length, 0, 'should have 0 event in queue after received the 1st DING')
+  t.equal(context.queue.size(targetContext()), 0, 'should have 0 event in queue after received the 1st DING')
 
   /**
    * 1st event (next tick)
@@ -271,22 +255,16 @@ test('mailbox interpret smoke testing: 3 parallel EVENTs (with CoffeeMaker)', as
   eventList.length = 0
   await sandbox.clock.tickAsync(0)
   t.equal(eventList.length, 0, 'should no more event after next tick')
-  t.same(targetState(), {
-    queue   : duck.State.Idle,
-    child   : duck.State.Busy,
-  }, 'should be state.idle after received the 1st EVENT DING')
-  t.equal(targetContext().queue.length, 0, 'should have 0 event in queue after received the 1st DING with next tick')
+  t.same(targetState(), duck.State.Busy, 'should be state.idle after received the 1st EVENT DING')
+  t.equal(context.queue.size(targetContext()), 0, 'should have 0 event in queue after received the 1st DING with next tick')
 
   /**
-   * DING event 2 (right after & next tick)
+   * COFFEE_EVENT_2 (right after & next tick)
    */
   eventList.length = 0
   interpreter.send(COFFEE_EVENT_2)
   await sandbox.clock.tickAsync(0)
-  t.same(targetState(), {
-    queue   : duck.State.Idle,
-    child   : duck.State.Busy,
-  }, 'should be state.busy after received the 2nd EVENT DING')
+  t.same(targetState(), duck.State.Busy, 'should be state.busy after received the 2nd EVENT DING')
   // eventList.forEach(e => console.info(e))
   t.same(
     stripPayloadDebug(eventList),
@@ -296,42 +274,36 @@ test('mailbox interpret smoke testing: 3 parallel EVENTs (with CoffeeMaker)', as
     ],
     'should trigger mailbox.events.NEW_MESSAGE after received the 2nd EVENT sleep',
   )
-  t.equal(targetContext().queue.length, 1, 'should have 1 event in queue after received the 2nd EVENT sleep')
+  t.equal(context.queue.size(targetContext()), 1, 'should have 1 event in queue after received the 2nd EVENT sleep')
 
   /**
-   * DING event 3 (right after & next tick)
+   * COFFEE_EVENT_3 (right after & next tick)
    */
   eventList.length = 0
   interpreter.send(COFFEE_EVENT_3)
   await sandbox.clock.tickAsync(0)
-  t.same(targetState(), {
-    queue   : duck.State.Idle,
-    child   : duck.State.Busy,
-  }, 'should be state.busy after received the 3rd EVENT sleep')
+  t.same(targetState(), duck.State.Busy, 'should be state.busy after received the 3rd EVENT sleep')
   t.same(
     stripPayloadDebug(eventList), [
       COFFEE_EVENT_3,
       duck.Event.NEW_MESSAGE(),
     ], 'should trigger mailbox.events.NEW_MESSAGE after received the 3rd EVENT sleep')
-  t.equal(targetContext().queue.length, 2, 'should have 1 event in queue after received the 3rd EVENT sleep')
+  t.equal(context.queue.size(targetContext()), 2, 'should have 2 event in queue after received the 3rd EVENT sleep')
 
   /**
    * Finish 1st (and will enter the 2nd)
    */
   eventList.length = 0
   await sandbox.clock.tick(COFFEE_MAKER_DELAY_MS)
-  t.equal(targetContext().queue.length, 2, 'should have 2 event in queue after 10 ms')
-  t.same(targetState(),  {
-    queue   : duck.State.Idle,
-    child   : duck.State.Busy,
-  }, 'should be state.busy after 10 ms')
+  t.equal(context.queue.size(targetContext()), 1, 'should have 1 event in queue after 10 ms')
+  t.same(targetState(), duck.State.Busy, 'should be state.busy after 10 ms')
   // eventList.forEach(e => console.info(e))
   t.same(
     stripPayloadDebug(eventList),
     [
       duck.Event.CHILD_IDLE(),
       duck.Event.CHILD_TOGGLE(),
-      duck.Event.DISPATCH(),
+      duck.Event.NEW_MESSAGE(),
       duck.Event.DEQUEUE(COFFEE_EVENT_2 as any),
     ],
     `should process 1st event after ${COFFEE_MAKER_DELAY_MS} ms`,
@@ -357,17 +329,14 @@ test('mailbox interpret smoke testing: 3 parallel EVENTs (with CoffeeMaker)', as
    */
   eventList.length = 0
   await sandbox.clock.tick(COFFEE_MAKER_DELAY_MS)
-  t.equal(targetContext().queue.length, 0, 'should have 0 event in queue after another 20 ms')
-  t.same(targetState(), {
-    queue   : duck.State.Idle,
-    child   : duck.State.Busy,
-  }, `should be state.busy after another ${COFFEE_MAKER_DELAY_MS} ms`)
+  t.equal(context.queue.size(targetContext()), 0, 'should have 0 event in queue after another 20 ms')
+  t.same(targetState(), duck.State.Busy, `should be state.busy after another ${COFFEE_MAKER_DELAY_MS} ms`)
   t.same(
     stripPayloadDebug(eventList),
     [
       duck.Event.CHILD_IDLE(),
       duck.Event.CHILD_TOGGLE(),
-      duck.Event.DISPATCH(),
+      duck.Event.NEW_MESSAGE(),
       duck.Event.DEQUEUE(COFFEE_EVENT_3 as any),
       duck.Event.CHILD_REPLY(COFFEE_EVENT_RESPONSE_2),
       duck.Event.DEAD_LETTER(COFFEE_EVENT_RESPONSE_2),
@@ -380,18 +349,14 @@ test('mailbox interpret smoke testing: 3 parallel EVENTs (with CoffeeMaker)', as
    */
   eventList.length = 0
   await sandbox.clock.tickAsync(COFFEE_MAKER_DELAY_MS)
-  t.equal(targetContext().queue.length, 0, `should have 0 event in queue after another ${COFFEE_MAKER_DELAY_MS} ms`)
+  t.equal(context.queue.size(targetContext()), 0, `should have 0 event in queue after another ${COFFEE_MAKER_DELAY_MS} ms`)
   eventList.forEach(e => console.info(e))
-  t.same(targetState(), {
-    queue   : duck.State.Idle,
-    child   : duck.State.Idle,
-  }, 'should be state.idle after another 30 ms')
+  t.same(targetState(), duck.State.Idle, 'should be state.idle after another 30 ms')
   t.same(
     stripPayloadDebug(eventList),
     [
       duck.Event.CHILD_IDLE(),
       duck.Event.CHILD_TOGGLE(),
-      duck.Event.DISPATCH(),
       duck.Event.CHILD_REPLY(COFFEE_EVENT_RESPONSE_3),
       duck.Event.DEAD_LETTER(COFFEE_EVENT_RESPONSE_3),
     ],
@@ -410,7 +375,7 @@ test('mailbox wrap interpret smoke testing: 3 EVENTs with respond (more tests)',
   const mailbox = wrap(Baby.machine.withContext(Baby.initialContext()))
   const interpreter = interpret(mailbox)
   const targetState   = () => interpreter.getSnapshot().value
-  const targetContext = () => interpreter.getSnapshot().context as Context
+  const targetContext = () => interpreter.getSnapshot().context as context.Context
 
   const eventList: AnyEventObject[] = []
   interpreter.onEvent(e => eventList.push(e))
@@ -425,20 +390,14 @@ test('mailbox wrap interpret smoke testing: 3 EVENTs with respond (more tests)',
   })
 
   snapshot = interpreter.getSnapshot()
-  t.same(targetState(), {
-    queue   : duck.State.Idle,
-    child   : duck.State.Busy,
-  }, 'should be state.busy after received 3 sleep EVENTs')
+  t.same(targetState(), duck.State.Busy, 'should be state.busy after received 3 sleep EVENTs')
   t.equal(snapshot.event.type, duck.Type.NEW_MESSAGE, 'should trigger event NEW_MESSAGE after received 3 sleep EVENTs')
-  t.equal(targetContext().queue.length, 2, 'should have 2 event in queue after received 3 sleep EVENTs')
+  t.equal(context.queue.size(targetContext()), 2, 'should have 2 event in queue after received 3 sleep EVENTs')
 
   eventList.length = 0
   await sandbox.clock.tickAsync(10)
   snapshot = interpreter.getSnapshot()
-  t.same(targetState(), {
-    queue   : duck.State.Idle,
-    child   : duck.State.Busy,
-  }, 'should be state.busy after 1st 10 ms')
+  t.same(targetState(), duck.State.Busy, 'should be state.busy after 1st 10 ms')
   // console.info(eventList)
   t.same(
     eventList
@@ -454,15 +413,12 @@ test('mailbox wrap interpret smoke testing: 3 EVENTs with respond (more tests)',
     ],
     'should enter next SLEEP(DREAM) after 1st 10 ms',
   )
-  t.equal(snapshot.context.queue.length, 2, 'should have 2 event in queue after 1st 10 ms')
+  t.equal(context.queue.size(snapshot.context), 1, 'should have 1 event in queue after 1st 10 ms')
 
   eventList.length = 0
   await sandbox.clock.tickAsync(10)
   snapshot = interpreter.getSnapshot()
-  t.same(targetState(), {
-    queue   : duck.State.Idle,
-    child   : duck.State.Busy,
-  }, 'should be state.busy after 2nd 10 ms')
+  t.same(targetState(), duck.State.Busy, 'should be state.busy after 2nd 10 ms')
   t.same(
     eventList
       .filter(e => e.type === duck.Type.DEAD_LETTER)
@@ -478,15 +434,12 @@ test('mailbox wrap interpret smoke testing: 3 EVENTs with respond (more tests)',
     ],
     'should enter next SLEEP(DREAM) after 2nd 10 ms',
   )
-  t.equal(snapshot.context.queue.length, 0, 'should have 0 event in queue after 2nd 10 ms')
+  t.equal(context.queue.size(snapshot.context), 0, 'should have 0 event in queue after 2nd 10 ms')
 
   eventList.length = 0
   await sandbox.clock.tickAsync(10)
   snapshot = interpreter.getSnapshot()
-  t.same(targetState(), {
-    queue   : duck.State.Idle,
-    child   : duck.State.Idle,
-  }, 'should be state.idle after 3rd 10 ms')
+  t.same(targetState(), duck.State.Idle, 'should be state.idle after 3rd 10 ms')
   t.same(
     eventList
       .filter(e => e.type === duck.Type.DEAD_LETTER)
@@ -502,7 +455,7 @@ test('mailbox wrap interpret smoke testing: 3 EVENTs with respond (more tests)',
     ],
     'should receive event child.events.PLAY after 3rd 10 ms',
   )
-  t.equal(snapshot.context.queue.length, 0, 'should have 0 event in queue after 3rd 10 ms')
+  t.equal(context.queue.size(snapshot.context), 0, 'should have 0 event in queue after 3rd 10 ms')
 
   interpreter.stop()
   sandbox.restore()

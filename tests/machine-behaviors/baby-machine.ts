@@ -47,14 +47,8 @@ const duckula = Mailbox.duckularize({
 })
 
 /**
- * AWAKE
- *  - PLAY
- *  - EAT, REST <- SLEEP
- *  -
- * ASLEEP
- *  - DREAM
- *  - CRY
- *  - PEE
+ * (Awake)[PLAY] + [SLEEP] = (Asleep)[REST, EAT]
+ * (Asleep)[DREAM][CRY][PEE] = (Awake)
  */
 const machine = createMachine<
   ReturnType<typeof duckula.initialContext>,

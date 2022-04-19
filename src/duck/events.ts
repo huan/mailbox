@@ -44,9 +44,6 @@ export const CHILD_REPLY = createAction(types.CHILD_REPLY, payloadChildReply)()
 const payloadNewMessage   = (data?: string) => ({ data })
 export const NEW_MESSAGE  = createAction(types.NEW_MESSAGE, payloadNewMessage)()
 
-const payloadDispatch = (data?: string) => ({ data })
-export const DISPATCH = createAction(types.DISPATCH, payloadDispatch)()
-
 const payloadDequeue  = (message: context.origin.AnyEventObjectExt) => ({ message })
 export const DEQUEUE  = createAction(types.DEQUEUE, payloadDequeue)()
 

@@ -212,7 +212,7 @@ The specification has rules that a Mailbox Actor module:
 1. MUST export a `id` of type `string`
 1. MUST export a `machine` of type XState machine
 1. MUST export a `initialContext` of type `function`, with the `Context` typing, which is the initial context of the machine
-1. MUST export a `Event` of type map of `function` which is event creators
+1. MUST export a `Event` of type map of `function` which is event creators (must use [typesafe-actions](https://github.com/piotrwitek/typesafe-actions))
 1. MUST export a `Type` of type map of `string` which is event types, values in the form `npm-module-or-app/EVENT_TYPE`
 1. MUST export a `State` of type map of `string` which is states, values in the form `npm-module-or-app/StateName`
 1. MUST be `UPPER_SNAKE_CASE` for the keys of `Event` and `Type`
@@ -220,7 +220,7 @@ The specification has rules that a Mailbox Actor module:
 
 > Similiar ideas: [Duckula for Clojure](https://github.com/nomnom-insights/nomnom.duckula)
 
-### Duckula Interface
+### `Duckula` Interface
 
 ```ts
 interface Duckula <...> {
@@ -233,15 +233,45 @@ interface Duckula <...> {
 }
 ```
 
-Read the source code at [src/duckula/duckula.ts](https://github.com/huan/mailbox/blob/main/src/duckula/duckula.ts)
+Read the source code at [src/duckula/duckula.ts](src/duckula/duckula.ts)
+
+### `duckularize` Function
+
+```ts
+import * as Mailbox from 'mailbox'
+
+import * as states from './states.js'
+// `events.js` must use `typesafe-actions`
+import * as events from './events.js'
+
+interface Context {}
+
+const duckula = Mailbox.duckularize({
+  id: 'MyMachineActor',
+  initialContext: {} as Context,
+  events: [ events, [ 'EVENT1', 'EVENT2' ] ], // or: `events: events` if you do not need filtering
+  states: [ states, [ 'State1', 'State2' ] ], // or: `states: states` if you do not need filtering
+})
+// `duckula` is a `Duckula` now.
+```
 
 ### Duckula Examples
 
-1. Ding Dong Machine: <https://github.com/huan/mailbox/blob/main/tests/machine-behaviors/ding-dong-machine.ts>
-1. Coffee Maker Machine: <https://github.com/huan/mailbox/blob/main/tests/machine-behaviors/coffee-maker-machine.ts>
-1. Baby Machine: <https://github.com/huan/mailbox/blob/main/tests/machine-behaviors/baby-machine.ts>
+1. Ding Dong Machine: <tests/machine-behaviors/ding-dong-machine.ts>
+1. Coffee Maker Machine: <tests/machine-behaviors/coffee-maker-machine.ts>
+1. Baby Machine: <tests/machine-behaviors/baby-machine.ts>
 
-## References
+### Duckula Badge
+
+[![Mailbox.Duckula Specification](https://img.shields.io/badge/Specification-Mailbox.Duckula-blueviolet)](https://github.com/huan/mailbox#duckula-specification)
+
+```md
+[![Mailbox.Duckula Specification](https://img.shields.io/badge/Specification-Mailbox.Duckula-blueviolet)](https://github.com/huan/mailbox#duckula-specification)
+```
+
+## API References
+
+Read detail (auto-generated) docs at <https://paka.dev/npm/mailbox>
 
 ```ts
 import * as Mailbox from 'mailbox'
