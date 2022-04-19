@@ -24,9 +24,9 @@ test('assignEnqueue', async t => {
 })
 
 test('assignEmptyQueue()', async t => {
-  const queue = assign.emptyQueue.assignment.queue({} as any)
+  const queue = (assign.emptyQueue.assignment as any).queue({} as any)
   t.same(queue, [], 'should be empty queue')
-  const index = assign.emptyQueue.assignment.index({} as any)
+  const index = (assign.emptyQueue.assignment as any).index({} as any)
   t.equal(index, 0, 'should be index 0')
 })
 
@@ -42,7 +42,7 @@ test('assignDequeue()', async t => {
   CONTEXT.queue = [ EVENT ]
 
   t.same(CONTEXT.queue, [ EVENT ], 'should be one EVENT before dequeue event')
-  const index = assign.dequeue.assignment.index(CONTEXT, undefined, { _event: {} })
+  const index = (assign.dequeue.assignment as any).index(CONTEXT, undefined, { _event: {} })
   t.same(CONTEXT.queue, [ EVENT ], 'should be one EVENT after dequeue event')
   t.equal(index, 1, 'should be at index 1 after dequeue event')
 })
