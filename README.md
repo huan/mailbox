@@ -5,6 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-blue.svg)](https://www.typescriptlang.org/)
 [![ES Modules](https://img.shields.io/badge/ES-Modules-brightgreen)](https://github.com/Chatie/tsconfig/issues/16)
 [![Ducksify Extension](https://img.shields.io/badge/Redux-Ducksify-yellowgreen)](https://github.com/huan/ducks#3-ducksify-extension-currying--ducksify-interface)
+[![Mailbox.Duckula Specification](https://img.shields.io/badge/Specification-Mailbox.Duckula-blueviolet)](https://github.com/huan/mailbox#duckula-specification)
 
 Mailbox is an NPM module built on top of the XState machine, by adding a message queue to the XState machine and letting the machine decide when to process the next message.
 
@@ -200,6 +201,8 @@ TASK_RECEIVED
 ```
 
 ## Duckula Specification
+
+[![Mailbox.Duckula Specification](https://img.shields.io/badge/Specification-Mailbox.Duckula-blueviolet)](https://github.com/huan/mailbox#duckula-specification)
 
 The `Duckula` is like [Duck](https://github.com/huan/ducks#3-ducksify-extension-currying--ducksify-interface) for Mailbox Actors.
 
