@@ -114,7 +114,7 @@ export function wrap <
        * Child State.Idle:
        *
        * 1. transited to idle     -> emit NEW_MESSAGE if queue size > 0
-       * 2. received CHILD_REPLY  -> unwrap message then: 1/ reply it to the original sender, or 2/ send it to Deal Letter Queue (DLQ)
+       * 2. received ACTOR_REPLY  -> unwrap message then: 1/ reply it to the original sender, or 2/ send it to Deal Letter Queue (DLQ)
        * 5. received '*'          -> save it to queue and emit NEW_MESSAGE if: 1/ non-internal type, and 2/ non-overflow-capacity
        * 3. received NEW_MESSAGE  -> emit DEQUEUE
        * 4. received DEQUEUE      -> transit to Busy
@@ -141,14 +141,14 @@ export function wrap <
         on: {
           /**
            * Huan(202204): No matter idle or busy: the child may send reponse message at any time.
-           *  TODO: it would be better to remove the state global on.CHILD_REPLY, just leave the duck.state.Busy.on.CHILD_REPLY should be better.
+           *  TODO: it would be better to remove the state global on.ACTOR_REPLY, just leave the duck.state.Busy.on.ACTOR_REPLY should be better.
            *
            * XState duck.state.exit.actions & micro transitions will be executed in the next state #4
            *  @link https://github.com/huan/mailbox/issues/4
            */
-          [duck.Type.CHILD_REPLY]: {
+          [duck.Type.ACTOR_REPLY]: {
             actions: [
-              actions.log((_, e) => `states.child.Idle.on.CHILD_REPLY [${(e as duck.Event['CHILD_REPLY']).payload.message.type}]`, MAILBOX_ADDRESS_NAME),
+              actions.log((_, e) => `states.child.Idle.on.ACTOR_REPLY [${(e as duck.Event['ACTOR_REPLY']).payload.message.type}]`, MAILBOX_ADDRESS_NAME),
               context.sendChildResponse(MAILBOX_ADDRESS_NAME),
             ],
           },
@@ -178,7 +178,7 @@ export function wrap <
        * Child State.Busy
        *
        * 1. transited to busy     -> unwrap message from DEQUEUE event, then a) save it to `context.message`, and b) send it to child
-       * 2. received CHILD_REPLY  -> unwrap message from CHILD_REPLY event, then reply it to the sender of `context.message`
+       * 2. received ACTOR_REPLY  -> unwrap message from ACTOR_REPLY event, then reply it to the sender of `context.message`
        * 3. received CHLID_IDLE   -> transit to Idle
        *
        *            * 3. assignDequeue
@@ -201,15 +201,15 @@ export function wrap <
             actions: context.queue.acceptingMessageWithCapacity(MAILBOX_ADDRESS_NAME)(normalizedOptions.capacity),
           },
 
-          [duck.Type.CHILD_IDLE]: {
+          [duck.Type.ACTOR_IDLE]: {
             actions: [
-              actions.log((_, __, meta) => `states.child.Busy.on.CHILD_IDLE from "@${meta._event.origin}"`, MAILBOX_ADDRESS_NAME) as any,
+              actions.log((_, __, meta) => `states.child.Busy.on.ACTOR_IDLE from "@${meta._event.origin}"`, MAILBOX_ADDRESS_NAME) as any,
             ],
             target: duck.State.Idle,
           },
-          [duck.Type.CHILD_REPLY]: {
+          [duck.Type.ACTOR_REPLY]: {
             actions: [
-              actions.log((_, e) => `states.child.Busy.on.CHILD_REPLY [${(e as duck.Event['CHILD_REPLY']).payload.message.type}]`, MAILBOX_ADDRESS_NAME),
+              actions.log((_, e) => `states.child.Busy.on.ACTOR_REPLY [${(e as duck.Event['ACTOR_REPLY']).payload.message.type}]`, MAILBOX_ADDRESS_NAME),
               context.sendChildResponse(MAILBOX_ADDRESS_NAME),
             ],
           },

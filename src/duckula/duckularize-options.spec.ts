@@ -13,8 +13,8 @@ const FIXTURE = {
   ID: 'duckula-id',
 
   Event: {
-    CHILD_IDLE: duck.Event.CHILD_IDLE,
-    CHILD_REPLY: duck.Event.CHILD_REPLY,
+    ACTOR_IDLE: duck.Event.ACTOR_IDLE,
+    ACTOR_REPLY: duck.Event.ACTOR_REPLY,
   },
 
   State: {
@@ -23,8 +23,8 @@ const FIXTURE = {
   },
 
   Type: {
-    CHILD_IDLE: duck.Type.CHILD_IDLE,
-    CHILD_REPLY: duck.Type.CHILD_REPLY,
+    ACTOR_IDLE: duck.Type.ACTOR_IDLE,
+    ACTOR_REPLY: duck.Type.ACTOR_REPLY,
   },
 
   initialContext: () => ({ n: 42 }),

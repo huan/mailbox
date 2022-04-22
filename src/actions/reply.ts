@@ -46,12 +46,12 @@ export const reply: typeof actions.sendParent = (event, options) => {
 
   if (typeof event === 'function') {
     return actions.sendParent(
-      (ctx, e, meta) => events.CHILD_REPLY(event(ctx, e, meta)),
+      (ctx, e, meta) => events.ACTOR_REPLY(event(ctx, e, meta)),
       delayedOptions,
     )
   } else if (typeof event === 'string') {
     return actions.sendParent(
-      events.CHILD_REPLY({ type: event }),
+      events.ACTOR_REPLY({ type: event }),
       delayedOptions,
     )
   } else {
@@ -62,7 +62,7 @@ export const reply: typeof actions.sendParent = (event, options) => {
        * How to fix TS2322: "could be instantiated with a different subtype of constraint 'object'"?
        *  @link https://stackoverflow.com/a/56701587/1123955
        */
-      events.CHILD_REPLY(event) as any,
+      events.ACTOR_REPLY(event) as any,
       delayedOptions,
     )
   }

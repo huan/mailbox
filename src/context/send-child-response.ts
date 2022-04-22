@@ -37,7 +37,7 @@ import { childSessionIdOf }   from './child-session-id-of.js'
  *
  *  send the CHILD_RESPONSE.payload.message to the child message origin
  */
-export const sendChildResponse = (machineName: string) => actions.choose<Context, ReturnType<typeof duck.Event.CHILD_REPLY>>([
+export const sendChildResponse = (machineName: string) => actions.choose<Context, ReturnType<typeof duck.Event.ACTOR_REPLY>>([
   {
     /**
      * I. validate the event, make it as the reply of actor if it valid

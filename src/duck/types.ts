@@ -21,8 +21,8 @@
 /**
  * sub state types of: child
  */
-export const CHILD_IDLE    = 'mailbox/CHILD_IDLE'
-export const CHILD_REPLY   = 'mailbox/CHLID_REPLY'
+export const ACTOR_IDLE    = 'mailbox/ACTOR_IDLE'
+export const ACTOR_REPLY   = 'mailbox/ACTOR_REPLY'
 
 /**
  * sub state types of: queue

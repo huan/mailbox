@@ -94,8 +94,8 @@ test('wrap interpret smoke testing: 1 event (with BabyMachine)', async t => {
   }, 'should have initial context after start')
   t.same(eventList.map(e => e.type), [
     'xstate.init',
-    duck.Type.CHILD_IDLE,
-  ], 'should received CHILD_IDLE event aftrer child sent IDLE')
+    duck.Type.ACTOR_IDLE,
+  ], 'should received ACTOR_IDLE event aftrer child sent IDLE')
 
   /**
    * start (next tick)
@@ -104,9 +104,9 @@ test('wrap interpret smoke testing: 1 event (with BabyMachine)', async t => {
   await sandbox.clock.tickAsync(0)
   // eventList.forEach(e => console.info(e))
   t.same(eventList.map(e => e.type), [
-    duck.Type.CHILD_REPLY,
+    duck.Type.ACTOR_REPLY,
     duck.Type.DEAD_LETTER,
-  ], 'should received CHILD_REPLY with DEAD_LETTER event aftrer child sent IDLE')
+  ], 'should received ACTOR_REPLY with DEAD_LETTER event aftrer child sent IDLE')
   t.same(
     eventList.filter(e => e.type === duck.Type.DEAD_LETTER).map(e => (e as any).payload.message.type),
     [
@@ -140,10 +140,10 @@ test('wrap interpret smoke testing: 1 event (with BabyMachine)', async t => {
   t.same(
     stripPayloadDebug(eventList),
     [
-      duck.Event.CHILD_REPLY(Baby.Event.EAT()),
+      duck.Event.ACTOR_REPLY(Baby.Event.EAT()),
       duck.Event.DEAD_LETTER(Baby.Event.EAT()),
     ],
-    'should received CHILD_REPLY & DEAD_LETTER with EAT event',
+    'should received ACTOR_REPLY & DEAD_LETTER with EAT event',
   )
   // console.info(targetContext().queue)
   t.equal(context.queue.size(targetContext()), 0, 'should have 0 event in queue after received the 1st EVENT sleep')
@@ -156,7 +156,7 @@ test('wrap interpret smoke testing: 1 event (with BabyMachine)', async t => {
   t.same(
     stripPayloadDebug(eventList),
     [
-      duck.Event.CHILD_REPLY(Baby.Event.REST()),
+      duck.Event.ACTOR_REPLY(Baby.Event.REST()),
       duck.Event.DEAD_LETTER(Baby.Event.REST()),
     ],
     'should received CHILD_REPLAY & DEAD_LETTER with REST event',
@@ -173,9 +173,9 @@ test('wrap interpret smoke testing: 1 event (with BabyMachine)', async t => {
   t.same(
     stripPayloadDebug(eventList),
     [
-      duck.Event.CHILD_REPLY(Baby.Event.DREAM()),
+      duck.Event.ACTOR_REPLY(Baby.Event.DREAM()),
       duck.Event.DEAD_LETTER(Baby.Event.DREAM()),
-      duck.Event.CHILD_REPLY(Baby.Event.CRY()),
+      duck.Event.ACTOR_REPLY(Baby.Event.CRY()),
       duck.Event.DEAD_LETTER(Baby.Event.CRY()),
     ],
     'should get one dead letter with DREAM/CRY event after middle night',
@@ -189,7 +189,7 @@ test('wrap interpret smoke testing: 1 event (with BabyMachine)', async t => {
   t.same(stateList.at(-1)?.value, duck.State.Idle, 'should be state.busy after received the 1st EVENT sleep')
   t.equal(context.queue.size(targetContext()), 0, 'should have 0 event in queue after sleep')
   t.same(eventList.map(e => e.type), [
-    duck.Type.CHILD_IDLE,
+    duck.Type.ACTOR_IDLE,
   ], 'should receive event child.Type.PLAY after sleep')
 
   stateList.length = eventList.length = 0
@@ -197,9 +197,9 @@ test('wrap interpret smoke testing: 1 event (with BabyMachine)', async t => {
   t.same(
     stripPayloadDebug(eventList),
     [
-      duck.Event.CHILD_REPLY(Baby.Event.PEE()),
+      duck.Event.ACTOR_REPLY(Baby.Event.PEE()),
       duck.Event.DEAD_LETTER(Baby.Event.PEE()),
-      duck.Event.CHILD_REPLY(Baby.Event.PLAY()),
+      duck.Event.ACTOR_REPLY(Baby.Event.PLAY()),
       duck.Event.DEAD_LETTER(Baby.Event.PLAY()),
     ],
     'should get dead letters for PEE&PLAY event after sleep',
@@ -300,7 +300,7 @@ test('mailbox interpret smoke testing: 3 parallel EVENTs (with CoffeeMaker)', as
   t.same(
     stripPayloadDebug(eventList),
     [
-      duck.Event.CHILD_IDLE(),
+      duck.Event.ACTOR_IDLE(),
       duck.Event.NEW_MESSAGE(),
       duck.Event.DEQUEUE(COFFEE_EVENT_2 as any),
     ],
@@ -316,7 +316,7 @@ test('mailbox interpret smoke testing: 3 parallel EVENTs (with CoffeeMaker)', as
   t.same(
     stripPayloadDebug(eventList),
     [
-      duck.Event.CHILD_REPLY(COFFEE_EVENT_RESPONSE_1),
+      duck.Event.ACTOR_REPLY(COFFEE_EVENT_RESPONSE_1),
       duck.Event.DEAD_LETTER(COFFEE_EVENT_RESPONSE_1),
     ],
     'should process 1st event after 1 ms',
@@ -332,10 +332,10 @@ test('mailbox interpret smoke testing: 3 parallel EVENTs (with CoffeeMaker)', as
   t.same(
     stripPayloadDebug(eventList),
     [
-      duck.Event.CHILD_IDLE(),
+      duck.Event.ACTOR_IDLE(),
       duck.Event.NEW_MESSAGE(),
       duck.Event.DEQUEUE(COFFEE_EVENT_3 as any),
-      duck.Event.CHILD_REPLY(COFFEE_EVENT_RESPONSE_2),
+      duck.Event.ACTOR_REPLY(COFFEE_EVENT_RESPONSE_2),
       duck.Event.DEAD_LETTER(COFFEE_EVENT_RESPONSE_2),
     ],
     `should right enter 3rd SLEEP after another ${COFFEE_MAKER_DELAY_MS} ms`,
@@ -352,8 +352,8 @@ test('mailbox interpret smoke testing: 3 parallel EVENTs (with CoffeeMaker)', as
   t.same(
     stripPayloadDebug(eventList),
     [
-      duck.Event.CHILD_IDLE(),
-      duck.Event.CHILD_REPLY(COFFEE_EVENT_RESPONSE_3),
+      duck.Event.ACTOR_IDLE(),
+      duck.Event.ACTOR_REPLY(COFFEE_EVENT_RESPONSE_3),
       duck.Event.DEAD_LETTER(COFFEE_EVENT_RESPONSE_3),
     ],
     `should wakeup because there is no more SLEEP events after another ${COFFEE_MAKER_DELAY_MS} ms`,

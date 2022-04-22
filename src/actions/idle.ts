@@ -40,11 +40,11 @@ export const idle = (name: string) => (data: string) => {
     },
     {
       /**
-       * send CHILD_IDLE event to the mailbox for receiving new messages
+       * send ACTOR_IDLE event to the mailbox for receiving new messages
        */
       actions: [
-        actions.log(`actions.idle -> [CHILD_IDLE(${data})]`, moduleName),
-        actions.sendParent(duck.Event.CHILD_IDLE(data)),
+        actions.log(`actions.idle -> [ACTOR_IDLE(${data})]`, moduleName),
+        actions.sendParent(duck.Event.ACTOR_IDLE(data)),
       ],
     },
   ]) as any

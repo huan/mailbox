@@ -54,7 +54,7 @@ test('DingDong.machine process one DING event', async t => {
     eventList.map(e => e.type),
     [
       'xstate.init',
-      Mailbox.Type.CHILD_IDLE,
+      Mailbox.Type.ACTOR_IDLE,
       DingDong.Type.DING,
     ],
     'should have received init/RECEIVE/DING events after initializing',
@@ -66,8 +66,8 @@ test('DingDong.machine process one DING event', async t => {
   t.same(
     eventList,
     [
-      Mailbox.Event.CHILD_IDLE('idle'),
-      Mailbox.Event.CHILD_REPLY(DingDong.Event.DONG(1)),
+      Mailbox.Event.ACTOR_IDLE('idle'),
+      Mailbox.Event.ACTOR_REPLY(DingDong.Event.DONG(1)),
     ],
     'should have received DONG/RECEIVE events after runAllAsync',
   )
@@ -108,9 +108,9 @@ test('DingDong.machine process 2+ message at once: only be able to process the f
   eventList.forEach(e => console.info(e))
   t.same(
     eventList
-      .filter(e => e.type === Mailbox.Type.CHILD_REPLY),
+      .filter(e => e.type === Mailbox.Type.ACTOR_REPLY),
     [
-      Mailbox.Event.CHILD_REPLY(DingDong.Event.DONG(0)),
+      Mailbox.Event.ACTOR_REPLY(DingDong.Event.DONG(0)),
     ],
     'should reply DONG to the first DING event',
   )

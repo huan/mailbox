@@ -60,10 +60,10 @@ test('mod.impls.*', async t => {
 
 test('mod.Event.*', async t => {
   t.ok(mod.Event, 'should export Event')
-  t.ok(mod.Event.CHILD_IDLE, 'should export Event.CHILD_IDLE')
+  t.ok(mod.Event.ACTOR_IDLE, 'should export Event.ACTOR_IDLE')
 })
 
 test('mod.Type.*', async t => {
   t.ok(mod.Type, 'should export Type')
-  t.ok(mod.Type.CHILD_IDLE, 'should export Type.CHILD_IDLE')
+  t.ok(mod.Type.ACTOR_IDLE, 'should export Type.ACTOR_IDLE')
 })
