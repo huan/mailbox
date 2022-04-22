@@ -28,7 +28,7 @@ import { actions }    from 'xstate'
 import * as duck                        from '../duck/mod.js'
 import { MAILBOX_TARGET_MACHINE_ID }    from '../impls/constants.js'
 
-import * as child             from './child.js'
+import * as request           from './request.js'
 import type { Context }       from './context.js'
 import { childSessionIdOf }   from './child-session-id-of.js'
 
@@ -46,12 +46,12 @@ export const sendChildResponse = (machineName: string) => actions.choose<Context
       // 1. current event is sent from CHILD_MACHINE_ID
       (!!_event.origin && _event.origin === childSessionIdOf(MAILBOX_TARGET_MACHINE_ID)(state.children))
       // 2. the message has valid origin for which we are going to reply to
-      && !!child.messageOrigin(ctx),
+      && !!request.address(ctx),
     actions: [
-      actions.log((ctx, e) => `contexts.sendChildResponse [${e.payload.message.type}] to [${child.message(ctx)?.type}]@${child.messageOrigin(ctx)}`, machineName),
+      actions.log((ctx, e, { _event }) => `contexts.sendChildResponse ACTOR_REPLY [${e.payload.message.type}]@${_event.origin} -> [${request.message(ctx)?.type}]@${request.address(ctx)}`, machineName),
       actions.send(
         (_, e) => e.payload.message,
-        { to: ctx => child.messageOrigin(ctx)! },
+        { to: ctx => request.address(ctx)! },
       ),
     ],
   },
@@ -60,10 +60,10 @@ export const sendChildResponse = (machineName: string) => actions.choose<Context
    */
   {
     actions: [
-      actions.log((_, e, { _event }) => `contexts.sendChildResponse dead letter [${e.payload.message.type}]@${_event.origin || ''}`, machineName),
+      actions.log((_, e, { _event }) => `contexts.sendChildResponse dead letter [${e.payload.message.type}]@${_event.origin}`, machineName),
       actions.send((_, e, { _event }) => duck.Event.DEAD_LETTER(
         e.payload.message,
-        `message ${e.payload.message.type}@${_event.origin || ''} dropped`,
+        `message ${e.payload.message.type}@${_event.origin} dropped`,
       )),
     ],
   },

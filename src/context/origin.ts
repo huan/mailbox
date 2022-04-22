@@ -39,7 +39,7 @@ export type AnyEventObjectExt = AnyEventObject & AnyEventObjectMeta
  * Get the `origin` (session id of the xstate machine) from the event's `metaSymKey`
  *  we use it as the `address` of the Mailbox.
  */
-export const metaOrigin = (event?: null | AnyEventObjectExt) => (event && event[metaSymKey].origin) || ''
+export const metaOrigin = (event?: null | AnyEventObjectExt) => (event && event[metaSymKey].origin) || undefined
 
 /**
 * Wrap an event by adding `metaSymKey` to the event with value `origin` to store the session id of the xstate machine

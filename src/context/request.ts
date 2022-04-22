@@ -8,10 +8,12 @@ export const message = (ctx: Context) => ctx.message
 
 /**
  * The origin (machine session, mailbox address) of the current message(event)
+ *  1. `origin` is the session id of the child machine
+ *  2. we use it as the `address` of the Mailbox.
  */
-export const messageOrigin = (ctx: Context) => origin.metaOrigin(message(ctx))
+export const address = (ctx: Context) => origin.metaOrigin(message(ctx))
 
 /**
  * The type of the current message(event)
  */
-export const messageType = (ctx: Context) => message(ctx)?.type
+export const type = (ctx: Context) => message(ctx)?.type

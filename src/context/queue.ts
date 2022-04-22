@@ -25,19 +25,12 @@ import * as is                          from '../is/mod.js'
 import { MAILBOX_TARGET_MACHINE_ID }    from '../impls/constants.js'
 
 import type { Context }   from './context.js'
-import * as origin        from './origin.js'
 import * as conds         from './conds.js'
 import * as assign        from './assign.js'
 
 export const size          = (ctx: Context) => ctx.queue.length - ctx.index
 export const message       = (ctx: Context) => ctx.queue[ctx.index]
 export const messageType   = (ctx: Context) => ctx.queue[ctx.index]?.type
-
-/**
- * `origin` is the session id of the child machine
- *  we use it as the `address` of the Mailbox.
- */
-export const messageOrigin = (ctx: Context) => origin.metaOrigin(message(ctx))
 
 /**
  * 1. Skip Mailbox internal event
@@ -62,7 +55,7 @@ export const acceptingMessageWithCapacity = (machineName: string) => (capacity =
      */
     cond: ctx => size(ctx) > capacity,
     actions: [
-      actions.log((ctx, e, { _event }) => `contexts.queueAcceptingMessageWithCapacity(${capacity}) dead letter [${e.type}]@${_event.origin || ''} because queueSize(${size(ctx)}) > capacity(${capacity}): child(busy) out of capacity`, machineName),
+      actions.log((ctx, e, { _event }) => `contexts.queueAcceptingMessageWithCapacity(${capacity}) dead letter [${e.type}]@${_event.origin || ''} because out of capacity: queueSize(${size(ctx)}) > capacity(${capacity})`, machineName),
       actions.send((ctx, e) => duck.Event.DEAD_LETTER(e, `queueSize(${size(ctx)} out of capacity(${capacity})`)),
     ],
   },
@@ -71,7 +64,7 @@ export const acceptingMessageWithCapacity = (machineName: string) => (capacity =
      * 3. Add incoming message to queue by wrapping the `_event.origin` meta data
      */
     actions: [
-      actions.log((_, e, { _event }) => `contexts.queueAcceptingMessageWithCapacity(${capacity}) queue [${e.type}]@${_event.origin || ''} to child(busy)`, machineName),
+      actions.log((_, e, { _event }) => `contexts.queueAcceptingMessageWithCapacity(${capacity}) queue [${e.type}]@${_event.origin}`, machineName),
       assign.enqueue,  // <- wrapping `_event.origin` inside
       actions.send((_, e) => duck.Event.NEW_MESSAGE(e.type)),
     ],

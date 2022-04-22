@@ -30,8 +30,8 @@ import {
   AnyEventObject,
 }                   from 'xstate'
 
-import * as duck        from '../duck/mod.js'
-import * as context    from '../context/mod.js'
+import * as duck      from '../duck/mod.js'
+import * as context   from '../context/mod.js'
 
 import { IS_DEVELOPMENT }     from '../config.js'
 import { validate }           from '../validate.js'
@@ -127,12 +127,22 @@ export function wrap <
          *  because it will drop the current message and dequeue the next one
          */
         entry: [
-          actions.log(ctx => `states.child.Idle.entry queue size = ${context.queue.size(ctx)}`, MAILBOX_ADDRESS_NAME),
+          actions.log('states.Idle.entry', MAILBOX_ADDRESS_NAME),
           actions.choose<context.Context, AnyEventObject>([
             {
               cond: ctx => context.queue.size(ctx) > 0,
               actions: [
-                actions.log(ctx => `states.queue.Idle.entry [${context.queue.messageType(ctx)}]@${context.queue.messageOrigin(ctx)}`, MAILBOX_ADDRESS_NAME),
+                actions.log(ctx => [
+                  'states.Idle.entry NEW_MESSAGE queue size: ',
+                  context.queue.size(ctx),
+                  ' [',
+                  context.queue.messageType(ctx),
+                  ']@',
+                  context.origin.metaOrigin(
+                    context.queue.message(ctx),
+                  ),
+                  MAILBOX_ADDRESS_NAME,
+                ].join(''), MAILBOX_ADDRESS_NAME),
                 actions.send(duck.Event.NEW_MESSAGE()),
               ],
             },
@@ -148,7 +158,19 @@ export function wrap <
            */
           [duck.Type.ACTOR_REPLY]: {
             actions: [
-              actions.log((_, e) => `states.child.Idle.on.ACTOR_REPLY [${(e as duck.Event['ACTOR_REPLY']).payload.message.type}]`, MAILBOX_ADDRESS_NAME),
+              actions.log<context.Context, duck.Event['ACTOR_REPLY']>(
+                (ctx, e, { _event }) => [
+                  'states.Idle.on.ACTOR_REPLY [',
+                  e.payload.message.type,
+                  ']@',
+                  _event.origin,
+                  ' -> [',
+                  context.request.type(ctx),
+                  ']@',
+                  context.request.address(ctx),
+                ].join(''),
+                MAILBOX_ADDRESS_NAME,
+              ),
               context.sendChildResponse(MAILBOX_ADDRESS_NAME),
             ],
           },
@@ -159,7 +181,10 @@ export function wrap <
            */
           [duck.Type.NEW_MESSAGE]: {
             actions: [
-              actions.log((_, e) => `states.child.Idle.on.NEW_MESSAGE (${(e as duck.Event['NEW_MESSAGE']).payload.data})`, MAILBOX_ADDRESS_NAME) as any,
+              actions.log<context.Context, duck.Event['NEW_MESSAGE']>(
+                (_, e) => `states.Idle.on.NEW_MESSAGE ${e.payload.data}`,
+                MAILBOX_ADDRESS_NAME,
+              ) as any, // <- Huan(202204) FIXME: remove any
               actions.send(ctx => duck.Event.DEQUEUE(context.queue.message(ctx)!)),
             ],
           },
@@ -181,12 +206,20 @@ export function wrap <
        * 2. received ACTOR_REPLY  -> unwrap message from ACTOR_REPLY event, then reply it to the sender of `context.message`
        * 3. received CHLID_IDLE   -> transit to Idle
        *
-       *            * 3. assignDequeue
-       * 4. assignEmptyQueue if queue size <= 0
+       * 4. assignDequeue
+       * 5. assignEmptyQueue if queue size <= 0
        */
       [duck.State.Busy]: {
         entry: [
-          actions.log((_, e) => `states.child.Busy.entry DEQUEUE [${(e as duck.Event['DEQUEUE']).payload.message.type}]`, MAILBOX_ADDRESS_NAME),
+          actions.log<context.Context, duck.Event['DEQUEUE']>(
+            (_, e) => [
+              'states.Busy.entry DEQUEUE [',
+              e.payload.message.type,
+              ']@',
+              context.origin.metaOrigin(e.payload.message),
+            ].join(''),
+            MAILBOX_ADDRESS_NAME,
+          ),
           actions.assign<context.Context, duck.Event['DEQUEUE']>({
             message: (_, e) => e.payload.message,
           }),
@@ -203,13 +236,25 @@ export function wrap <
 
           [duck.Type.ACTOR_IDLE]: {
             actions: [
-              actions.log((_, __, meta) => `states.child.Busy.on.ACTOR_IDLE from "@${meta._event.origin}"`, MAILBOX_ADDRESS_NAME) as any,
+              actions.log((_, __, meta) => `states.Busy.on.ACTOR_IDLE@${meta._event.origin}`, MAILBOX_ADDRESS_NAME) as any,
             ],
             target: duck.State.Idle,
           },
           [duck.Type.ACTOR_REPLY]: {
             actions: [
-              actions.log((_, e) => `states.child.Busy.on.ACTOR_REPLY [${(e as duck.Event['ACTOR_REPLY']).payload.message.type}]`, MAILBOX_ADDRESS_NAME),
+              actions.log<context.Context, duck.Event['ACTOR_REPLY']>(
+                (ctx, e, meta) => [
+                  'states.Busy.on.ACTOR_REPLY [',
+                  e.payload.message.type,
+                  ']@',
+                  meta._event.origin,
+                  ' -> [',
+                  context.request.message(ctx)?.type,
+                  ']@',
+                  context.request.address(ctx),
+                ].join(''),
+                MAILBOX_ADDRESS_NAME,
+              ),
               context.sendChildResponse(MAILBOX_ADDRESS_NAME),
             ],
           },

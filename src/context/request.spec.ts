@@ -2,8 +2,8 @@
 
 import { test }    from 'tstest'
 
-import * as child   from './child.js'
+import * as request   from './request.js'
 
 test('tbw', async t => {
-  t.ok(child, 'tbw')
+  t.ok(request, 'tbw')
 })
