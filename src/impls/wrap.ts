@@ -143,7 +143,7 @@ export function wrap <
                   ),
                   MAILBOX_ADDRESS_NAME,
                 ].join(''), MAILBOX_ADDRESS_NAME),
-                actions.send(duck.Event.NEW_MESSAGE()),
+                actions.send(ctx => duck.Event.NEW_MESSAGE(context.queue.message(ctx)?.type)),
               ],
             },
           ]),
