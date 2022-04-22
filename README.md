@@ -507,7 +507,9 @@ See: [XState Docs - Batched Events](https://xstate.js.org/docs/guides/interpreta
 
 1. Add `Duckula` Interface for modulize Mailbox Actor. ([Issue #1](https://github.com/huan/mailbox/issues/1))
 1. Fix the race condition bug by simplifing the queue state management to be atomic. ([Issue #5](https://github.com/huan/mailbox/issues/5))
-1. Rename `ACTOR_REPLY` to `ACTOR_REPLY`, `ACTOR_IDLE` to `ACTOR_IDLE`
+1. Renaming `CHILD` to `ACTOR`:
+    1. `CHILD_REPLY` -> `ACTOR_REPLY`
+    1. `CHILD_IDLE` -> `ACTOR_IDLE`
 1. Duck types/states clean
 
 ### v0.6 (Apr 10, 2022)
