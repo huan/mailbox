@@ -48,12 +48,7 @@ const payloadDequeue  = (message: context.origin.AnyEventObjectExt) => ({ messag
 export const DEQUEUE  = createAction(types.DEQUEUE, payloadDequeue)()
 
 /**
- * events for : dataging
+ * events for : debuging
  */
-const payloadReset  = (data?: string) => ({ data })
-export const RESET  = createAction(types.RESET, payloadReset)()
-
 const payloadDeadLetter   = (message: AnyEventObject, data?: string) => ({ message, data })
 export const DEAD_LETTER  = createAction(types.DEAD_LETTER, payloadDeadLetter)()
-
-export const CHILD_TOGGLE = createAction(types.CHLID_TOGGLE)()

@@ -204,8 +204,8 @@ export function wrap <
           [duck.Type.CHILD_IDLE]: {
             actions: [
               actions.log((_, __, meta) => `states.child.Busy.on.CHILD_IDLE from "@${meta._event.origin}"`, MAILBOX_ADDRESS_NAME) as any,
-              actions.send(duck.Event.CHILD_TOGGLE()),
             ],
+            target: duck.State.Idle,
           },
           [duck.Type.CHILD_REPLY]: {
             actions: [
@@ -213,7 +213,6 @@ export function wrap <
               context.sendChildResponse(MAILBOX_ADDRESS_NAME),
             ],
           },
-          [duck.Type.CHLID_TOGGLE]: duck.State.Idle,
         },
         exit: [
           actions.choose([

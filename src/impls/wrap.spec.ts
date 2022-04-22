@@ -190,7 +190,6 @@ test('wrap interpret smoke testing: 1 event (with BabyMachine)', async t => {
   t.equal(context.queue.size(targetContext()), 0, 'should have 0 event in queue after sleep')
   t.same(eventList.map(e => e.type), [
     duck.Type.CHILD_IDLE,
-    duck.Type.CHLID_TOGGLE,
   ], 'should receive event child.Type.PLAY after sleep')
 
   stateList.length = eventList.length = 0
@@ -302,7 +301,6 @@ test('mailbox interpret smoke testing: 3 parallel EVENTs (with CoffeeMaker)', as
     stripPayloadDebug(eventList),
     [
       duck.Event.CHILD_IDLE(),
-      duck.Event.CHILD_TOGGLE(),
       duck.Event.NEW_MESSAGE(),
       duck.Event.DEQUEUE(COFFEE_EVENT_2 as any),
     ],
@@ -335,7 +333,6 @@ test('mailbox interpret smoke testing: 3 parallel EVENTs (with CoffeeMaker)', as
     stripPayloadDebug(eventList),
     [
       duck.Event.CHILD_IDLE(),
-      duck.Event.CHILD_TOGGLE(),
       duck.Event.NEW_MESSAGE(),
       duck.Event.DEQUEUE(COFFEE_EVENT_3 as any),
       duck.Event.CHILD_REPLY(COFFEE_EVENT_RESPONSE_2),
@@ -356,7 +353,6 @@ test('mailbox interpret smoke testing: 3 parallel EVENTs (with CoffeeMaker)', as
     stripPayloadDebug(eventList),
     [
       duck.Event.CHILD_IDLE(),
-      duck.Event.CHILD_TOGGLE(),
       duck.Event.CHILD_REPLY(COFFEE_EVENT_RESPONSE_3),
       duck.Event.DEAD_LETTER(COFFEE_EVENT_RESPONSE_3),
     ],
