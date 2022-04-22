@@ -1,6 +1,6 @@
 {
   "name": "mailbox",
-  "version": "0.7.8",
+  "version": "0.7.9",
   "description": "Mailbox is for converting a XState Machine to the REAL Actor",
   "type": "module",
   "exports": {
