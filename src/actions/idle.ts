@@ -43,7 +43,7 @@ export const idle = (name: string) => (data: string) => {
        * send ACTOR_IDLE event to the mailbox for receiving new messages
        */
       actions: [
-        actions.log(`actions.idle sendParent([ACTOR_IDLE(${data})])`, moduleName),
+        actions.log(`actions.idle sendParent [ACTOR_IDLE(${data})]`, moduleName),
         actions.sendParent(duck.Event.ACTOR_IDLE(data)),
       ],
     },
