@@ -16,12 +16,14 @@ import { selector }                   from './selector.js'
 import type * as D                    from './duckula.js'
 
 /**
- * Huan(202204): we have to use override function definition for different `options`
+ * duckularize() is the `Duckula` specification builder
  *
- * The `options` must be seperate for the `Array` and `Object` type
- *  or the typing inference will be incorrect.
+ * `Dukula` is a schema standard for Mailbox Actor Systems.
+ * It is a specification for the Actor System's mailbox.
  *
- * TODO: merge the options as an union type to reduce the complexity
+ * @returns {Duckula} A object that satisfy the duckula specification: { id, Type, Event, State, initialContext, machine }
+ *
+ * @see https://github.com/huan/mailbox/issues/1
  */
 export function duckularize <
   TID extends string,
@@ -48,6 +50,16 @@ export function duckularize <
   'machine'
 >
 
+/**
+ * duckularize() is the `Duckula` specification builder
+ *
+ * `Dukula` is a schema standard for Mailbox Actor Systems.
+ * It is a specification for the Actor System's mailbox.
+ *
+ * @returns {Duckula} A object that satisfy the duckula specification: { id, Type, Event, State, initialContext, machine }
+ *
+ * @see https://github.com/huan/mailbox/issues/1
+ */
 export function duckularize <
   TID extends string,
 
@@ -73,6 +85,14 @@ export function duckularize <
   'machine'
 >
 
+/**
+ * Huan(202204): we have to use override function definition for different `options`
+ *
+ * The `options` must be seperate for the `Array` and `Object` type
+ *  or the typing inference will be incorrect.
+ *
+ * TODO: merge the options as an union type to reduce the complexity
+ */
 export function duckularize <
   TID extends string,
 
