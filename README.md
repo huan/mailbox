@@ -203,6 +203,7 @@ TASK_RECEIVED
 ## Duckula Specification
 
 [![Mailbox.Duckula Specification](https://img.shields.io/badge/Specification-Mailbox.Duckula-blueviolet)](https://github.com/huan/mailbox#duckula-specification)
+[![Issue #1](https://img.shields.io/badge/Issue-%231-brightgreen)](https://github.com/huan/mailbox/issues/1)
 
 The `Duckula` is like [Duck](https://github.com/huan/ducks#3-ducksify-extension-currying--ducksify-interface) for Mailbox Actors.
 
