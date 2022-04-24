@@ -1,4 +1,4 @@
-# Mailbox (turns XState Machine into a REAL Actor)
+# Mailbox (turns XState Machine into an Actor that can deal with concurrency requests)
 
 [![NPM Version](https://badge.fury.io/js/mailbox.svg)](https://www.npmjs.com/package/mailbox)
 [![NPM](https://github.com/huan/mailbox/workflows/NPM/badge.svg)](https://github.com/huan/mailbox/actions?query=workflow%3ANPM)
