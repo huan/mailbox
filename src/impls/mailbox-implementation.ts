@@ -82,9 +82,9 @@ export class MailboxImpl<
     machine     : AnyStateMachine,
     interpreter : AnyInterpreter,
     /**
-     * Interpreter & Machine for the target (managed child) machine in Mailbox
+     * Interpreter & Machine for the actor (managed child) machine in Mailbox
      */
-    target: {
+    actor: {
       machine      : AnyStateMachine,
       interpreter? : AnyInterpreter,
     },

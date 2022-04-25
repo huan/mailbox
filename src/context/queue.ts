@@ -30,7 +30,6 @@ import * as assign        from './assign.js'
 
 export const size          = (ctx: Context) => ctx.queue.length - ctx.index
 export const message       = (ctx: Context) => ctx.queue[ctx.index]
-export const messageType   = (ctx: Context) => ctx.queue[ctx.index]?.type
 
 /**
  * 1. Skip Mailbox internal event

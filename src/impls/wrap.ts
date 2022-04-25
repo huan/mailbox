@@ -136,7 +136,7 @@ export function wrap <
                   'states.Idle.entry NEW_MESSAGE queue size: ',
                   context.queue.size(ctx),
                   ' [',
-                  context.queue.messageType(ctx),
+                  context.queue.message(ctx)?.type,
                   ']@',
                   context.origin.metaOrigin(
                     context.queue.message(ctx),

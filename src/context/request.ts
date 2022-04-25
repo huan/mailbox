@@ -12,8 +12,3 @@ export const message = (ctx: Context) => ctx.message
  *  2. we use it as the `address` of the Mailbox.
  */
 export const address = (ctx: Context) => origin.metaOrigin(message(ctx))
-
-/**
- * The type of the current message(event)
- */
-export const type = (ctx: Context) => message(ctx)?.type
