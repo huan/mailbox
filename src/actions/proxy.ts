@@ -44,17 +44,23 @@ export const proxy = (id: string) => (toAddress: string | impls.Address | impls.
 
   return actions.choose([
     {
-      cond: (_, e, meta) => (
-        // 1. Mailbox.Types.* is system messages, skip them
-        is.isMailboxType(e.type)
-        // 2. Child events (origin from child machine) are handled by child machine, skip them
-        || context.conds.eventSentFrom(toAddress)(meta)
-      ),
-      actions: [
-        actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin} ignored because its an internal MailboxType`, moduleName),
-      ],
+      /**
+       * 1. Mailbox.Types.* is system messages, do not proxy them
+       */
+      cond: (_, e) => is.isMailboxType(e.type),
+      actions: actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin} ignored because its an internal MailboxType`, moduleName),
     },
     {
+      /**
+       * 2. Child events (origin from child machine) are handled by child machine, skip them
+       */
+      cond: (_, __, meta) => context.conds.eventSentFrom(toAddress)(meta),
+      actions: actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin} ignored because it is sent from the actor (child/target) machine`, moduleName),
+    },
+    {
+      /**
+       * 3. Proxy it
+       */
       actions: [
         send(toAddress)((_, e) => e),
         actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin} -> ${toAddress}`, moduleName),

@@ -86,7 +86,7 @@ export class AddressImpl implements Address {
   /**
    * Return true if the `_event.origin` is not the same and the Address
    */
-  condNotOrigin () {
+  condNotSame () {
     return <TContext, TEvent extends EventObject> (
       _context: TContext,
       _event: TEvent,

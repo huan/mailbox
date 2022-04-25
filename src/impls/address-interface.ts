@@ -41,7 +41,7 @@ export interface Address {
     options?: SendActionOptions<TContext, TEvent>
   ): SendAction<TContext, TEvent, TSentEvent>
 
-  condNotOrigin: () => <TContext, TEvent extends EventObject> (
+  condNotSame: () => <TContext, TEvent extends EventObject> (
     _context: TContext,
     _event: TEvent,
     meta: GuardMeta<TContext, TEvent>,
