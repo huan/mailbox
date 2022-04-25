@@ -17,10 +17,7 @@
  *   limitations under the License.
  *
  */
-import {
-  actions,
-  SendActionOptions,
-}                         from 'xstate'
+import { actions, SendActionOptions }   from 'xstate'
 
 import * as events    from '../duck/events.js'
 
@@ -61,6 +58,11 @@ export const reply: typeof actions.sendParent = (event, options) => {
        *
        * How to fix TS2322: "could be instantiated with a different subtype of constraint 'object'"?
        *  @link https://stackoverflow.com/a/56701587/1123955
+       *
+       * 'PayloadAction<"mailbox/ACTOR_REPLY", { message: EventObject; }>'
+       *    is assignable to the constraint of type 'TSentEvent',
+       *      but 'TSentEvent' could be instantiated with a different subtype of
+       *        constraint 'EventObject'.ts(2322)
        */
       events.ACTOR_REPLY(event) as any,
       delayedOptions,

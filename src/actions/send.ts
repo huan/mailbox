@@ -24,10 +24,10 @@ import { Address, AddressImpl, Mailbox }    from '../impls/mod.js'
 /**
  * Send events to an target (Mailbox Address)
  *
- * @param { Mailbox | Address | string } target address
+ * @param { Mailbox | Address | string } toAddress destination (target) address
  */
-export const send: (target: string | Address | Mailbox) => typeof actions.send
-  = target => (event, options) =>
+export const send: (toAddress: string | Address | Mailbox) => typeof actions.send
+  = toAddress => (event, options) =>
     AddressImpl
-      .from(target)
+      .from(toAddress)
       .send(event, options)
