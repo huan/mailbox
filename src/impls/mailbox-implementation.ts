@@ -136,7 +136,7 @@ export class MailboxImpl<
     this.internal = {
       machine: wrappedMachine,
       interpreter: this._interpreter,
-      target: {
+      actor: {
         machine: getTargetMachine(wrappedMachine),
       },
     }
@@ -172,7 +172,7 @@ export class MailboxImpl<
      * Huan(202203): FIXME:
      *  will ` ActorRef<any, any> as AnyInterpreter` be a problem?
      */
-    this.internal.target.interpreter = this._interpreter.children
+    this.internal.actor.interpreter = this._interpreter.children
       .get(MAILBOX_TARGET_MACHINE_ID) as AnyInterpreter
   }
 
@@ -182,7 +182,7 @@ export class MailboxImpl<
   close (): void {
     this._interpreter.stop()
 
-    this.internal.target.interpreter = undefined
+    this.internal.actor.interpreter = undefined
     this._opened = false
   }
 

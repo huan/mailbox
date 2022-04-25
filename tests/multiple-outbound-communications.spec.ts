@@ -122,10 +122,10 @@ test('Mailbox can make outbound communication when it has lots of queued inbound
     .start()
 
   interpreter.send({ type: 'DING' })
-  // ;(mailbox as Mailbox.impls.Mailbox).internal.target.interpreter?.onTransition(trans => {
+  // ;(mailbox as Mailbox.impls.Mailbox).internal.actor.interpreter?.onTransition(trans => {
   //   console.info('## Transition for main:', '(' + trans.history?.value + ') + [' + trans.event.type + '] = (' + trans.value + ')')
   // })
-  // ;(serviceMailbox as Mailbox.impls.Mailbox).internal.target.interpreter?.onTransition(trans => {
+  // ;(serviceMailbox as Mailbox.impls.Mailbox).internal.actor.interpreter?.onTransition(trans => {
   //   console.info('## Transition for service:', '(' + trans.history?.value + ') + [' + trans.event.type + '] = (' + trans.value + ')')
   // })
 
@@ -138,8 +138,8 @@ test('Mailbox can make outbound communication when it has lots of queued inbound
     { type: 'DONG', counts: [ 1, 2, 3 ] },
   ], 'should get events from all DING events')
 
-  // console.info('Service address', (serviceMailbox as Mailbox.impls.Mailbox).internal.target.interpreter?.sessionId, '<' + String(serviceMailbox.address) + '>')
-  // console.info('Main address', (mailbox as Mailbox.impls.Mailbox).internal.target.interpreter?.sessionId, '<' + String(mailbox.address) + '>')
+  // console.info('Service address', (serviceMailbox as Mailbox.impls.Mailbox).internal.actor.interpreter?.sessionId, '<' + String(serviceMailbox.address) + '>')
+  // console.info('Main address', (mailbox as Mailbox.impls.Mailbox).internal.actor.interpreter?.sessionId, '<' + String(mailbox.address) + '>')
   // console.info('Consumer address', interpreter.sessionId)
 
   mailbox.close()

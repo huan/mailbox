@@ -165,7 +165,7 @@ export function wrap <
                   ']@',
                   _event.origin,
                   ' -> [',
-                  context.request.type(ctx),
+                  context.request.message(ctx)?.type,
                   ']@',
                   context.request.address(ctx),
                 ].join(''),

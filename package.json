@@ -76,7 +76,6 @@
     "utility-types": "^3.10.0",
     "xstate": "^4.30.6"
   },
-  "peerDependencies": {},
   "files": [
     "dist",
     "src"

@@ -324,14 +324,14 @@ test('Mailbox Address smoke testing (w/DingDongMachine)', async t => {
 test('Mailbox debug properties smoke testing (w/DingDongMachine)', async t => {
   const mailbox = Mailbox.from(DingDong.machine) as Mailbox.impls.Mailbox
   t.ok(mailbox.internal.machine, 'should has machine')
-  t.same(mailbox.internal.target.machine, DingDong.machine, 'should has the correct target machine')
+  t.same(mailbox.internal.actor.machine, DingDong.machine, 'should has the correct target machine')
 
   t.ok(mailbox.internal.interpreter, 'should has interpreter initialized before open()')
-  t.notOk(mailbox.internal.target.interpreter, 'should has no target interpreter initialized before open()')
+  t.notOk(mailbox.internal.actor.interpreter, 'should has no target interpreter initialized before open()')
 
   mailbox.open()
-  t.ok(mailbox.internal.target.interpreter, 'should has target interpreter after open()')
+  t.ok(mailbox.internal.actor.interpreter, 'should has target interpreter after open()')
 
   mailbox.close()
-  t.notOk(mailbox.internal.target.interpreter, 'should has no target interpreter initialized after close()')
+  t.notOk(mailbox.internal.actor.interpreter, 'should has no target interpreter initialized after close()')
 })
