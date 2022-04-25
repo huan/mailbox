@@ -36,11 +36,11 @@ import { send } from './send.js'
  * And send all other events to the target address,
  * by setting the `origin` to the current machine address.
  *
- * @param name Machine Name
- * @param target {string | Address | Mailbox} the target address
+ * @param id Self Machine ID
+ * @param toAddress {string | Address | Mailbox} the target address
  */
-export const proxy = (name: string) => (target: string | impls.Address | impls.Mailbox) => {
-  const moduleName = `Mailbox<${name}>`
+export const proxy = (id: string) => (toAddress: string | impls.Address | impls.Mailbox) => {
+  const moduleName = `Mailbox<${id}>`
 
   return actions.choose([
     {
@@ -48,14 +48,16 @@ export const proxy = (name: string) => (target: string | impls.Address | impls.M
         // 1. Mailbox.Types.* is system messages, skip them
         is.isMailboxType(e.type)
         // 2. Child events (origin from child machine) are handled by child machine, skip them
-        || context.conds.eventSentFrom(target)(meta)
+        || context.conds.eventSentFrom(toAddress)(meta)
       ),
-      actions: [],  // do nothing when the event is sent from the mailbox / target.
+      actions: [
+        actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin} ignored because its an internal MailboxType`, moduleName),
+      ],
     },
     {
       actions: [
-        send(target)((_, e) => e),
-        actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin || ''} -> ${target}`, moduleName),
+        send(toAddress)((_, e) => e),
+        actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin} -> ${toAddress}`, moduleName),
       ],
     },
   ])

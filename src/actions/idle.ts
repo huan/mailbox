@@ -23,8 +23,8 @@ import { actions }  from 'xstate'
 import * as duck    from '../duck/mod.js'
 import * as is      from '../is/mod.js'
 
-export const idle = (name: string) => (data: string) => {
-  const moduleName = `${name}<Mailbox>`
+export const idle = (id: string) => (data: string) => {
+  const moduleName = `${id}<Mailbox>`
 
   return actions.choose([
     {
@@ -35,7 +35,7 @@ export const idle = (name: string) => (data: string) => {
        */
       cond: (_, e) => is.isMailboxType(e.type),
       actions: [
-        actions.log((_, e) => `actions.idle ignore Mailbox internal event [${e.type}]`, moduleName),
+        actions.log((_, e) => `actions.idle [${e.type}] ignored becasue its an internal Mailbox event`, moduleName),
       ],
     },
     {
