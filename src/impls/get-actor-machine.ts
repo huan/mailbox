@@ -22,7 +22,7 @@
 
 import type { AnyStateMachine }    from 'xstate'
 
-import { MAILBOX_TARGET_MACHINE_ID }    from './constants.js'
+import { MAILBOX_ACTOR_MACHINE_ID }    from './constants.js'
 
 export const getTargetMachine = (wrappedMachine: AnyStateMachine) => {
   const services = wrappedMachine.options.services
@@ -30,7 +30,7 @@ export const getTargetMachine = (wrappedMachine: AnyStateMachine) => {
     throw new Error('no services provided in the wrappedMachine!')
   }
 
-  const childMachine = services[MAILBOX_TARGET_MACHINE_ID]
+  const childMachine = services[MAILBOX_ACTOR_MACHINE_ID]
   if (!childMachine) {
     throw new Error('no child machine found in wrappedMachine!')
   }

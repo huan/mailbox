@@ -38,8 +38,8 @@ import { isMailboxType }    from '../is/mod.js'
 import type { Context }     from '../context/mod.js'
 
 import type { Address }               from './address-interface.js'
-import { getTargetMachine }           from './get-target-machine.js'
-import { MAILBOX_TARGET_MACHINE_ID }  from './constants.js'
+import { getTargetMachine }           from './get-actor-machine.js'
+import { MAILBOX_ACTOR_MACHINE_ID }   from './constants.js'
 import type { Mailbox, Options }      from './mailbox-interface.js'
 import { AddressImpl }                from './address-implementation.js'
 
@@ -173,7 +173,7 @@ export class MailboxImpl<
      *  will ` ActorRef<any, any> as AnyInterpreter` be a problem?
      */
     this.internal.actor.interpreter = this._interpreter.children
-      .get(MAILBOX_TARGET_MACHINE_ID) as AnyInterpreter
+      .get(MAILBOX_ACTOR_MACHINE_ID) as AnyInterpreter
   }
 
   /**

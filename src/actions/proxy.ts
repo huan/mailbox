@@ -54,7 +54,7 @@ export const proxy = (id: string) => (toAddress: string | impls.Address | impls.
       /**
        * 2. Child events (origin from child machine) are handled by child machine, skip them
        */
-      cond: (_, __, meta) => context.conds.eventSentFrom(toAddress)(meta),
+      cond: context.conds.isEventFrom(toAddress),
       actions: actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin} ignored because it is sent from the actor (child/target) machine`, moduleName),
     },
     {

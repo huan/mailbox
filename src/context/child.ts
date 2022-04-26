@@ -19,8 +19,12 @@
  */
 import type {
   ActorRef,
+  EventObject,
   Interpreter,
+  State,
 }                     from 'xstate'
+
+import type { Context }   from './context'
 
 /**
  * Get session id by child id (with currying) from children
@@ -30,7 +34,7 @@ import type {
  *
  * If the `childId` is a not valid childId, will return `undefined`
  */
-export const childSessionIdOf: (childId: string) => (children?: Record<string, ActorRef<any, any>>) => undefined | string
+export const getChildSessionId: (childId: string) => (children?: Record<string, ActorRef<any, any>>) => undefined | string
   = childId => children => {
     if (!children) {
       return undefined
@@ -54,3 +58,15 @@ export const childSessionIdOf: (childId: string) => (children?: Record<string, A
 
     return child.sessionId
   }
+
+/**
+ * Get snapshot by child id (with currying) from state
+ */
+export const getChildSnapshot = (childId: string) => (state: State<Context, EventObject, any, any>) => {
+  const child = state.children[childId]
+  if (!child) {
+    throw new Error('can not found child id ' + childId)
+  }
+
+  return child.getSnapshot()
+}

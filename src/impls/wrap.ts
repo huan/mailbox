@@ -36,7 +36,7 @@ import * as context   from '../context/mod.js'
 import { IS_DEVELOPMENT }     from '../config.js'
 import { validate }           from '../validate.js'
 import {
-  MAILBOX_TARGET_MACHINE_ID,
+  MAILBOX_ACTOR_MACHINE_ID,
   MAILBOX_NAME,
 }                             from './constants.js'
 import type { Options }       from './mailbox-interface.js'
@@ -44,7 +44,7 @@ import type { Options }       from './mailbox-interface.js'
 /**
  * Add Mailbox Queue to the targetMachine
  *
- * @param targetMachine
+ * @param actorMachine
  * @param options
  * @returns Wrapped targetMachine with Mailbox Queue
  */
@@ -52,7 +52,7 @@ export function wrap <
   TContext extends any,
   TEvent extends EventObject,
 > (
-  targetMachine: StateMachine<
+  actorMachine: StateMachine<
     TContext,
     any,
     TEvent
@@ -62,14 +62,14 @@ export function wrap <
   /**
    * when in developement mode, we will validate the targetMachine
    */
-  if (IS_DEVELOPMENT && !validate(targetMachine)) {
+  if (IS_DEVELOPMENT && !validate(actorMachine)) {
     throw new Error('Mailbox.wrap: invalid targetMachine!')
   }
 
-  const MAILBOX_ADDRESS_NAME = `${targetMachine.id}<${MAILBOX_NAME}>`
+  const MAILBOX_ID = `${actorMachine.id}<${MAILBOX_NAME}>`
 
   const normalizedOptions: Required<Options> = {
-    id       : MAILBOX_ADDRESS_NAME,
+    id       : MAILBOX_ID,
     capacity : Infinity,
     logger   : () => {},
     devTools : false,
@@ -89,8 +89,8 @@ export function wrap <
   >({
     id: normalizedOptions.id,
     invoke: {
-      id: MAILBOX_TARGET_MACHINE_ID,
-      src: targetMachine,
+      id: MAILBOX_ACTOR_MACHINE_ID,
+      src: actorMachine,
     },
     /**
      * initialize context:
@@ -107,6 +107,16 @@ export function wrap <
     preserveActionOrder: true,
 
     initial: duck.State.Idle,
+
+    /**
+     * Match events not listed above: queue it
+     */
+    on: {
+      '*': {
+        actions: context.queue.acceptingMessageWithCapacity(MAILBOX_ID)(normalizedOptions.capacity),
+      },
+    },
+
     states: {
 
       /**
@@ -127,7 +137,7 @@ export function wrap <
          *  because it will drop the current message and dequeue the next one
          */
         entry: [
-          actions.log('states.Idle.entry', MAILBOX_ADDRESS_NAME),
+          actions.log('states.Idle.entry', MAILBOX_ID),
           actions.choose<context.Context, AnyEventObject>([
             {
               cond: ctx => context.queue.size(ctx) > 0,
@@ -141,8 +151,8 @@ export function wrap <
                   context.origin.metaOrigin(
                     context.queue.message(ctx),
                   ),
-                  MAILBOX_ADDRESS_NAME,
-                ].join(''), MAILBOX_ADDRESS_NAME),
+                  MAILBOX_ID,
+                ].join(''), MAILBOX_ID),
                 actions.send(ctx => duck.Event.NEW_MESSAGE(context.queue.message(ctx)?.type)),
               ],
             },
@@ -169,9 +179,9 @@ export function wrap <
                   ']@',
                   context.request.address(ctx),
                 ].join(''),
-                MAILBOX_ADDRESS_NAME,
+                MAILBOX_ID,
               ),
-              context.sendChildResponse(MAILBOX_ADDRESS_NAME),
+              context.sendChildResponse(MAILBOX_ID),
             ],
           },
 
@@ -183,18 +193,12 @@ export function wrap <
             actions: [
               actions.log<context.Context, duck.Event['NEW_MESSAGE']>(
                 (_, e) => `states.Idle.on.NEW_MESSAGE ${e.payload.data}`,
-                MAILBOX_ADDRESS_NAME,
+                MAILBOX_ID,
               ) as any, // <- Huan(202204) FIXME: remove any
               actions.send(ctx => duck.Event.DEQUEUE(context.queue.message(ctx)!)),
             ],
           },
           [duck.Type.DEQUEUE]: duck.State.Busy,
-          /**
-           * Match events not listed above
-           */
-          '*': {
-            actions: context.queue.acceptingMessageWithCapacity(MAILBOX_ADDRESS_NAME)(normalizedOptions.capacity),
-          },
         },
       },
 
@@ -218,25 +222,29 @@ export function wrap <
               ']@',
               context.origin.metaOrigin(e.payload.message),
             ].join(''),
-            MAILBOX_ADDRESS_NAME,
+            MAILBOX_ID,
           ),
           actions.assign<context.Context, duck.Event['DEQUEUE']>({
             message: (_, e) => e.payload.message,
           }),
           context.assign.dequeue,
+
+          /**
+           *
+           * Forward the message to the actor machine
+           *
+           */
           actions.send<context.Context, duck.Event['DEQUEUE']>(
             (_, e) => e.payload.message,
-            { to: MAILBOX_TARGET_MACHINE_ID },
+            { to: MAILBOX_ACTOR_MACHINE_ID },
           ),
+
         ],
         on: {
-          '*': {
-            actions: context.queue.acceptingMessageWithCapacity(MAILBOX_ADDRESS_NAME)(normalizedOptions.capacity),
-          },
 
           [duck.Type.ACTOR_IDLE]: {
             actions: [
-              actions.log((_, __, meta) => `states.Busy.on.ACTOR_IDLE@${meta._event.origin}`, MAILBOX_ADDRESS_NAME) as any,
+              actions.log((_, __, meta) => `states.Busy.on.ACTOR_IDLE@${meta._event.origin}`, MAILBOX_ID) as any,
             ],
             target: duck.State.Idle,
           },
@@ -253,9 +261,9 @@ export function wrap <
                   ']@',
                   context.request.address(ctx),
                 ].join(''),
-                MAILBOX_ADDRESS_NAME,
+                MAILBOX_ID,
               ),
-              context.sendChildResponse(MAILBOX_ADDRESS_NAME),
+              context.sendChildResponse(MAILBOX_ID),
             ],
           },
         },
