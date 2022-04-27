@@ -17,14 +17,7 @@
  *   limitations under the License.
  *
  */
-import type {
-  ActorRef,
-  EventObject,
-  Interpreter,
-  State,
-}                     from 'xstate'
-
-import type { Context }   from './context'
+import type { ActorRef, Interpreter }   from 'xstate'
 
 /**
  * Get session id by child id (with currying) from children
@@ -34,7 +27,7 @@ import type { Context }   from './context'
  *
  * If the `childId` is a not valid childId, will return `undefined`
  */
-export const getChildSessionId: (childId: string) => (children?: Record<string, ActorRef<any, any>>) => undefined | string
+export const sessionId: (childId: string) => (children?: Record<string, ActorRef<any, any>>) => undefined | string
   = childId => children => {
     if (!children) {
       return undefined
@@ -58,15 +51,3 @@ export const getChildSessionId: (childId: string) => (children?: Record<string, 
 
     return child.sessionId
   }
-
-/**
- * Get snapshot by child id (with currying) from state
- */
-export const getChildSnapshot = (childId: string) => (state: State<Context, EventObject, any, any>) => {
-  const child = state.children[childId]
-  if (!child) {
-    throw new Error('can not found child id ' + childId)
-  }
-
-  return child.getSnapshot()
-}

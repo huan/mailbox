@@ -21,7 +21,7 @@ import { test }    from 'tstest'
 import Baby    from '../../tests/machine-behaviors/baby-machine.js'
 
 import { wrap }               from './wrap.js'
-import { getTargetMachine }   from './get-target-machine.js'
+import { getTargetMachine }   from './get-actor-machine.js'
 
 test('getTargetMachine()', async t => {
   const machine = Baby.machine.withContext(Baby.initialContext())

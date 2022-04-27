@@ -1,3 +1,4 @@
+/* eslint-disable sort-keys */
 /**
  *   Wechaty Open Source Software - https://github.com/wechaty
  *
@@ -17,18 +18,14 @@
  *   limitations under the License.
  *
  */
-import type { actions }  from 'xstate'
+import { actions }    from 'xstate'
 
-import { Address, AddressImpl, Mailbox }    from '../impls/mod.js'
+import type { Context }   from '../context.js'
 
 /**
- * Send events to an target (Mailbox Address)
- *
- * @param { Mailbox | Address | string } toAddress destination (target) address
- *  - string: the sessionId of the interpreter, or invoke.id of the child machine
+ * Reset the queue and index
  */
-export const send: (toAddress: string | Address | Mailbox) => typeof actions.send
-  = toAddress => (event, options) =>
-    AddressImpl
-      .from(toAddress)
-      .send(event, options)
+export const emptyQueue = actions.assign<Context>({
+  index: () => 0,
+  queue: () => [],
+})

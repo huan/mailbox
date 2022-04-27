@@ -17,18 +17,20 @@
  *   limitations under the License.
  *
  */
-import type { actions }  from 'xstate'
+import type { AnyEventObject, SCXML }   from 'xstate'
 
-import { Address, AddressImpl, Mailbox }    from '../impls/mod.js'
+export const metaSymKey = Symbol('meta')
 
 /**
- * Send events to an target (Mailbox Address)
  *
- * @param { Mailbox | Address | string } toAddress destination (target) address
- *  - string: the sessionId of the interpreter, or invoke.id of the child machine
+ * Huan(202112): The Actor Model here need to be improved.
+ *  @see https://github.com/wechaty/bot5-assistant/issues/4
+ *
  */
-export const send: (toAddress: string | Address | Mailbox) => typeof actions.send
-  = toAddress => (event, options) =>
-    AddressImpl
-      .from(toAddress)
-      .send(event, options)
+interface AnyEventObjectMeta {
+  [metaSymKey]: {
+    origin: SCXML.Event<AnyEventObject>['origin']
+  }
+}
+
+export type AnyEventObjectExt = AnyEventObject & AnyEventObjectMeta

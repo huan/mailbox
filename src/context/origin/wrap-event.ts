@@ -17,18 +17,20 @@
  *   limitations under the License.
  *
  */
-import type { actions }  from 'xstate'
+import type { AnyEventObject }    from 'xstate'
 
-import { Address, AddressImpl, Mailbox }    from '../impls/mod.js'
+import { metaSymKey }   from './any-event-object-meta.js'
 
 /**
- * Send events to an target (Mailbox Address)
- *
- * @param { Mailbox | Address | string } toAddress destination (target) address
- *  - string: the sessionId of the interpreter, or invoke.id of the child machine
- */
-export const send: (toAddress: string | Address | Mailbox) => typeof actions.send
-  = toAddress => (event, options) =>
-    AddressImpl
-      .from(toAddress)
-      .send(event, options)
+* Wrap an event by adding `metaSymKey` to the event with value `origin` to store the session id of the xstate machine
+*/
+export const wrapEvent = (event: AnyEventObject, origin?: string) => {
+  const wrappedEvent = ({
+    ...event,
+    [metaSymKey]: {
+      origin,
+    },
+  })
+  // console.info(`wrapEvent: ${wrappedEvent.type}@${metaOrigin(wrappedEvent)}`)
+  return wrappedEvent
+}

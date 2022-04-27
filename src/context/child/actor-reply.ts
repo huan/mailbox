@@ -25,30 +25,31 @@
 
 import { actions }    from 'xstate'
 
-import * as duck                      from '../duck/mod.js'
-import { MAILBOX_ACTOR_MACHINE_ID }   from '../impls/constants.js'
+import * as duck                      from '../../duck/mod.js'
+import { MAILBOX_ACTOR_MACHINE_ID }   from '../../impls/constants.js'
 
-import * as request           from './request.js'
-import type { Context }       from './context.js'
-import { getChildSessionId }   from './child.js'
+import * as request       from '../request/mod.js'
+import type { Context }   from '../context.js'
+
+import { sessionId }   from './session-id.js'
 
 /**
  * Send an event as response to the current processing message of Mailbox.
  *
  *  send the CHILD_RESPONSE.payload.message to the child message origin
  */
-export const sendChildResponse = (machineName: string) => actions.choose<Context, ReturnType<typeof duck.Event.ACTOR_REPLY>>([
+export const actorReply = (machineName: string) => actions.choose<Context, ReturnType<typeof duck.Event.ACTOR_REPLY>>([
   {
     /**
      * I. validate the event, make it as the reply of actor if it valid
      */
     cond: (ctx, _, { _event, state }) =>
       // 1. current event is sent from CHILD_MACHINE_ID
-      (!!_event.origin && _event.origin === getChildSessionId(MAILBOX_ACTOR_MACHINE_ID)(state.children))
+      (!!_event.origin && _event.origin === sessionId(MAILBOX_ACTOR_MACHINE_ID)(state.children))
       // 2. the message has valid origin for which we are going to reply to
       && !!request.address(ctx),
     actions: [
-      actions.log((ctx, e, { _event }) => `contexts.sendChildResponse ACTOR_REPLY [${e.payload.message.type}]@${_event.origin} -> [${request.message(ctx)?.type}]@${request.address(ctx)}`, machineName),
+      actions.log((ctx, e, { _event }) => `actorReply ACTOR_REPLY [${e.payload.message.type}]@${_event.origin} -> [${request.message(ctx)?.type}]@${request.address(ctx)}`, machineName),
       actions.send(
         (_, e) => e.payload.message,
         { to: ctx => request.address(ctx)! },
@@ -60,7 +61,7 @@ export const sendChildResponse = (machineName: string) => actions.choose<Context
    */
   {
     actions: [
-      actions.log((_, e, { _event }) => `contexts.sendChildResponse dead letter [${e.payload.message.type}]@${_event.origin}`, machineName),
+      actions.log((_, e, { _event }) => `actorReply dead letter [${e.payload.message.type}]@${_event.origin}`, machineName),
       actions.send((_, e, { _event }) => duck.Event.DEAD_LETTER(
         e.payload.message,
         `message ${e.payload.message.type}@${_event.origin} dropped`,

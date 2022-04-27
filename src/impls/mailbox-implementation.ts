@@ -142,8 +142,11 @@ export class MailboxImpl<
     }
   }
 
+  /**
+   * Mailbox to string should be the sessionId (address id)
+   */
   override toString () {
-    return `Mailbox<${this.id}>`
+    return String(this.address)
   }
 
   /**

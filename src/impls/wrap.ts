@@ -113,7 +113,7 @@ export function wrap <
      */
     on: {
       '*': {
-        actions: context.queue.acceptingMessageWithCapacity(MAILBOX_ID)(normalizedOptions.capacity),
+        actions: context.queue.newMessage(MAILBOX_ID)(normalizedOptions.capacity),
       },
     },
 
@@ -181,7 +181,7 @@ export function wrap <
                 ].join(''),
                 MAILBOX_ID,
               ),
-              context.sendChildResponse(MAILBOX_ID),
+              context.child.actorReply(MAILBOX_ID),
             ],
           },
 
@@ -227,7 +227,7 @@ export function wrap <
           actions.assign<context.Context, duck.Event['DEQUEUE']>({
             message: (_, e) => e.payload.message,
           }),
-          context.assign.dequeue,
+          context.queue.dequeue,
 
           /**
            *
@@ -263,7 +263,7 @@ export function wrap <
                 ].join(''),
                 MAILBOX_ID,
               ),
-              context.sendChildResponse(MAILBOX_ID),
+              context.child.actorReply(MAILBOX_ID),
             ],
           },
         },
@@ -271,7 +271,7 @@ export function wrap <
           actions.choose([
             {
               cond: ctx => context.queue.size(ctx) <= 0,
-              actions: context.assign.emptyQueue,
+              actions: context.queue.emptyQueue,
             },
           ]),
         ],

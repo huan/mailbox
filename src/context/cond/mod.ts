@@ -17,18 +17,5 @@
  *   limitations under the License.
  *
  */
-import type { actions }  from 'xstate'
-
-import { Address, AddressImpl, Mailbox }    from '../impls/mod.js'
-
-/**
- * Send events to an target (Mailbox Address)
- *
- * @param { Mailbox | Address | string } toAddress destination (target) address
- *  - string: the sessionId of the interpreter, or invoke.id of the child machine
- */
-export const send: (toAddress: string | Address | Mailbox) => typeof actions.send
-  = toAddress => (event, options) =>
-    AddressImpl
-      .from(toAddress)
-      .send(event, options)
+export { isChildBusyAcceptable }  from './is-child-busy-acceptable.js'
+export { isEventFrom }            from './is-event-from.js'

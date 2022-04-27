@@ -3,8 +3,8 @@
 
 import { test }    from 'tstest'
 
-import * as child   from './child.js'
+import { sessionId }   from './session-id.js'
 
-test('child.* smoke testing', async t => {
-  t.ok(child, 'tbw')
+test('sessionId() smoke testing', async t => {
+  t.ok(sessionId, 'tbw')
 })

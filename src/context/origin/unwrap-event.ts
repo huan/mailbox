@@ -17,43 +17,8 @@
  *   limitations under the License.
  *
  */
-import type { AnyEventObject, SCXML }   from 'xstate'
-
-export const metaSymKey = Symbol('meta')
-
-/**
- *
- * Huan(202112): The Actor Model here need to be improved.
- *  @see https://github.com/wechaty/bot5-assistant/issues/4
- *
- */
-interface AnyEventObjectMeta {
-  [metaSymKey]: {
-    origin: SCXML.Event<AnyEventObject>['origin']
-  }
-}
-
-export type AnyEventObjectExt = AnyEventObject & AnyEventObjectMeta
-
-/**
- * Get the `origin` (session id of the xstate machine) from the event's `metaSymKey`
- *  we use it as the `address` of the Mailbox.
- */
-export const metaOrigin = (event?: null | AnyEventObjectExt) => (event && event[metaSymKey].origin) || undefined
-
-/**
-* Wrap an event by adding `metaSymKey` to the event with value `origin` to store the session id of the xstate machine
-*/
-export const wrapEvent = (event: AnyEventObject, origin?: string) => {
-  const wrappedEvent = ({
-    ...event,
-    [metaSymKey]: {
-      origin,
-    },
-  })
-  // console.info(`wrapEvent: ${wrappedEvent.type}@${metaOrigin(wrappedEvent)}`)
-  return wrappedEvent
-}
+import type { AnyEventObject }            from 'xstate'
+import { AnyEventObjectExt, metaSymKey }  from './any-event-object-meta.js'
 
 /**
 * Remove the `metaSymKey` from a wrapped event

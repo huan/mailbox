@@ -17,18 +17,15 @@
  *   limitations under the License.
  *
  */
-import type { actions }  from 'xstate'
+import type { EventObject, State }    from 'xstate'
 
-import { Address, AddressImpl, Mailbox }    from '../impls/mod.js'
+import type { Context }   from '../context'
 
 /**
- * Send events to an target (Mailbox Address)
- *
- * @param { Mailbox | Address | string } toAddress destination (target) address
- *  - string: the sessionId of the interpreter, or invoke.id of the child machine
+ * Get snapshot by child id (with currying) from state
  */
-export const send: (toAddress: string | Address | Mailbox) => typeof actions.send
-  = toAddress => (event, options) =>
-    AddressImpl
-      .from(toAddress)
-      .send(event, options)
+export const snapshot: (childId: string) => (state: State<Context, EventObject, any, any>) => State<any, EventObject, any, any> | undefined
+  = childId => state => {
+    const child = state.children[childId]
+    return child?.getSnapshot()
+  }

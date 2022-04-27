@@ -38,6 +38,7 @@ import { send } from './send.js'
  *
  * @param id Self Machine ID
  * @param toAddress {string | Address | Mailbox} the target address
+ *  - string: the sessionId of the interpreter, or invoke.id of the child machine
  */
 export const proxy = (id: string) => (toAddress: string | impls.Address | impls.Mailbox) => {
   const moduleName = `Mailbox<${id}>`
@@ -54,7 +55,7 @@ export const proxy = (id: string) => (toAddress: string | impls.Address | impls.
       /**
        * 2. Child events (origin from child machine) are handled by child machine, skip them
        */
-      cond: context.conds.isEventFrom(toAddress),
+      cond: context.cond.isEventFrom(toAddress),
       actions: actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin} ignored because it is sent from the actor (child/target) machine`, moduleName),
     },
     {

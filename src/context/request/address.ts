@@ -1,10 +1,7 @@
-import * as origin        from './origin.js'
-import type { Context }   from './context.js'
+import * as origin        from '../origin/mod.js'
+import type { Context }   from '../context.js'
 
-/**
- * The current message(event) that is being processed by the Mailbox system
- */
-export const message = (ctx: Context) => ctx.message
+import { message } from './message.js'
 
 /**
  * The origin (machine session, mailbox address) of the current message(event)

@@ -17,18 +17,10 @@
  *   limitations under the License.
  *
  */
-import type { actions }  from 'xstate'
-
-import { Address, AddressImpl, Mailbox }    from '../impls/mod.js'
+import { AnyEventObjectExt, metaSymKey }  from './any-event-object-meta.js'
 
 /**
- * Send events to an target (Mailbox Address)
- *
- * @param { Mailbox | Address | string } toAddress destination (target) address
- *  - string: the sessionId of the interpreter, or invoke.id of the child machine
+ * Get the `origin` (session id of the xstate machine) from the event's `metaSymKey`
+ *  we use it as the `address` of the Mailbox.
  */
-export const send: (toAddress: string | Address | Mailbox) => typeof actions.send
-  = toAddress => (event, options) =>
-    AddressImpl
-      .from(toAddress)
-      .send(event, options)
+export const metaOrigin = (event?: null | AnyEventObjectExt) => (event && event[metaSymKey].origin) || undefined

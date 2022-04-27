@@ -39,17 +39,17 @@ import * as context   from '../context/mod.js'
 
 import { stripPayloadDebug }    from '../testing-utils.js'
 
-import { wrap }   from './wrap.js'
+import { wrap }         from './wrap.js'
 
 test('wrap() transition nextState smoke testing', async t => {
   const mailbox = wrap(Baby.machine.withContext(Baby.initialContext()))
 
-  // console.info('initialState:', actor.initialState)
+  // console.info('initialState:', mailbox.context)
   const SLEEP_EVENT = Baby.Event.SLEEP(10)
 
   let nextState = mailbox.transition(mailbox.initialState, SLEEP_EVENT)
-  // console.info(nextState.actions)
-  // console.info(nextState.context)
+  console.info(nextState.actions)
+  console.info(nextState.context)
   t.same(
     nextState.actions
       .filter(a => a.type === 'xstate.send' && a['event'].type === duck.Type.NEW_MESSAGE)

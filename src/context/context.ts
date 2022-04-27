@@ -17,7 +17,7 @@
  *   limitations under the License.
  *
  */
-import type { AnyEventObjectExt } from './origin.js'
+import type { AnyEventObjectExt } from './origin/mod.js'
 
 export interface Context {
   /**

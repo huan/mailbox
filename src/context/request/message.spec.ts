@@ -2,8 +2,8 @@
 
 import { test }    from 'tstest'
 
-import * as request   from './request.js'
+import { message }   from './message.js'
 
 test('tbw', async t => {
-  t.ok(request, 'tbw')
+  t.ok(message, 'tbw')
 })

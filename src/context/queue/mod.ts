@@ -18,33 +18,9 @@
  *   limitations under the License.
  *
  */
-import { actions, AnyEventObject }    from 'xstate'
-
-import type { Context }   from './context.js'
-import * as origin        from './origin.js'
-
-/**
- * wrap an event as a message and enqueue it to ctx.queue as a new message
- */
-export const enqueue = actions.assign<Context, AnyEventObject>({
-  queue: (ctx, e, { _event }) => [
-    ...ctx.queue,
-    origin.wrapEvent(e, _event.origin),
-  ],
-})
-
-/**
- * dequeue ctx.queue by updating the index by increasing 1 (current message pointer move forward)
- */
-export const dequeue = actions.assign<Context>({
-  // message: ctx => ctx.queue.shift()!,
-  index: ctx => ctx.index + 1,
-})
-
-/**
- * Reset the queue and index
- */
-export const emptyQueue = actions.assign<Context>({
-  index: () => 0,
-  queue: () => [],
-})
+export { dequeue }    from './dequeue.js'
+export { emptyQueue } from './empty-queue.js'
+export { enqueue }    from './enqueue.js'
+export { size }       from './size.js'
+export { message }    from './message.js'
+export { newMessage } from './new-message.js'
