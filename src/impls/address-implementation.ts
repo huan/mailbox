@@ -75,6 +75,10 @@ export class AddressImpl implements Address {
      * @link https://github.com/wechaty/bot5-assistant/issues/11
      *
      * add a `delay:0` when sending events to put the send action to the v8 event loop next tick
+     *
+     * NOTE: to wait the `delay:0` event to be executed, we need to use `setTimeout(r, 0)` instead of `setImmediate`.
+     *  the reason is unclear, but it works.
+     *  Huan(202204): maybe related to the micro/macro tasks event loop mechanism.
      */
     return actions.send(event, {
       delay: 0,

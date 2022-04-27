@@ -61,13 +61,6 @@ export const isChildBusyAcceptable = (childId = MAILBOX_ACTOR_MACHINE_ID) =>
     event : AnyEventObject,
     meta  : GuardMeta<Context, AnyEventObject>,
   ) => {
-    // console.info('##############')
-    // console.info(meta.state.value === duck.State.Busy)
-    // console.info(meta._event.origin === request.address(ctx))
-    // console.info('##############2 meta.state.children', meta.state.children)
-    // console.info(!!child.getChildSnapshot(childId)(meta.state).can(event.type))
-    // console.info('##############3')
-
     return isStateBusy(meta)
       && isRequestAddress(ctx, meta)
       && canChildAccept(event, meta, childId)

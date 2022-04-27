@@ -58,9 +58,9 @@ function container (machine: StateMachine<any, any, any>) {
                *  Send all other events to the child
                */
               // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-              cond: (_, e, meta) => true
+              cond: (ctx, e, meta) => true
                 && !isMailboxType(e.type)
-                && !context.conds.isEventFrom(CHILD_ID)(meta),
+                && !context.cond.isEventFrom(CHILD_ID)(ctx, e, meta),
               actions: [
                 actions.send((_, e) => e, { to: CHILD_ID }),
               ],
