@@ -20,7 +20,18 @@ import * as request       from '../request/mod.js'
 import { isChildBusyAcceptable }    from './is-child-busy-acceptable.js'
 
 test('isChildBusyAcceptable()', async t => {
-  const MATCH_EVENT = 'MATCH'
+  enum Type {
+    MATCH = 'MATCH',
+
+    TEST_CAN    = 'TEST_CAN',
+    TEST_CANNOT = 'TEST_CANNOT',
+
+    IDLE = 'IDLE',
+    BUSY = 'BUSY',
+
+    SET_ORIGIN   = 'SET_ORIGIN',
+    CLEAR_ORIGIN = 'CLEAR_ORIGIN',
+  }
 
   /**
    * Actor Machine
@@ -28,11 +39,12 @@ test('isChildBusyAcceptable()', async t => {
   const ACTOR_ID = 'actor-id'
   const actorMachine = createMachine({
     id: ACTOR_ID,
-    initial: duck.State.Idle,
     on: {
       BUSY: duck.State.Busy,
       IDLE: duck.State.Idle,
     },
+
+    initial: duck.State.Idle,
     states: {
       [duck.State.Idle]: {
         entry: actions.log('states.Idle', ACTOR_ID),
@@ -40,10 +52,8 @@ test('isChildBusyAcceptable()', async t => {
       [duck.State.Busy]: {
         entry: actions.log('states.Busy', ACTOR_ID),
         on: {
-          TEST_CAN: {
-            actions: [
-              actions.log('TEST_CAN', ACTOR_ID),
-            ],
+          [Type.TEST_CAN]: {
+            actions: actions.log('TEST_CAN', ACTOR_ID),
           },
         },
       },
@@ -54,31 +64,29 @@ test('isChildBusyAcceptable()', async t => {
    * Mailbox Machine
    */
   const MAILBOX_ID = 'mailbox-id'
-  const mailboxMachine = createMachine({
+  const mailboxMachine = createMachine<Context, AnyEventObject>({
     id: MAILBOX_ID,
-    initial: duck.State.Idle,
     context: {} as Context,
     invoke: {
       id  : ACTOR_ID,
       src : actorMachine,
     },
     on: {
-      IDLE: {
+      [Type.IDLE]: {
         actions: [
           actions.log('on.IDLE', MAILBOX_ID),
-          actions.send('IDLE', { to: ACTOR_ID }),
+          actions.send(Type.IDLE, { to: ACTOR_ID }),
         ],
         target: duck.State.Idle,
       },
-      BUSY: {
+      [Type.BUSY]: {
         actions: [
           actions.log('on.BUSY', MAILBOX_ID),
-          actions.send('BUSY', { to: ACTOR_ID }),
+          actions.send(Type.BUSY, { to: ACTOR_ID }),
         ],
         target: duck.State.Busy,
       },
-
-      SET_ORIGIN: {
+      [Type.SET_ORIGIN]: {
         actions: [
           actions.log('on.SET_ORIGIN', MAILBOX_ID),
           actions.assign({
@@ -88,36 +96,37 @@ test('isChildBusyAcceptable()', async t => {
           actions.log(ctx => request.address(ctx as any)),
         ],
       },
-      CLEAR_ORIGIN: {
+      [Type.CLEAR_ORIGIN]: {
         actions: [
           actions.log('on.CLEAR_ORIGIN', MAILBOX_ID),
           actions.assign({ message: _ => undefined }),
         ],
       },
-
-      TEST_CAN: {
+      [Type.TEST_CAN]: {
         actions: [
           actions.log('on.TEST_CAN', MAILBOX_ID),
-          actions.choose([
+          actions.choose<Context, AnyEventObject>([
             {
               cond: isChildBusyAcceptable(ACTOR_ID),
-              actions: actions.sendParent(MATCH_EVENT),
+              actions: actions.sendParent(Type.MATCH),
             },
           ]),
         ],
       },
-      TEST_CANNOT: {
+      [Type.TEST_CANNOT]: {
         actions: [
           actions.log('on.TEST_CANNOT', MAILBOX_ID),
-          actions.choose([
+          actions.choose<Context, AnyEventObject>([
             {
               cond: isChildBusyAcceptable(ACTOR_ID),
-              actions: actions.sendParent(MATCH_EVENT),
+              actions: actions.sendParent(Type.MATCH),
             },
           ]),
         ],
       },
     },
+
+    initial: duck.State.Idle,
     states: {
       [duck.State.Idle]: {
         entry: actions.log('states.Idle', MAILBOX_ID),
@@ -134,7 +143,6 @@ test('isChildBusyAcceptable()', async t => {
   const TEST_ID = 'test-id'
   const testMachine = createMachine({
     id: TEST_ID,
-    initial: 'idle',
     invoke: {
       id: MAILBOX_ID,
       src: mailboxMachine,
@@ -147,9 +155,10 @@ test('isChildBusyAcceptable()', async t => {
         ],
       },
     },
+    initial: duck.State.Idle,
     states: {
-      idle: {
-        entry: actions.log('states.idle', TEST_ID),
+      [duck.State.Idle]: {
+        entry: actions.log('states.Idle', TEST_ID),
       },
     },
   })
@@ -175,24 +184,23 @@ test('isChildBusyAcceptable()', async t => {
   eventList.length = 0
   t.equal(mailboxState(), duck.State.Idle, 'mailbox in State.Idle')
   t.equal(actorState(), duck.State.Idle, 'actor in State.Idle')
-  interpreter.send('TEST_CAN')
+  interpreter.send(Type.TEST_CAN)
   t.same(eventList, [
-    { type: 'TEST_CAN' },
+    { type: Type.TEST_CAN },
   ], 'should no match TEST_CAN because actor is in State.Idle')
 
   /**
    * no match if there's no current message origin in Mailbox context
    */
   eventList.length = 0
-  interpreter.send('BUSY')
-  await new Promise(setImmediate)
+  interpreter.send(Type.BUSY)
   t.equal(mailboxState(), duck.State.Busy, 'should in State.Busy of mailbox')
   t.equal(actorState(), duck.State.Busy, 'should in state State.Busy of actor')
   t.notOk(mailboxContext().message, 'no message in Mailbox context')
-  interpreter.send('TEST_CAN')
+  interpreter.send(Type.TEST_CAN)
   t.same(eventList, [
-    { type: 'BUSY' },
-    { type: 'TEST_CAN' },
+    { type: Type.BUSY },
+    { type: Type.TEST_CAN },
   ], 'should not match because child has no current message origin')
 
   // await new Promise(setImmediate)
@@ -203,14 +211,15 @@ test('isChildBusyAcceptable()', async t => {
    * no match if the event type is not acceptable by child
    *  (even inside Mailbox.State.Busy state and there's a current message origin in Mailbox context)
    */
-  eventList.length = 0
-  interpreter.send('SET_ORIGIN')
+  t.notOk(mailboxContext().message, 'should has no message in Mailbox context before SET_ORIGIN')
+  interpreter.send(Type.SET_ORIGIN)
   t.ok(mailboxContext().message, 'should has message in Mailbox context after SET_ORIGIN')
+
   t.notOk((actorInterpreter as any).can('TEST_CANNOT'), 'actor cannot accept event TEST_CANNOT')
-  interpreter.send('TEST_CANNOT')
+  eventList.length = 0
+  interpreter.send(Type.TEST_CANNOT)
   t.same(eventList, [
-    { type: 'SET_ORIGIN' },
-    { type: 'TEST_CANNOT' },
+    { type: Type.TEST_CANNOT },
   ], 'should no match because mailbox has no current message with origin')
 
   /**
@@ -218,24 +227,23 @@ test('isChildBusyAcceptable()', async t => {
    *  and inside Mailbox.State.Busy state and there's a current message origin in Mailbox context
    */
   eventList.length = 0
-  t.notOk((actorInterpreter as any).can('TEST_CAN'), 'actor can accept event TEST_CAN')
-  interpreter.send('TEST_CAN')
+  t.ok((actorInterpreter as any).can(Type.TEST_CAN), 'actor can accept event TEST_CAN')
+  interpreter.send(Type.TEST_CAN)
   t.same(eventList, [
-    { type: 'TEST_CAN' },
-    { type: MATCH_EVENT },
+    { type: Type.TEST_CAN },
+    { type: Type.MATCH },
   ], 'should match because child is in busy state & has current message origin')
 
   /**
    * no match if we clear the current message origin in Mailbox context
    */
   eventList.length = 0
-  interpreter.send('CLEAR_ORIGIN')
+  interpreter.send(Type.CLEAR_ORIGIN)
   t.notOk(mailboxContext().message, 'should has no message in Mailbox context after CLEAR_ORIGIN')
-  interpreter.send('TEST_CAN')
-
+  interpreter.send(Type.TEST_CAN)
   t.same(eventList, [
-    { type: 'CLEAR_ORIGIN' },
-    { type: 'TEST_CAN' },
+    { type: Type.CLEAR_ORIGIN },
+    { type: Type.TEST_CAN },
   ], 'should no match because mailbox has no current message origin')
 
   t.ok(true, 'finished')
