@@ -67,6 +67,10 @@ test('isChildBusyAcceptable()', async t => {
   const mailboxMachine = createMachine<Context, AnyEventObject>({
     id: MAILBOX_ID,
     invoke: {
+      /**
+       * Error: Unable to send event to child 'xxx' from service 'yyy'.
+       *  @link https://github.com/huan/mailbox/issues/7
+       */
       id  : ACTOR_ID,
       src : actorMachine,
     },
