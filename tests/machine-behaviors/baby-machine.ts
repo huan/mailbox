@@ -61,7 +61,7 @@ const machine = createMachine<
     [duckula.State.awake]: {
       entry: [
         actions.log((_, e, { _event }) => `states.awake.entry <- [${e.type}]@${_event.origin}`, duckula.id),
-        Mailbox.actions.idle(duckula.id)('awake'),
+        Mailbox.actions.idle(duckula.id),
         Mailbox.actions.reply(Event.PLAY()),
       ],
       exit: [

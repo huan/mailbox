@@ -36,7 +36,7 @@ const demoMachine = (withMailbox = false) => createMachine<{}>({
       entry: actions.choose([
         {
           cond: _ => withMailbox,
-          actions: Mailbox.actions.idle('DemoMachine')('idle'),
+          actions: Mailbox.actions.idle('DemoMachine'),
         },
       ]),
       on: {
@@ -91,7 +91,7 @@ async function main () {
    * send two events for testing/demonstration
    */
   const callTwice = async (send: () => void) => {
-    ;[...Array(2).keys()].forEach(i => {
+    ;[ ...Array(2).keys() ].forEach(i => {
       console.info(`> sending event #${i}`)
       send()
     })

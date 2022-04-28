@@ -125,7 +125,7 @@ test('wrap interpret smoke testing: 1 event (with BabyMachine)', async t => {
     stripPayloadDebug(eventList),
     [
       SLEEP_EVENT,
-      duck.Event.NEW_MESSAGE(),
+      duck.Event.NEW_MESSAGE(SLEEP_EVENT.type),
       duck.Event.DEQUEUE(SLEEP_EVENT as any),
     ],
     'should receive event SLEEP with Mailbox system events after received the 1st EVENT sleep',
@@ -241,7 +241,7 @@ test('mailbox interpret smoke testing: 3 parallel EVENTs (with CoffeeMaker)', as
     stripPayloadDebug(eventList),
     [
       COFFEE_EVENT_1,
-      duck.Event.NEW_MESSAGE(),
+      duck.Event.NEW_MESSAGE(COFFEE_EVENT_1.type),
       duck.Event.DEQUEUE(COFFEE_EVENT_1 as any),
     ],
     'should send DING event with mailbox system events after received the 1st EVENT sleep',
@@ -269,7 +269,7 @@ test('mailbox interpret smoke testing: 3 parallel EVENTs (with CoffeeMaker)', as
     stripPayloadDebug(eventList),
     [
       COFFEE_EVENT_2,
-      duck.Event.NEW_MESSAGE(),
+      duck.Event.NEW_MESSAGE(COFFEE_EVENT_2.type),
     ],
     'should trigger mailbox.events.NEW_MESSAGE after received the 2nd EVENT sleep',
   )
@@ -285,7 +285,7 @@ test('mailbox interpret smoke testing: 3 parallel EVENTs (with CoffeeMaker)', as
   t.same(
     stripPayloadDebug(eventList), [
       COFFEE_EVENT_3,
-      duck.Event.NEW_MESSAGE(),
+      duck.Event.NEW_MESSAGE(COFFEE_EVENT_3.type),
     ], 'should trigger mailbox.events.NEW_MESSAGE after received the 3rd EVENT sleep')
   t.equal(context.queue.size(targetContext()), 2, 'should have 2 event in queue after received the 3rd EVENT sleep')
 
@@ -301,7 +301,7 @@ test('mailbox interpret smoke testing: 3 parallel EVENTs (with CoffeeMaker)', as
     stripPayloadDebug(eventList),
     [
       duck.Event.ACTOR_IDLE(),
-      duck.Event.NEW_MESSAGE(),
+      duck.Event.NEW_MESSAGE(COFFEE_EVENT_3.type),
       duck.Event.DEQUEUE(COFFEE_EVENT_2 as any),
     ],
     `should process 1st event after ${COFFEE_MAKER_DELAY_MS} ms`,
@@ -333,7 +333,7 @@ test('mailbox interpret smoke testing: 3 parallel EVENTs (with CoffeeMaker)', as
     stripPayloadDebug(eventList),
     [
       duck.Event.ACTOR_IDLE(),
-      duck.Event.NEW_MESSAGE(),
+      duck.Event.NEW_MESSAGE(COFFEE_EVENT_2.type),
       duck.Event.DEQUEUE(COFFEE_EVENT_3 as any),
       duck.Event.ACTOR_REPLY(COFFEE_EVENT_RESPONSE_2),
       duck.Event.DEAD_LETTER(COFFEE_EVENT_RESPONSE_2),

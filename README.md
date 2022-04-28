@@ -85,7 +85,7 @@ const machine = createMachine({
   initial: states.idle,
   states: {
     [states.idle]: {
-      entry: Mailbox.actions.idle('coffee-maker')('idle'),
+      entry: Mailbox.actions.idle('coffee-maker'),
       on: {
         [types.MAKE_ME_COFFEE]: {
           target: states.making,
@@ -140,7 +140,7 @@ Learn more about similiar (i.e. Akka) Actor & Mailbox diagram with discussion fr
 ## Quick Start
 
 1. `import * as Mailbox from 'mailbox'`
-1. Add `Mailbox.actions.idle('child-id')('data')` to the `entry` of state of your machine which it accepting new messages, to let the Mailbox continue sending new messages from other actors.
+1. Add `Mailbox.actions.idle('child-id')` to the `entry` of state of your machine which it accepting new messages, to let the Mailbox continue sending new messages from other actors.
 1. Use `Mailbox.actions.reply('YOUR_EVENT')` to reply event messages to other actors.
 1. Use `const mailbox = Mailbox.from(yourMachine)` to wrap your actor with mailbox address. The mailbox address is a parent XState machine which will invok your machine as child and add message queue to the child machine.
 
@@ -153,8 +153,9 @@ const machine = createMachine({
   states: {
     idle: {
       /**
-       * RULE #1: machine must has `Mailbox.Actions.idle('child-id')` tinbouond-outbound.spec
-      entry: Mailbox.actions.idle('child-machine-name')('idle'),
+       * RULE #1: machine must has `Mailbox.Actions.idle('child-id')` 
+       */
+      entry: Mailbox.actions.idle('child-machine-name'),
       on: {
         '*': {
           /**
@@ -401,7 +402,7 @@ Actors have mailboxes.
 ### XState Machine
 
 1. The `Mailbox.actions.idle('machine-name')('reason')` action must be put inside the `entry` action of when it's ready to receive message (in `states.idle` for example)
-1. All events that received in `states.idle` must make a `external` trancition by adding a `target` entry, so that the `states.idle` state will be entered again, which will emit the `Mailbox.actions.idle('machine-name')('reason')` to parent (Mailbox) to let the Mailbox know the machine is ready to receive the next message.
+1. All events that received in `states.idle` must make a `external` trancition by adding a `target` entry, so that the `states.idle` state will be entered again, which will emit the `Mailbox.actions.idle('machine-name')` to parent (Mailbox) to let the Mailbox know the machine is ready to receive the next message.
 
 Learn more from [validate.ts source code](validate.ts)
 
@@ -504,7 +505,7 @@ See: [XState Docs - Batched Events](https://xstate.js.org/docs/guides/interpreta
 
 ## History
 
-### main v0.7
+### main v0.9
 
 1. Add `Duckula` Interface for modulize Mailbox Actor. ([Issue #1](https://github.com/huan/mailbox/issues/1))
 1. Fix the race condition bug by simplifing the queue state management to be atomic. ([Issue #5](https://github.com/huan/mailbox/issues/5))

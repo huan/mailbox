@@ -39,7 +39,7 @@ const machine = createMachine<
   initial: duckula.State.idle,
   states: {
     [duckula.State.idle]: {
-      entry: Mailbox.actions.idle('CoffeeMaker')('idle'),
+      entry: Mailbox.actions.idle('CoffeeMaker'),
       on: {
         [duckula.Type.MAKE_ME_COFFEE]: {
           target: duckula.State.busy,

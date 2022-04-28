@@ -19,7 +19,7 @@ test('Mailbox can make outbound communication when it has lots of queued inbound
     initial: 'idle',
     states: {
       idle: {
-        entry: Mailbox.actions.idle('service')('idle'),
+        entry: Mailbox.actions.idle('service'),
         on: {
           DING: 'ding',
           '*': 'idle',
@@ -56,7 +56,7 @@ test('Mailbox can make outbound communication when it has lots of queued inbound
     },
     states: {
       idle: {
-        entry: Mailbox.actions.idle('main')('idle'),
+        entry: Mailbox.actions.idle('main'),
         on: {
           DING: 'ding',
           '*': 'idle',

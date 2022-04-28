@@ -23,7 +23,7 @@ import { actions }  from 'xstate'
 import * as duck    from '../duck/mod.js'
 import * as is      from '../is/mod.js'
 
-export const idle = (id: string) => (data: string) => {
+export const idle = (id: string) => {
   const moduleName = `${id}<Mailbox>`
 
   return actions.choose([
@@ -43,9 +43,9 @@ export const idle = (id: string) => (data: string) => {
        * send ACTOR_IDLE event to the mailbox for receiving new messages
        */
       actions: [
-        actions.log(`actions.idle sendParent [ACTOR_IDLE(${data})]`, moduleName),
-        actions.sendParent(duck.Event.ACTOR_IDLE(data)),
+        actions.log('actions.idle sendParent [ACTOR_IDLE]', moduleName),
+        actions.sendParent(duck.Event.ACTOR_IDLE()),
       ],
     },
-  ]) as any
+  ])
 }

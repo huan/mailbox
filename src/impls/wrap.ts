@@ -153,7 +153,7 @@ export function wrap <
                   ),
                   MAILBOX_ID,
                 ].join(''), MAILBOX_ID),
-                actions.send(ctx => duck.Event.NEW_MESSAGE(context.queue.message(ctx)?.type)),
+                actions.send(ctx => duck.Event.NEW_MESSAGE(context.queue.message(ctx)!.type)),
               ],
             },
           ]),
@@ -192,7 +192,7 @@ export function wrap <
           [duck.Type.NEW_MESSAGE]: {
             actions: [
               actions.log<context.Context, duck.Event['NEW_MESSAGE']>(
-                (_, e) => `states.Idle.on.NEW_MESSAGE ${e.payload.data}`,
+                (_, e) => `states.Idle.on.NEW_MESSAGE [${e.payload.type}]`,
                 MAILBOX_ID,
               ) as any, // <- Huan(202204) FIXME: remove any
               actions.send(ctx => duck.Event.DEQUEUE(context.queue.message(ctx)!)),

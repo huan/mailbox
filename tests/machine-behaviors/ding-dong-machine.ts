@@ -44,7 +44,7 @@ const machine = createMachine<
   states: {
     [duckula.State.idle]: {
       entry: [
-        Mailbox.actions.idle('DingDongMachine')('idle'),
+        Mailbox.actions.idle('DingDongMachine'),
       ],
       on: {
         '*': duckula.State.idle,

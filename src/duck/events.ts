@@ -32,8 +32,7 @@ import * as types   from './types.js'
  *  it must be send whenever the child machine is idle.
  *  so that the Mailbox can be able to send messages to the child machine
  */
-const payloadActorIdle  = (data?: string) => ({ data })
-export const ACTOR_IDLE = createAction(types.ACTOR_IDLE,  payloadActorIdle)()
+export const ACTOR_IDLE = createAction(types.ACTOR_IDLE)()
 
 const payloadActorReply = (message: EventObject)  => ({ message })
 export const ACTOR_REPLY = createAction(types.ACTOR_REPLY, payloadActorReply)()
@@ -41,7 +40,7 @@ export const ACTOR_REPLY = createAction(types.ACTOR_REPLY, payloadActorReply)()
 /**
  * events of: queue
  */
-const payloadNewMessage   = (data?: string) => ({ data })
+const payloadNewMessage   = (type: string) => ({ type })
 export const NEW_MESSAGE  = createAction(types.NEW_MESSAGE, payloadNewMessage)()
 
 const payloadDequeue  = (message: context.origin.AnyEventObjectExt) => ({ message })

@@ -80,7 +80,7 @@ test('babyMachine smoke testing with asleep under mock clock', async t => {
     proxyEventList,
     [
       { type: 'xstate.init' },
-      Mailbox.Event.ACTOR_IDLE('awake'),
+      Mailbox.Event.ACTOR_IDLE(),
       Mailbox.Event.ACTOR_REPLY(
         Baby.Event.PLAY(),
       ),
