@@ -40,12 +40,12 @@ export const newMessage = (machineName: string) => (capacity = Infinity) => acti
   {
     // 1.1. Ignore all Mailbox.Types.* because they are internal messages
     cond: (_, e) => is.isMailboxType(e.type),
-    actions: actions.log((_, e) => `newMessage [${e.type}] ignored: it's an internal (Mailbox.Type) event`, machineName),
+    actions: actions.log((_, e) => `newMessage [${e.type}] ignore Mailbox.Type.* event`, machineName),
   },
   {
     // 1.2. Ignore Child events (origin from child machine) because they are sent from the child machine
     cond: cond.isEventFrom(MAILBOX_ACTOR_MACHINE_ID),
-    actions: actions.log((_, e) => `newMessage [${e.type}] ignored: it's sent from child (target actor machine)`, machineName),
+    actions: actions.log((_, e) => `newMessage [${e.type}] ignored child event`, machineName),
   },
   {
     /**
