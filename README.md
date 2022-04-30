@@ -35,10 +35,10 @@ The design of Mailbox is very like the the Akka Actor Model:
 
 ## Voice of Developers
 
-> The mailbox is separate (which itself can be an actor) and the timing of events forwarded to the statechart can be n-time whereas transitions within the s/c are zero-time. ([link](https://twitter.com/DavidKPiano/status/1510793483359240194))  
+> The mailbox is separate (which itself can be an actor) and the timing of events forwarded to the statechart can be n-time whereas transitions within the s/c are zero-time. ([tweet](https://twitter.com/DavidKPiano/status/1510793483359240194))  
 > &mdash; [@DavidKPiano](https://twitter.com/DavidKPiano), 🚀 Creator of XState
 
-> ... statecharts process events immediately while actors (by means of message queues) give you granular control of when to process the next event. ([link](https://twitter.com/chrisshank23/status/1510786425276416004))  
+> ... statecharts process events immediately while actors (by means of message queues) give you granular control of when to process the next event. ([tweet](https://twitter.com/chrisshank23/status/1510786425276416004))  
 > &mdash; [@chrisshank23](https://twitter.com/chrisshank23), core member of StateML
 
 ## TODO
