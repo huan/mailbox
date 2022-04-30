@@ -40,12 +40,12 @@ export const newMessage = (machineName: string) => (capacity = Infinity) => acti
   {
     // 1.1. Ignore all Mailbox.Types.* because they are internal messages
     cond: (_, e) => is.isMailboxType(e.type),
-    actions: actions.log((_, e) => `newMessage [${e.type}] ignore Mailbox.Type.* event`, machineName),
+    actions: actions.log((_, e) => `newMessage [${e.type}] ignored system message`, machineName),
   },
   {
     // 1.2. Ignore Child events (origin from child machine) because they are sent from the child machine
     cond: cond.isEventFrom(MAILBOX_ACTOR_MACHINE_ID),
-    actions: actions.log((_, e) => `newMessage [${e.type}] ignored child event`, machineName),
+    actions: actions.log((_, e) => `newMessage [${e.type}] ignored internal message`, machineName),
   },
   {
     /**
@@ -69,7 +69,7 @@ export const newMessage = (machineName: string) => (capacity = Infinity) => acti
      */
     cond: cond.isChildBusyAcceptable(MAILBOX_ACTOR_MACHINE_ID),
     actions: [
-      actions.log((_, e, { _event }) => `newMessage isChildBusyAcceptable: [${e.type}]@${_event.origin}`, machineName),
+      actions.log((_, e, { _event }) => `newMessage [${e.type}]@${_event.origin} isChildBusyAcceptable`, machineName),
       /**
        * keep the original of event by forwarding(`forwardTo`, instead of `send`) it
        *
@@ -85,7 +85,7 @@ export const newMessage = (machineName: string) => (capacity = Infinity) => acti
      * 3. Add incoming message to queue by wrapping the `_event.origin` meta data
      */
     actions: [
-      actions.log((_, e, { _event }) => `newMessage [${e.type}]@${_event.origin}: accepted`, machineName),
+      actions.log((_, e, { _event }) => `newMessage [${e.type}]@${_event.origin} external message accepted`, machineName),
       assign.enqueue,  // <- wrapping `_event.origin` inside
       actions.send((_, e) => duck.Event.NEW_MESSAGE(e.type)),
     ],
