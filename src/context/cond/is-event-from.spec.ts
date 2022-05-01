@@ -4,7 +4,7 @@
 import { test }                               from 'tstest'
 import type { ActorRef, GuardMeta, SCXML }    from 'xstate'
 
-import { MAILBOX_ACTOR_MACHINE_ID }   from '../../impls/constants.js'
+import { MAILBOX_ACTOR_MACHINE_ID }   from '../../constants.js'
 
 import { isEventFrom } from './is-event-from.js'
 

@@ -20,7 +20,7 @@
 import type { AnyEventObject, GuardMeta }   from 'xstate'
 
 import type { Address }   from '../../impls/address-interface.js'
-import type { Mailbox }   from '../../impls/mailbox-interface.js'
+import type { Mailbox }   from '../../interface.js'
 
 import * as child   from '../child/mod.js'
 

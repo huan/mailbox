@@ -37,11 +37,12 @@ import * as duck            from '../duck/mod.js'
 import { isMailboxType }    from '../is/mod.js'
 import type { Context }     from '../context/mod.js'
 
-import type { Address }               from './address-interface.js'
-import { getTargetMachine }           from './get-actor-machine.js'
-import { MAILBOX_ACTOR_MACHINE_ID }   from './constants.js'
-import type { Mailbox, Options }      from './mailbox-interface.js'
-import { AddressImpl }                from './address-implementation.js'
+import { MAILBOX_ACTOR_MACHINE_ID }   from '../constants.js'
+import type { Mailbox, Options }      from '../interface.js'
+
+import type { Address }       from './address-interface.js'
+import { getTargetMachine }   from './get-actor-machine.js'
+import { AddressImpl }        from './address-implementation.js'
 
 /**
  * The Mailbox Class Implementation

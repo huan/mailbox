@@ -26,7 +26,7 @@
 import { actions }    from 'xstate'
 
 import * as duck                      from '../../duck/mod.js'
-import { MAILBOX_ACTOR_MACHINE_ID }   from '../../impls/constants.js'
+import { MAILBOX_ACTOR_MACHINE_ID }   from '../../constants.js'
 
 import * as request       from '../request/mod.js'
 import type { Context }   from '../context.js'

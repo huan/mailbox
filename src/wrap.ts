@@ -30,16 +30,16 @@ import {
   AnyEventObject,
 }                   from 'xstate'
 
-import * as duck      from '../duck/mod.js'
-import * as context   from '../context/mod.js'
+import * as duck      from './duck/mod.js'
+import * as context   from './context/mod.js'
 
-import { IS_DEVELOPMENT }     from '../config.js'
-import { validate }           from '../validate.js'
+import { IS_DEVELOPMENT }     from './config.js'
+import { validate }           from './validate.js'
 import {
   MAILBOX_ACTOR_MACHINE_ID,
   MAILBOX_NAME,
 }                             from './constants.js'
-import type { Options }       from './mailbox-interface.js'
+import type { Options }       from './interface.js'
 
 /**
  * Add Mailbox Queue to the targetMachine

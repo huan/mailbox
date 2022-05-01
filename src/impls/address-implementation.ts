@@ -31,7 +31,7 @@ import {
 import * as is from '../is/mod.js'
 
 import type { Address } from './address-interface.js'
-import type { Mailbox } from './mailbox-interface.js'
+import type { Mailbox } from '../interface.js'
 
 export class AddressImpl implements Address {
 

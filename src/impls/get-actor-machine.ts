@@ -22,7 +22,7 @@
 
 import type { AnyStateMachine }    from 'xstate'
 
-import { MAILBOX_ACTOR_MACHINE_ID }    from './constants.js'
+import { MAILBOX_ACTOR_MACHINE_ID }    from '../constants.js'
 
 export const getTargetMachine = (wrappedMachine: AnyStateMachine) => {
   const services = wrappedMachine.options.services

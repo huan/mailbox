@@ -22,7 +22,7 @@ import { actions, AnyEventObject }    from 'xstate'
 
 import * as duck                      from '../../duck/mod.js'
 import * as is                        from '../../is/mod.js'
-import { MAILBOX_ACTOR_MACHINE_ID }   from '../../impls/constants.js'
+import { MAILBOX_ACTOR_MACHINE_ID }   from '../../constants.js'
 
 import type { Context }   from '../context.js'
 import * as cond          from '../cond/mod.js'

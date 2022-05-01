@@ -18,6 +18,8 @@ export {
 }                           from '../duckula/mod.js'
 
 export { from }       from '../from.js'
+export { wrap }       from '../wrap.js'
+
 export * as nil       from '../nil.js'
 export { VERSION }    from '../version.js'
 

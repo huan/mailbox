@@ -21,7 +21,7 @@ import type { AnyEventObject, GuardMeta }   from 'xstate'
 
 import * as duck    from '../../duck/mod.js'
 
-import { MAILBOX_ACTOR_MACHINE_ID }  from '../../impls/constants.js'
+import { MAILBOX_ACTOR_MACHINE_ID }  from '../../constants.js'
 
 import * as child         from '../child/mod.js'
 import * as request       from '../request/mod.js'

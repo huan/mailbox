@@ -23,9 +23,10 @@ import { test }  from 'tstest'
 import * as mod   from './mod.js'
 
 test('mod.*', async t => {
-  t.ok(mod.from instanceof Function, 'should export from')
-  t.ok(mod.isMailbox instanceof Function, 'should export isMailbox')
-  t.ok(mod.isAddress instanceof Function, 'should export isAddress')
+  t.ok(mod.from instanceof Function, 'should export from()')
+  t.ok(mod.wrap instanceof Function, 'should export wrap()')
+  t.ok(mod.isMailbox instanceof Function, 'should export isMailbox()')
+  t.ok(mod.isAddress instanceof Function, 'should export isAddress()')
   t.ok(mod.VERSION, 'should export VERSION')
 })
 
@@ -49,7 +50,6 @@ test('helpers.*', async t => {
   t.ok(mod.helpers, 'should export helpers')
   t.ok(mod.helpers.isMailboxType, 'should export isMailboxType')
   t.ok(mod.helpers.validate, 'should export validate')
-  t.ok(mod.helpers.wrap, 'should export wrap')
 })
 
 test('mod.impls.*', async t => {

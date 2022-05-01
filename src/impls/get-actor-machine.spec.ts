@@ -16,11 +16,12 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-import { test }    from 'tstest'
+import { test }   from 'tstest'
 
-import Baby    from '../../tests/machine-behaviors/baby-machine.js'
+import Baby   from '../../tests/machine-behaviors/baby-machine.js'
 
-import { wrap }               from './wrap.js'
+import { wrap }   from '../wrap.js'
+
 import { getTargetMachine }   from './get-actor-machine.js'
 
 test('getTargetMachine()', async t => {

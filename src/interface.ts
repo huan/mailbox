@@ -22,7 +22,7 @@
  */
 import type { EventObject, InterpreterOptions }   from 'xstate'
 
-import type { Address }   from './address-interface.js'
+import type { Address }   from './impls/address-interface.js'
 
 export interface Options {
   id?       : string

@@ -19,12 +19,9 @@
  */
 import type { EventObject, StateMachine } from 'xstate'
 
-import {
-  type Mailbox,
-  type Options,
-  MailboxImpl,
-  wrap,
-}                 from './impls/mod.js'
+import { type Mailbox, type Options, MailboxImpl }    from './impls/mod.js'
+
+import { wrap }   from './wrap.js'
 
 /**
  * Create a Mailbox from the target machine
