@@ -63,8 +63,8 @@ export const proxy = (id: string) => (toAddress: string | impls.Address | impls.
        * 3. Proxy it
        */
       actions: [
-        send(toAddress)((_, e) => e),
         actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin} -> ${toAddress}`, moduleName),
+        send(toAddress)((_, e) => e),
       ],
     },
   ])
