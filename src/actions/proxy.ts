@@ -36,12 +36,12 @@ import { send } from './send.js'
  * And send all other events to the target address,
  * by setting the `origin` to the current machine address.
  *
- * @param id Self Machine ID
+ * @param actorId Self Machine ID
  * @param toAddress {string | Address | Mailbox} the target address
  *  - string: the sessionId of the interpreter, or invoke.id of the child machine
  */
-export const proxy = (id: string) => (toAddress: string | impls.Address | impls.Mailbox) => {
-  const moduleName = `Mailbox<${id}>`
+export const proxy = (actorId: string) => (toAddress: string | impls.Address | impls.Mailbox) => {
+  const moduleName = `Mailbox<${actorId}>`
 
   return actions.choose([
     {
