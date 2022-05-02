@@ -25,6 +25,7 @@ import type * as impls    from '../impls/mod.js'
 import * as context       from '../context/mod.js'
 
 import { send } from './send.js'
+import { mailboxId } from '../mailbox-id.js'
 
 /**
  * Send (proxy) all events to target.
@@ -41,7 +42,7 @@ import { send } from './send.js'
  *  - string: the sessionId of the interpreter, or invoke.id of the child machine
  */
 export const proxy = (actorId: string) => (toAddress: string | impls.Address | impls.Mailbox) => {
-  const moduleName = `Mailbox<${actorId}>`
+  const MAILBOX_ID = mailboxId(actorId)
 
   return actions.choose([
     {
@@ -49,21 +50,21 @@ export const proxy = (actorId: string) => (toAddress: string | impls.Address | i
        * 1. Mailbox.Types.* is system messages, do not proxy them
        */
       cond: (_, e) => is.isMailboxType(e.type),
-      actions: actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin} ignored because its an internal MailboxType`, moduleName),
+      actions: actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin} ignored because its an internal MailboxType`, MAILBOX_ID),
     },
     {
       /**
        * 2. Child events (origin from child machine) are handled by child machine, skip them
        */
       cond: context.cond.isEventFrom(toAddress),
-      actions: actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin} ignored because it is sent from the actor (child/target) machine`, moduleName),
+      actions: actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin} ignored because it is sent from the actor (child/target) machine`, MAILBOX_ID),
     },
     {
       /**
        * 3. Proxy it
        */
       actions: [
-        actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin} -> ${toAddress}`, moduleName),
+        actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin} -> ${toAddress}`, MAILBOX_ID),
         send(toAddress)((_, e) => e),
       ],
     },
