@@ -508,8 +508,9 @@ See: [XState Docs - Batched Events](https://xstate.js.org/docs/guides/interpreta
 
 ## History
 
-### main v0.9
+### main v0.10
 
+1. Fix wrapped machine ID conflic bug when there have nested Mailbox wrapped machines (PR [#8](https://github.com/huan/mailbox/pull/8))
 1. Add `Duckula` Interface for modulize Mailbox Actor. ([Issue #1](https://github.com/huan/mailbox/issues/1))
 1. Fix the race condition bug by simplifing the queue state management to be atomic. ([Issue #5](https://github.com/huan/mailbox/issues/5))
 1. Renaming `CHILD` to `ACTOR`:
