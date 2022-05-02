@@ -14,6 +14,6 @@
     "scripts/**/*.ts",
     "src/**/*.ts",
     "tests/**/*.spec.ts",
-    "tests/machine-behaviors/*.ts",
+    "tests/machine-behaviors/**/.ts",
   ],
 }

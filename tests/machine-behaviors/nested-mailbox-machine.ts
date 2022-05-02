@@ -19,13 +19,11 @@ const Event = {
   COMPLETE : createAction(Type.COMPLETE)(),
 } as const
 
-interface Context {}
-
 export const duckula = Mailbox.duckularize({
   id: 'Nested',
   events: Event,
   states: State,
-  initialContext: { i: 0 } as Context,
+  initialContext: {},
 })
 
 const CHILD_ID = 'Child'
@@ -49,11 +47,9 @@ const childMachine = createMachine({
     [duckula.State.Busy]: {
       entry: [
         actions.log('states.Busy.entry', CHILD_ID),
-        Mailbox.actions.reply(duckula.Event.COMPLETE(), { delay: 10 }),
+        Mailbox.actions.reply(duckula.Event.COMPLETE()),
       ],
-      after: {
-        20: duckula.State.Idle,
-      },
+      always: duckula.State.Idle,
     },
   },
 })
@@ -88,6 +84,7 @@ const parentMachine = createMachine<any, any>({
       on: {
         '*': {
           actions: actions.log((_, e) => `states.Busy.on ${JSON.stringify(e)}`, PARENT_MACHINE_ID),
+          target: duckula.State.Idle,
         },
         [Mailbox.Type.ACTOR_REPLY]: {
           actions: [

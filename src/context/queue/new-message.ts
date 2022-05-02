@@ -20,9 +20,9 @@
  */
 import { actions, AnyEventObject }    from 'xstate'
 
-import * as duck        from '../../duck/mod.js'
-import * as is          from '../../is/mod.js'
-import { wrappedId }    from '../../mailbox-id.js'
+import * as duck                    from '../../duck/mod.js'
+import * as is                      from '../../is/mod.js'
+import { wrappedId, mailboxId }     from '../../mailbox-id.js'
 
 import type { Context }   from '../context.js'
 import * as cond          from '../cond/mod.js'
@@ -40,12 +40,12 @@ export const newMessage = (actorId: string) => (capacity = Infinity) => actions.
   {
     // 1.1. Ignore all Mailbox.Types.* because they are internal messages
     cond: (_, e) => is.isMailboxType(e.type),
-    actions: actions.log((_, e) => `newMessage [${e.type}] ignored system message`, actorId),
+    actions: actions.log((_, e) => `newMessage [${e.type}] ignored system message`, mailboxId(actorId)),
   },
   {
     // 1.2. Ignore Child events (origin from child machine) because they are sent from the child machine
     cond: cond.isEventFrom(wrappedId(actorId)),
-    actions: actions.log((_, e) => `newMessage [${e.type}] ignored internal message`, actorId),
+    actions: actions.log((_, e) => `newMessage [${e.type}] ignored internal message`, mailboxId(actorId)),
   },
   {
     /**
@@ -53,7 +53,7 @@ export const newMessage = (actorId: string) => (capacity = Infinity) => actions.
      */
     cond: ctx => size(ctx) > capacity,
     actions: [
-      actions.log((ctx, e, { _event }) => `newMessage(${capacity}) dead letter [${e.type}]@${_event.origin || ''} because out of capacity: queueSize(${size(ctx)}) > capacity(${capacity})`, actorId),
+      actions.log((ctx, e, { _event }) => `newMessage(${capacity}) dead letter [${e.type}]@${_event.origin || ''} because out of capacity: queueSize(${size(ctx)}) > capacity(${capacity})`, mailboxId(actorId)),
       actions.send((ctx, e) => duck.Event.DEAD_LETTER(e, `queueSize(${size(ctx)} out of capacity(${capacity})`)),
     ],
   },
@@ -69,7 +69,7 @@ export const newMessage = (actorId: string) => (capacity = Infinity) => actions.
      */
     cond: cond.isChildBusyAcceptable(wrappedId(actorId)),
     actions: [
-      actions.log((_, e, { _event }) => `newMessage [${e.type}]@${_event.origin} isChildBusyAcceptable`, actorId),
+      actions.log((_, e, { _event }) => `newMessage [${e.type}]@${_event.origin} isChildBusyAcceptable`, mailboxId(actorId)),
       /**
        * keep the original of event by forwarding(`forwardTo`, instead of `send`) it
        *
@@ -85,7 +85,7 @@ export const newMessage = (actorId: string) => (capacity = Infinity) => actions.
      * 3. Add incoming message to queue by wrapping the `_event.origin` meta data
      */
     actions: [
-      actions.log((_, e, { _event }) => `newMessage [${e.type}]@${_event.origin} external message accepted`, actorId),
+      actions.log((_, e, { _event }) => `newMessage [${e.type}]@${_event.origin} external message accepted`, mailboxId(actorId)),
       assign.enqueue,  // <- wrapping `_event.origin` inside
       actions.send((_, e) => duck.Event.NEW_MESSAGE(e.type)),
     ],
