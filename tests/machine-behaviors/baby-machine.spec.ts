@@ -152,7 +152,7 @@ test('babyMachine smoke testing with asleep under mock clock', async t => {
   t.same(
     babyEventList,
     [
-      { type: 'xstate.after(cryMs)#baby.baby/asleep' },
+      { type: 'xstate.after(cryMs)#Baby.baby/asleep' },
     ],
     'should cry in middle night (after 2nd 4 ms) for child',
   )
@@ -179,7 +179,7 @@ test('babyMachine smoke testing with asleep under mock clock', async t => {
     Mailbox.Type.ACTOR_REPLY,
   ], 'should pee after night and start paly in the morning, sent to parent')
   t.same(babyEventList.map(e => e.type), [
-    'xstate.after(ms)#baby.baby/asleep',
+    'xstate.after(ms)#Baby.baby/asleep',
   ], 'should received after(ms) event for child')
 
   proxyInterpreter.stop()

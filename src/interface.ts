@@ -25,7 +25,6 @@ import type { EventObject, InterpreterOptions }   from 'xstate'
 import type { Address }   from './impls/address-interface.js'
 
 export interface Options {
-  id?       : string
   capacity? : number
   logger?   : InterpreterOptions['logger'],
   devTools? : InterpreterOptions['devTools'],

@@ -4,8 +4,6 @@
 import { test }                               from 'tstest'
 import type { ActorRef, GuardMeta, SCXML }    from 'xstate'
 
-import { MAILBOX_ACTOR_MACHINE_ID }   from '../../constants.js'
-
 import { isEventFrom } from './is-event-from.js'
 
 test('isEventFrom()', async t => {
@@ -15,8 +13,10 @@ test('isEventFrom()', async t => {
     origin: SESSION_ID,
   } as any as SCXML.Event<any>
 
+  const WRAPPED_ACTOR_ID = 'wrapped-id'
+
   const CHILDREN: Record<string, ActorRef<any, any>> = {
-    [MAILBOX_ACTOR_MACHINE_ID]: {
+    [WRAPPED_ACTOR_ID]: {
       sessionId: SESSION_ID,
     } as any as ActorRef<any, any>,
   }
@@ -26,13 +26,13 @@ test('isEventFrom()', async t => {
     state: { children: CHILDREN },
   } as GuardMeta<any, any>
 
-  t.ok(isEventFrom(MAILBOX_ACTOR_MACHINE_ID)({}, _EVENT, META), 'should return true if the event origin is the child session id')
+  t.ok(isEventFrom(WRAPPED_ACTOR_ID)({}, _EVENT, META), 'should return true if the event origin is the child session id')
 
   META._event.origin = undefined
-  t.notOk(isEventFrom(MAILBOX_ACTOR_MACHINE_ID)({}, _EVENT, META), 'should return false if the event origin is undefined')
+  t.notOk(isEventFrom(WRAPPED_ACTOR_ID)({}, _EVENT, META), 'should return false if the event origin is undefined')
 
   t.notOk(
-    isEventFrom(MAILBOX_ACTOR_MACHINE_ID)({}, _EVENT, { _event: {} } as any),
+    isEventFrom(WRAPPED_ACTOR_ID)({}, _EVENT, { _event: {} } as any),
     'should return false for undefined origin',
   )
 })

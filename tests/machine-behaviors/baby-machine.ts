@@ -40,7 +40,7 @@ const Event = {
 type Context = { ms?: number }
 
 const duckula = Mailbox.duckularize({
-  id: 'BabyActor',
+  id: 'Baby',
   events: Event,
   states: State,
   initialContext: {} as Context,
@@ -55,7 +55,7 @@ const machine = createMachine<
   ReturnType<typeof duckula.Event[keyof typeof duckula.Event]>,
   any
 >({
-  id: 'baby',
+  id: duckula.id,
   initial: duckula.State.awake,
   states: {
     [duckula.State.awake]: {

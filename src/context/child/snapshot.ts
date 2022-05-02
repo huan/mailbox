@@ -24,8 +24,8 @@ import type { Context }   from '../context'
 /**
  * Get snapshot by child id (with currying) from state
  */
-export const snapshot: (childId: string) => (state: State<Context, EventObject, any, any>) => State<any, EventObject, any, any> | undefined
+export const snapshot: (childId: string) => (state?: State<Context, EventObject, any, any>) => State<any, EventObject, any, any> | undefined
   = childId => state => {
-    const child = state.children[childId]
+    const child = state?.children[childId]
     return child?.getSnapshot()
   }
