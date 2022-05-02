@@ -24,7 +24,7 @@ interface Context {
 }
 
 const duckula = Mailbox.duckularize({
-  id: 'CoffeeMakerActor',
+  id: 'CoffeeMaker',
   events: Event,
   states: State,
   initialContext: {} as Context,
@@ -36,6 +36,7 @@ const machine = createMachine<
   ReturnType<typeof duckula.initialContext>,
   ReturnType<typeof Event[keyof typeof Event]>
 >({
+  id: duckula.id,
   initial: duckula.State.idle,
   states: {
     [duckula.State.idle]: {

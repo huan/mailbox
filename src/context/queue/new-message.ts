@@ -20,9 +20,9 @@
  */
 import { actions, AnyEventObject }    from 'xstate'
 
-import * as duck                      from '../../duck/mod.js'
-import * as is                        from '../../is/mod.js'
-import { MAILBOX_ACTOR_MACHINE_ID }   from '../../constants.js'
+import * as duck        from '../../duck/mod.js'
+import * as is          from '../../is/mod.js'
+import { wrappedId }    from '../../mailbox-id.js'
 
 import type { Context }   from '../context.js'
 import * as cond          from '../cond/mod.js'
@@ -36,16 +36,16 @@ import { size }   from './size.js'
  * 3. send(drop) letter to DLQ if capacity overflow
  * 4. emit NEW_MESSAGE after enqueue the message to the queue
  */
-export const newMessage = (machineName: string) => (capacity = Infinity) => actions.choose<Context, AnyEventObject>([
+export const newMessage = (actorId: string) => (capacity = Infinity) => actions.choose<Context, AnyEventObject>([
   {
     // 1.1. Ignore all Mailbox.Types.* because they are internal messages
     cond: (_, e) => is.isMailboxType(e.type),
-    actions: actions.log((_, e) => `newMessage [${e.type}] ignored system message`, machineName),
+    actions: actions.log((_, e) => `newMessage [${e.type}] ignored system message`, actorId),
   },
   {
     // 1.2. Ignore Child events (origin from child machine) because they are sent from the child machine
-    cond: cond.isEventFrom(MAILBOX_ACTOR_MACHINE_ID),
-    actions: actions.log((_, e) => `newMessage [${e.type}] ignored internal message`, machineName),
+    cond: cond.isEventFrom(wrappedId(actorId)),
+    actions: actions.log((_, e) => `newMessage [${e.type}] ignored internal message`, actorId),
   },
   {
     /**
@@ -53,7 +53,7 @@ export const newMessage = (machineName: string) => (capacity = Infinity) => acti
      */
     cond: ctx => size(ctx) > capacity,
     actions: [
-      actions.log((ctx, e, { _event }) => `newMessage(${capacity}) dead letter [${e.type}]@${_event.origin || ''} because out of capacity: queueSize(${size(ctx)}) > capacity(${capacity})`, machineName),
+      actions.log((ctx, e, { _event }) => `newMessage(${capacity}) dead letter [${e.type}]@${_event.origin || ''} because out of capacity: queueSize(${size(ctx)}) > capacity(${capacity})`, actorId),
       actions.send((ctx, e) => duck.Event.DEAD_LETTER(e, `queueSize(${size(ctx)} out of capacity(${capacity})`)),
     ],
   },
@@ -67,9 +67,9 @@ export const newMessage = (machineName: string) => (capacity = Infinity) => acti
      * 4. Forward to child when the child can accept this new arrived event even it's busy
      *    for prevent deaadlock when child actor want to receive events at BUSY state.
      */
-    cond: cond.isChildBusyAcceptable(MAILBOX_ACTOR_MACHINE_ID),
+    cond: cond.isChildBusyAcceptable(wrappedId(actorId)),
     actions: [
-      actions.log((_, e, { _event }) => `newMessage [${e.type}]@${_event.origin} isChildBusyAcceptable`, machineName),
+      actions.log((_, e, { _event }) => `newMessage [${e.type}]@${_event.origin} isChildBusyAcceptable`, actorId),
       /**
        * keep the original of event by forwarding(`forwardTo`, instead of `send`) it
        *
@@ -77,7 +77,7 @@ export const newMessage = (machineName: string) => (capacity = Infinity) => acti
        *  consider to use `send` to replace `forwardTo`
        *  because a message will be acceptable only if it is sending from the same origin as the current processing message
        */
-      actions.forwardTo(MAILBOX_ACTOR_MACHINE_ID),
+      actions.forwardTo(wrappedId(actorId)),
     ],
   },
   {
@@ -85,7 +85,7 @@ export const newMessage = (machineName: string) => (capacity = Infinity) => acti
      * 3. Add incoming message to queue by wrapping the `_event.origin` meta data
      */
     actions: [
-      actions.log((_, e, { _event }) => `newMessage [${e.type}]@${_event.origin} external message accepted`, machineName),
+      actions.log((_, e, { _event }) => `newMessage [${e.type}]@${_event.origin} external message accepted`, actorId),
       assign.enqueue,  // <- wrapping `_event.origin` inside
       actions.send((_, e) => duck.Event.NEW_MESSAGE(e.type)),
     ],

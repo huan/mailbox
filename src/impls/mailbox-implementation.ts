@@ -37,11 +37,10 @@ import * as duck            from '../duck/mod.js'
 import { isMailboxType }    from '../is/mod.js'
 import type { Context }     from '../context/mod.js'
 
-import { MAILBOX_ACTOR_MACHINE_ID }   from '../constants.js'
 import type { Mailbox, Options }      from '../interface.js'
 
 import type { Address }       from './address-interface.js'
-import { getTargetMachine }   from './get-actor-machine.js'
+import { getActorMachine }    from './get-actor-machine.js'
 import { AddressImpl }        from './address-implementation.js'
 
 /**
@@ -138,7 +137,7 @@ export class MailboxImpl<
       machine: wrappedMachine,
       interpreter: this._interpreter,
       actor: {
-        machine: getTargetMachine(wrappedMachine),
+        machine: getActorMachine(wrappedMachine),
       },
     }
   }
@@ -173,11 +172,18 @@ export class MailboxImpl<
     this._opened = true
 
     /**
+     * The wrapped machine has only one child machine, which is the original actor machine.
+     *
      * Huan(202203): FIXME:
      *  will ` ActorRef<any, any> as AnyInterpreter` be a problem?
+     *
+     * SO: Get first value from iterator
+     *  @link https://stackoverflow.com/questions/32539354/how-to-get-the-first-element-of-set-in-es6-ecmascript-2015#comment79971478_32539929
      */
     this.internal.actor.interpreter = this._interpreter.children
-      .get(MAILBOX_ACTOR_MACHINE_ID) as AnyInterpreter
+      .values()
+      .next()
+      .value as AnyInterpreter
   }
 
   /**

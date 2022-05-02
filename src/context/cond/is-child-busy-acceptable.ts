@@ -21,8 +21,6 @@ import type { AnyEventObject, GuardMeta }   from 'xstate'
 
 import * as duck    from '../../duck/mod.js'
 
-import { MAILBOX_ACTOR_MACHINE_ID }  from '../../constants.js'
-
 import * as child         from '../child/mod.js'
 import * as request       from '../request/mod.js'
 
@@ -55,7 +53,7 @@ const canChildAccept = (event : AnyEventObject, meta: GuardMeta<Context, AnyEven
  *  2. the new message origin is the same as the curent message which is in processing
  *  3. the new message type can be accepted by the current actor state
  */
-export const isChildBusyAcceptable = (childId = MAILBOX_ACTOR_MACHINE_ID) =>
+export const isChildBusyAcceptable = (childId: string) =>
   (
     ctx   : Context,
     event : AnyEventObject,

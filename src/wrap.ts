@@ -33,13 +33,10 @@ import {
 import * as duck      from './duck/mod.js'
 import * as context   from './context/mod.js'
 
-import { IS_DEVELOPMENT }     from './config.js'
-import { validate }           from './validate.js'
-import {
-  MAILBOX_ACTOR_MACHINE_ID,
-  MAILBOX_NAME,
-}                             from './constants.js'
-import type { Options }       from './interface.js'
+import { IS_DEVELOPMENT }         from './config.js'
+import { validate }               from './validate.js'
+import type { Options }           from './interface.js'
+import { mailboxId, wrappedId }   from './mailbox-id.js'
 
 /**
  * Add Mailbox Queue to the targetMachine
@@ -66,10 +63,10 @@ export function wrap <
     throw new Error('Mailbox.wrap: invalid targetMachine!')
   }
 
-  const MAILBOX_ID = `${actorMachine.id}<${MAILBOX_NAME}>`
+  const MAILBOX_ID       = mailboxId(actorMachine.id)
+  const WRAPPED_ACTOR_ID = wrappedId(actorMachine.id)
 
   const normalizedOptions: Required<Options> = {
-    id       : MAILBOX_ID,
     capacity : Infinity,
     logger   : () => {},
     devTools : false,
@@ -87,9 +84,9 @@ export function wrap <
      */
     duck.Event[keyof duck.Event] | { type: TEvent['type'] }
   >({
-    id: normalizedOptions.id,
+    id: MAILBOX_ID,
     invoke: {
-      id: MAILBOX_ACTOR_MACHINE_ID,
+      id: WRAPPED_ACTOR_ID,
       src: actorMachine,
     },
     /**
@@ -113,7 +110,7 @@ export function wrap <
      */
     on: {
       '*': {
-        actions: context.queue.newMessage(MAILBOX_ID)(normalizedOptions.capacity),
+        actions: context.queue.newMessage(actorMachine.id)(normalizedOptions.capacity),
       },
     },
 
@@ -151,7 +148,6 @@ export function wrap <
                   context.origin.metaOrigin(
                     context.queue.message(ctx),
                   ),
-                  MAILBOX_ID,
                 ].join(''), MAILBOX_ID),
                 actions.send(ctx => duck.Event.NEW_MESSAGE(context.queue.message(ctx)!.type)),
               ],
@@ -181,7 +177,7 @@ export function wrap <
                 ].join(''),
                 MAILBOX_ID,
               ),
-              context.child.actorReply(MAILBOX_ID),
+              context.child.actorReply(actorMachine.id),
             ],
           },
 
@@ -236,7 +232,7 @@ export function wrap <
            */
           actions.send<context.Context, duck.Event['DEQUEUE']>(
             (_, e) => e.payload.message,
-            { to: MAILBOX_ACTOR_MACHINE_ID },
+            { to: WRAPPED_ACTOR_ID },
           ),
 
         ],
@@ -263,7 +259,7 @@ export function wrap <
                 ].join(''),
                 MAILBOX_ID,
               ),
-              context.child.actorReply(MAILBOX_ID),
+              context.child.actorReply(actorMachine.id),
             ],
           },
         },

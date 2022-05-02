@@ -22,11 +22,11 @@ import Baby   from '../../tests/machine-behaviors/baby-machine.js'
 
 import { wrap }   from '../wrap.js'
 
-import { getTargetMachine }   from './get-actor-machine.js'
+import { getActorMachine }   from './get-actor-machine.js'
 
-test('getTargetMachine()', async t => {
+test('getActorMachine()', async t => {
   const machine = Baby.machine.withContext(Baby.initialContext())
   const wrappedMachine = wrap(machine)
-  const targetMachine = getTargetMachine(wrappedMachine)
-  t.equal(targetMachine, machine, 'should return target machine')
+  const targetMachine = getActorMachine(wrappedMachine)
+  t.equal(targetMachine, machine, 'should return actor machine')
 })
