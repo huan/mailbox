@@ -48,6 +48,14 @@ export const newMessage = (actorId: string) => (capacity = Infinity) => actions.
     actions: actions.log((_, e) => `newMessage [${e.type}] ignored internal message`, mailboxId(actorId)),
   },
   {
+    // 1.3. Ignore events without origin because they can not be replied
+    cond: (_, __, { _event }) => !_event.origin,
+    actions: [
+      actions.log((_, e) => `newMessage [${e.type}] ignored non-origin message (un-repliable)`, mailboxId(actorId)),
+      actions.send((_, e) => duck.Event.DEAD_LETTER(e, 'message has no origin (un-repliable)')),
+    ],
+  },
+  {
     /**
      * 2. Bounded mailbox: out of capicity, send them to Dead Letter Queue (DLQ)
      */
