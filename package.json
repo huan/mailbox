@@ -1,6 +1,6 @@
 {
   "name": "mailbox",
-  "version": "0.10.3",
+  "version": "0.10.4",
   "description": "Mailbox is for converting a XState Machine to an Actor that can deal with concurrency requests",
   "type": "module",
   "exports": {
