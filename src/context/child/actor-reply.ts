@@ -25,8 +25,8 @@
 
 import { actions }    from 'xstate'
 
-import * as duck        from '../../duck/mod.js'
-import { wrappedId }    from '../../mailbox-id.js'
+import * as duck                    from '../../duck/mod.js'
+import { mailboxId, wrappedId }     from '../../mailbox-id.js'
 
 import * as request       from '../request/mod.js'
 import type { Context }   from '../context.js'
@@ -49,7 +49,7 @@ export const actorReply = (actorId: string) => actions.choose<Context, ReturnTyp
       // 2. the message has valid origin for which we are going to reply to
       && !!request.address(ctx),
     actions: [
-      actions.log((ctx, e, { _event }) => `actorReply ACTOR_REPLY [${e.payload.message.type}]@${_event.origin} -> [${request.message(ctx)?.type}]@${request.address(ctx)}`, actorId),
+      actions.log((ctx, e, { _event }) => `actorReply ACTOR_REPLY [${e.payload.message.type}]@${_event.origin} -> [${request.message(ctx)?.type}]@${request.address(ctx)}`, mailboxId(actorId)),
       actions.send(
         (_, e) => e.payload.message,
         { to: ctx => request.address(ctx)! },
@@ -61,7 +61,7 @@ export const actorReply = (actorId: string) => actions.choose<Context, ReturnTyp
    */
   {
     actions: [
-      actions.log((_, e, { _event }) => `actorReply dead letter [${e.payload.message.type}]@${_event.origin}`, actorId),
+      actions.log((_, e, { _event }) => `actorReply dead letter [${e.payload.message.type}]@${_event.origin}`, mailboxId(actorId)),
       actions.send((_, e, { _event }) => duck.Event.DEAD_LETTER(
         e.payload.message,
         `message ${e.payload.message.type}@${_event.origin} dropped`,
