@@ -37,12 +37,12 @@ import { mailboxId } from '../mailbox-id.js'
  * And send all other events to the target address,
  * by setting the `origin` to the current machine address.
  *
- * @param actorId Self Machine ID
+ * @param machineName Self Machine Name
  * @param toAddress {string | Address | Mailbox} the target address
  *  - string: the sessionId of the interpreter, or invoke.id of the child machine
  */
-export const proxy = (actorId: string) => (toAddress: string | impls.Address | impls.Mailbox) => {
-  const MAILBOX_ID = mailboxId(actorId)
+export const proxy = (machineName: string) => (toAddress: string | impls.Address | impls.Mailbox) => {
+  const MAILBOX_NAME = mailboxId(machineName)
 
   return actions.choose([
     {
@@ -50,21 +50,21 @@ export const proxy = (actorId: string) => (toAddress: string | impls.Address | i
        * 1. Mailbox.Types.* is system messages, do not proxy them
        */
       cond: (_, e) => is.isMailboxType(e.type),
-      actions: actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin} ignored because its an internal MailboxType`, MAILBOX_ID),
+      actions: actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin} ignored because its an internal MailboxType`, MAILBOX_NAME),
     },
     {
       /**
        * 2. Child events (origin from child machine) are handled by child machine, skip them
        */
       cond: context.cond.isEventFrom(toAddress),
-      actions: actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin} ignored because it is sent from the actor (child/target) machine`, MAILBOX_ID),
+      actions: actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin} ignored because it is sent from the actor (child/target) machine`, MAILBOX_NAME),
     },
     {
       /**
        * 3. Proxy it
        */
       actions: [
-        actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin} -> ${toAddress}`, MAILBOX_ID),
+        actions.log((_, e, { _event }) => `actions.proxy [${e.type}]@${_event.origin} -> ${toAddress}`, MAILBOX_NAME),
         send(toAddress)((_, e) => e),
       ],
     },
