@@ -63,8 +63,8 @@ export function wrap <
     throw new Error('Mailbox.wrap: invalid targetMachine!')
   }
 
-  const MAILBOX_ID       = mailboxId(actorMachine.id)
-  const WRAPPED_ACTOR_ID = wrappedId(actorMachine.id)
+  const MAILBOX_ID = mailboxId(actorMachine.id)
+  const WRAPPED_ID = wrappedId(actorMachine.id)
 
   const normalizedOptions: Required<Options> = {
     capacity : Infinity,
@@ -86,7 +86,7 @@ export function wrap <
   >({
     id: MAILBOX_ID,
     invoke: {
-      id: WRAPPED_ACTOR_ID,
+      id: WRAPPED_ID,
       src: actorMachine,
     },
     /**
@@ -103,10 +103,9 @@ export function wrap <
      */
     preserveActionOrder: true,
 
-    initial: duck.State.Idle,
-
     /**
      * Match all events no matter what state the machine currently in
+     *  and queueing them with a NEW_MESSAGE event notification
      */
     on: {
       '*': {
@@ -114,6 +113,7 @@ export function wrap <
       },
     },
 
+    initial: duck.State.Idle,
     states: {
 
       /**
@@ -232,12 +232,11 @@ export function wrap <
            */
           actions.send<context.Context, duck.Event['DEQUEUE']>(
             (_, e) => e.payload.message,
-            { to: WRAPPED_ACTOR_ID },
+            { to: WRAPPED_ID },
           ),
 
         ],
         on: {
-
           [duck.Type.ACTOR_IDLE]: {
             actions: [
               actions.log((_, __, meta) => `states.Busy.on.ACTOR_IDLE@${meta._event.origin}`, MAILBOX_ID) as any,

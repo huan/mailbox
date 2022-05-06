@@ -99,4 +99,4 @@ export const newMessage = (actorId: string) => (capacity = Infinity) => actions.
     ],
   },
 
-]) as any
+])
