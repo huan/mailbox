@@ -18,6 +18,7 @@ import * as Mailbox   from '../src/mods/mod.js'
 
 import DingDong    from './machine-behaviors/ding-dong-machine.js'
 import CoffeeMaker from './machine-behaviors/coffee-maker-machine.js'
+import { isActionOf } from 'typesafe-actions'
 
 test('Mailbox.from(DingDong.machine) as an actor should enforce process messages one by one', async t => {
   const sandbox = sinon.createSandbox({
@@ -30,10 +31,19 @@ test('Mailbox.from(DingDong.machine) as an actor should enforce process messages
 
   const mailbox = Mailbox.from(DingDong.machine.withContext(DingDong.initialContext())) as Mailbox.impls.Mailbox
   mailbox.open()
-  const interpreter = mailbox.internal.interpreter
+
+  const TEST_ID = 'TestMachine'
+  const testMachine = createMachine({
+    id: TEST_ID,
+    on: {
+      '*': {
+        actions: Mailbox.actions.proxy(TEST_ID)(mailbox),
+      },
+    },
+  })
 
   const eventList: AnyEventObject[] = []
-  interpreter
+  const interpreter = interpret(testMachine)
     .onTransition(s => eventList.push(s.event))
     .start()
 
@@ -43,9 +53,7 @@ test('Mailbox.from(DingDong.machine) as an actor should enforce process messages
   eventList.forEach(e => console.info(e))
 
   t.same(
-    eventList
-      .filter(e => e.type === Mailbox.Type.DEAD_LETTER)
-      .map(e => (e as ReturnType<typeof Mailbox.Event.DEAD_LETTER>).payload.message),
+    eventList.filter(isActionOf(DingDong.Event.DONG)),
     DONG_EVENT_LIST,
     `should reply total ${DONG_EVENT_LIST.length} DONG events to ${DING_EVENT_LIST.length} DING events`,
   )
@@ -137,11 +145,19 @@ test('Mailbox.from(CoffeeMaker.machine) as an actor should enforce process messa
 
   const mailbox = Mailbox.from(CoffeeMaker.machine.withContext(CoffeeMaker.initialContext())) as Mailbox.impls.Mailbox
   mailbox.open()
-  const interpreter = mailbox.internal.interpreter!
+
+  const TEST_ID = 'TestMachine'
+  const testMachine = createMachine({
+    id: TEST_ID,
+    on: {
+      '*': {
+        actions: Mailbox.actions.proxy(TEST_ID)(mailbox),
+      },
+    },
+  })
 
   const eventList: AnyEventObject[] = []
-
-  interpreter
+  const interpreter = interpret(testMachine)
     .onTransition(s => eventList.push(s.event))
     .start()
 
@@ -158,8 +174,7 @@ test('Mailbox.from(CoffeeMaker.machine) as an actor should enforce process messa
 
   t.same(
     eventList
-      .filter(e => e.type === Mailbox.Type.DEAD_LETTER)
-      .map(e => (e as ReturnType<typeof Mailbox.Event.DEAD_LETTER>).payload.message),
+      .filter(isActionOf(CoffeeMaker.Event.COFFEE)),
     EXPECTED_COFFEE_EVENT_LIST,
     `should reply dead letter of total ${EXPECTED_COFFEE_EVENT_LIST.length} COFFEE events to ${MAKE_ME_COFFEE_EVENT_LIST.length} MAKE_ME_COFFEE events`,
   )
