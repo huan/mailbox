@@ -106,7 +106,7 @@ export function wrap <
     initial: duck.State.Idle,
 
     /**
-     * Match events not listed above: queue it
+     * Match all events no matter what state the machine currently in
      */
     on: {
       '*': {
