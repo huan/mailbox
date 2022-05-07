@@ -77,7 +77,7 @@ export const newMessage = (actorId: string) => (capacity = Infinity) => actions.
      */
     cond: cond.isChildBusyAcceptable(wrappedId(actorId)),
     actions: [
-      actions.log((_, e, { _event }) => `newMessage [${e.type}]@${_event.origin} isChildBusyAcceptable`, mailboxId(actorId)),
+      actions.log((_, e, { _event }) => `newMessage [${e.type}]@${_event.origin} child is busy but can accept [${e.type}] from the same request origin (address) ${_event.origin}`, mailboxId(actorId)),
       /**
        * keep the original of event by forwarding(`forwardTo`, instead of `send`) it
        *
