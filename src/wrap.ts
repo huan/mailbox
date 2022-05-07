@@ -109,7 +109,7 @@ export function wrap <
      */
     on: {
       '*': {
-        actions: context.queue.newMessage(actorMachine.id)(normalizedOptions.capacity),
+        actions: context.queue.newMessage(actorMachine.id)(normalizedOptions.capacity) as any,
       },
     },
 
