@@ -66,7 +66,7 @@
     "@chatie/semver": "^0.4.7",
     "@chatie/tsconfig": "^4.6.3",
     "@types/ws": "^8.5.3",
-    "@xstate/inspect": "^0.7.0",
+    "@xstate/inspect": "^0.6.5",
     "pkg-jq": "^0.2.11",
     "read-pkg-up": "^8.0.0",
     "ws": "^8.6.0"
@@ -74,7 +74,7 @@
   "dependencies": {
     "typesafe-actions": "^5.1.0",
     "utility-types": "^3.10.0",
-    "xstate": "^4.32.0"
+    "xstate": "4.31.0"
   },
   "files": [
     "dist",
