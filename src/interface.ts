@@ -21,6 +21,7 @@
  *  @see https://xstate.js.org/docs/guides/actors.html#actor-api
  */
 import type { EventObject, InterpreterOptions }   from 'xstate'
+import type { Subscribable }                      from 'rxjs'
 
 import type { Address }   from './impls/address-interface.js'
 
@@ -35,7 +36,7 @@ export interface Options {
  */
 export interface Mailbox<
   TEvent extends EventObject = EventObject,
-> {
+> extends Subscribable<TEvent> {
   /**
    * XState Actor:
    *  `send()` method will satisfy the XState `isActor()` type guard
@@ -48,5 +49,13 @@ export interface Mailbox<
 
   open (): void
   close (): void
-  on (name: 'event', listener: (event: TEvent) => void): void
+
+  /**
+   * RxJS: How to Use Interop Observables
+   * @link https://ncjamieson.com/how-to-use-interop-observables/
+   *
+   * @method Symbol.observable
+   * @return {Observable} this instance of the observable
+   */
+  [Symbol.observable](): this
 }

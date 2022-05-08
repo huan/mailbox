@@ -30,8 +30,8 @@ import {
   InterpreterOptions,
   AnyStateMachine,
   AnyInterpreter,
-}                           from 'xstate'
-import EventEmitter         from 'events'
+}                                                   from 'xstate'
+import { Subject, Observer, Unsubscribable }   from 'rxjs'
 
 import * as duck            from '../duck/mod.js'
 import { isMailboxType }    from '../is/mod.js'
@@ -48,7 +48,7 @@ import { AddressImpl }        from './address-implementation.js'
  */
 export class MailboxImpl<
   TEvent extends EventObject = EventObject,
-> extends EventEmitter implements Mailbox {
+> implements Mailbox {
 
   /**
    * Address of the Mailbox
@@ -69,6 +69,11 @@ export class MailboxImpl<
    * Open flag: whether the Mailbox is opened
    */
   private _opened:boolean = false
+
+  /**
+   * RxJS Subject for all events
+   */
+  private _subject: Subject<TEvent> = new Subject()
 
   /**
    * @private This is not a public API
@@ -105,7 +110,6 @@ export class MailboxImpl<
     >,
     options: Options = {},
   ) {
-    super()
     // console.info('MailboxOptions', options)
 
     const interpretOptions: Partial<InterpreterOptions> = {
@@ -126,8 +130,8 @@ export class MailboxImpl<
         // 2. skip for Mailbox system events
         return
       }
-      // 3. propagate event to the Mailbox
-      this.emit('event', event)
+      // 3. propagate event to the Mailbox Subject
+      this._subject.next(event as TEvent)
     })
 
     this.address = AddressImpl.from(this._interpreter.sessionId)
@@ -145,7 +149,7 @@ export class MailboxImpl<
   /**
    * Mailbox to string should be the sessionId (address id)
    */
-  override toString () {
+  toString () {
     return String(this.address)
   }
 
@@ -194,6 +198,15 @@ export class MailboxImpl<
 
     this.internal.actor.interpreter = undefined
     this._opened = false
+  }
+
+  /**
+   * RxJS Observable
+   */
+  [Symbol.observable] (): this { return this }
+
+  subscribe (observer: Partial<Observer<EventObject>>): Unsubscribable {
+    return this._subject.subscribe(observer)
   }
 
 }
