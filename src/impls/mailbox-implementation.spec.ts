@@ -25,6 +25,7 @@ import {
   actions,
   interpret,
 }                         from 'xstate'
+import { from }           from 'rxjs'
 
 import Baby      from '../../tests/machine-behaviors/baby-machine.js'
 import DingDong  from '../../tests/machine-behaviors/ding-dong-machine.js'
@@ -334,4 +335,45 @@ test('Mailbox debug properties smoke testing (w/DingDongMachine)', async t => {
 
   mailbox.close()
   t.notOk(mailbox.internal.actor.interpreter, 'should has no target interpreter initialized after close()')
+})
+
+test('Mailbox Observable API', async t => {
+  const sandbox = sinon.createSandbox({
+    useFakeTimers: true,
+  })
+
+  const dingDong = Mailbox.from(DingDong.machine.withContext(DingDong.initialContext()))
+  dingDong.open()
+
+  const eventList: AnyEventObject[] = []
+  from(dingDong).subscribe(e => eventList.push(e))
+
+  const testMachine = createMachine({
+    on: {
+      TEST: {
+        actions: actions.send(DingDong.Event.DING(0), { to: String(dingDong.address) }),
+      },
+    },
+  })
+
+  const interpreter = interpret(testMachine)
+  interpreter.start()
+
+  interpreter.send('TEST')
+  await sandbox.clock.runAllAsync()
+
+  console.info(eventList)
+  t.same(
+    eventList,
+    [
+      DingDong.Event.DING(0),
+      DingDong.Event.DONG(0),
+    ],
+    'should get DING and DONG events from RxJS Observable',
+  )
+
+  interpreter.stop()
+  dingDong.close()
+
+  sandbox.restore()
 })

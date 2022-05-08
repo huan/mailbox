@@ -15,6 +15,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
+import 'symbol-observable'
 
 /**
  * Mailbox provides the address for XState Actors:
@@ -58,4 +59,10 @@ export interface Mailbox<
    * @return {Observable} this instance of the observable
    */
   [Symbol.observable](): this
+  /**
+   * Huan(202205): we have a polyfill for Symbol.observable
+   *  but why RxJS still use `@@observable`?
+   * FIXME: remove `@@observable`
+   */
+  ['@@observable'](): this
 }

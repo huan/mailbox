@@ -15,6 +15,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
+import 'symbol-observable'
 
 /**
  * Mailbox provides the address for XState Actors:
@@ -125,13 +126,20 @@ export class MailboxImpl<
     this._interpreter.onEvent(event => {
       if (/^xstate\./i.test(event.type)) {
         // 1. skip for XState system events
-        return
-      } else if (isMailboxType(event.type) && event.type !== duck.Type.DEAD_LETTER) {
-        // 2. skip for Mailbox system events
-        return
+        // return
+      } else if (isMailboxType(event.type) && ![
+        duck.Type.DEAD_LETTER,
+        duck.Type.ACTOR_REPLY,
+      ].includes(event.type)) {
+        // 2. skip for Mailbox system events except DEAD_LETTER & ACTOR_REPLY
+        // return
+      } else if (duck.Type.ACTOR_REPLY === event.type) {
+        // 3. unwrap Actor Reply message and emit it
+        this._subject.next((event as ReturnType<typeof duck.Event.ACTOR_REPLY>).payload.message as TEvent)
+      } else {
+        // 3. propagate event to the Mailbox Subject
+        this._subject.next(event as TEvent)
       }
-      // 3. propagate event to the Mailbox Subject
-      this._subject.next(event as TEvent)
     })
 
     this.address = AddressImpl.from(this._interpreter.sessionId)
@@ -204,6 +212,12 @@ export class MailboxImpl<
    * RxJS Observable
    */
   [Symbol.observable] (): this { return this }
+  /**
+   * Huan(202205): we have a polyfill for Symbol.observable
+   *  but why RxJS still use `@@observable`?
+   * FIXME: remove `@@observable`
+   */
+  ['@@observable'] (): this { return this }
 
   subscribe (observer: Partial<Observer<EventObject>>): Unsubscribable {
     return this._subject.subscribe(observer)
