@@ -31,7 +31,7 @@ import {
   InterpreterOptions,
   AnyStateMachine,
   AnyInterpreter,
-}                                                   from 'xstate'
+}                                              from 'xstate'
 import { Subject, Observer, Unsubscribable }   from 'rxjs'
 
 import * as duck            from '../duck/mod.js'

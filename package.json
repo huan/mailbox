@@ -70,8 +70,10 @@
     "is-observable": "^2.1.0",
     "pkg-jq": "^0.2.11",
     "read-pkg-up": "^8.0.0",
-    "rxjs": "^7.5.5",
     "ws": "^8.6.0"
+  },
+  "peerDependencies": {
+    "rxjs": "^7.5.5"
   },
   "dependencies": {
     "symbol-observable": "^4.0.0",
