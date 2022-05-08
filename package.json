@@ -1,6 +1,6 @@
 {
   "name": "mailbox",
-  "version": "0.10.12",
+  "version": "0.10.11",
   "description": "Mailbox is for converting a XState Machine to an Actor that can deal with concurrency requests",
   "type": "module",
   "exports": {
@@ -72,10 +72,8 @@
     "read-pkg-up": "^8.0.0",
     "ws": "^8.6.0"
   },
-  "peerDependencies": {
-    "rxjs": "^7.5.5"
-  },
   "dependencies": {
+    "rxjs": "^7.5.5",
     "symbol-observable": "^4.0.0",
     "typesafe-actions": "^5.1.0",
     "utility-types": "^3.10.0",
