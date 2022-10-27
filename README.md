@@ -581,7 +581,7 @@ Huan is a widely recognized technical leader on conversational AI and open sourc
 He co-authored guide books "Chatbot 0 to 1" and "Concise Handbook of TensorFlow 2"
 and has been recognized both by Microsoft and Google as MVP/GDE.
 Huan is a Chatbot Architect and speaks regularly at technical conferences around the world.
-Find out more about his work at <https://github.com/huan>
+Find out more about his work at <https://opensource.win/huan/>
 
 ## Copyright & License
 
