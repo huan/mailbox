@@ -34,6 +34,7 @@
   },
   "scripts": {
     "clean": "shx rm -fr dist/*",
+    "demo": "cross-env NODE_OPTIONS=\"--no-warnings --loader=ts-node/esm\" node \"examples/mailbox-demo.ts\"",
     "dist": "npm-run-all clean build dist:commonjs",
     "build": "tsc && tsc -p tsconfig.cjs.json",
     "dist:commonjs": "jq -n \"{ type: \\\"commonjs\\\" }\" > dist/cjs/package.json",
@@ -64,7 +65,7 @@
     "@chatie/eslint-config": "^1.0.4",
     "@chatie/git-scripts": "^0.7.7",
     "@chatie/semver": "^0.4.7",
-    "@chatie/tsconfig": "^4.6.3",
+    "@chatie/tsconfig": "^4.9.1",
     "@types/ws": "^8.5.3",
     "@xstate/inspect": "0.6.5",
     "is-observable": "^2.1.0",
