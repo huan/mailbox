@@ -5,6 +5,7 @@ import {
   createMachine,
   interpret,
 }                   from 'xstate'
+import assert       from 'assert'
 
 import * as Mailbox from '../src/mods/mod.js'
 
@@ -22,6 +23,8 @@ import * as Mailbox from '../src/mods/mod.js'
  * Create a test machine with `withMailbox` flag
  *  states: idle <> busy
  *  events: TASK -> TASK_RECEIVED
+ *
+ * Pay attention for the following rules (#1, #2, #3)
  */
 const demoMachine = (withMailbox = false) => createMachine<{}>({
   id: 'demo',
@@ -40,6 +43,7 @@ const demoMachine = (withMailbox = false) => createMachine<{}>({
         },
       ]),
       on: {
+        TASK: 'busy',
         '*': {
           /**
            * RULE #2: machine must use an external transision to the `idle` state
@@ -49,7 +53,6 @@ const demoMachine = (withMailbox = false) => createMachine<{}>({
           actions: actions.log('make sure the idle state will be re-entry with external trainsition when receiving event'),
           target: 'idle',
         },
-        TASK: 'busy',
       },
     },
     busy: {
@@ -62,6 +65,9 @@ const demoMachine = (withMailbox = false) => createMachine<{}>({
           {
             cond: _ => withMailbox,
             actions: Mailbox.actions.reply('TASK_RECEIVED'),
+          },
+          {
+            actions: actions.send('TASK_RECEIVED'),
           },
         ]),
         _ => console.info('TASK_RECEIVED'),
@@ -88,6 +94,35 @@ async function main () {
   mailbox.open()
 
   /**
+   * Issue #10 - https://github.com/huan/mailbox/issues/10
+   * Mailbox need a reply address when it received a message, or it will send the reply to DEAD_LETTER
+   */
+  const actorMachine = createMachine<{}>({
+    id: 'demo',
+    initial: 'idle',
+    states: {
+      idle: {
+        on: {
+          TASK: {
+            actions: [
+              _ => console.info('TASK received by actor'),
+              actions.send(_ => ({ type: 'TASK' }), { to: mailbox.id }),
+            ],
+          },
+          TASK_RECEIVED: {
+            actions:[
+              // actions.log(_ => 'TASK_RECEIVED received by actor'),
+              _ => console.info('TASK_RECEIVED received by actor'),
+            ],
+          },
+        },
+      },
+    },
+  })
+  const actor = interpret(actorMachine, { logger: () => {} })
+  actor.start()
+
+  /**
    * send two events for testing/demonstration
    */
   const callTwice = async (send: () => void) => {
@@ -101,16 +136,24 @@ async function main () {
   /**
    * For normal machine, it will only response the first event
    */
+  console.info('####################################################################')
   console.info('# testing the raw machine ... (a raw machine will only be able to response the first event)')
+  let taskCounter = 0
+  rawInterpreter.onEvent(event => event.type === 'TASK_RECEIVED' && taskCounter++)
   await callTwice(rawInterpreter.sender('TASK'))
-  console.info('# testing raw machine ... done\n')
+  console.info(`# testing raw machine: taskCounter = ${taskCounter}\n`)
+  assert(taskCounter === 1, 'should get 1 TASK_RECEIVED event')
 
   /**
    * for a Mailbox-ed machine(actor), it will response all events by processing it one by one.
    */
+  console.info('####################################################################')
   console.info('# testing the mailbox-ed(actor) machine ... (an actor will be able to response two events one by one)')
-  await callTwice(() => mailbox.send('TASK'))
-  console.info('# testing mailbox-ed machine ... done\n')
+  taskCounter = 0
+  actor.onEvent(event => event.type === 'TASK_RECEIVED' && taskCounter++)
+  await callTwice(() => actor.send('TASK'))
+  console.info(`# testing mailbox-ed machine: taskCounter = ${taskCounter}\n`)
+  assert(taskCounter === 2, 'should get 2 TASK_RECEIVED events')
 
   /**
    * Conclusion:
