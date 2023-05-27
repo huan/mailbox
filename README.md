@@ -125,7 +125,7 @@ An actor should read the messages to process from its mailbox. A mailbox is an e
 Mailbox is a NPM module written in TypeScript based on the XState finite state machine to strict follow the actor model's principle:
 
 ```ts
-const mailbox = Mailboxe.from(machine)
+const mailbox = Mailbox.from(machine)
 ```
 
 Then use `mailbox` instead.
