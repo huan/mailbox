@@ -12,13 +12,13 @@ jobs:
           - macos-latest
           - windows-latest
         node-version:
-          - 16
+          - 22
 
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
@@ -35,10 +35,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 16
+          node-version: 22
           cache: npm
           cache-dependency-path: package.json
 
@@ -57,10 +57,10 @@ jobs:
     needs: [build, pack]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 16
+          node-version: 22
           registry-url: https://registry.npmjs.org/
           cache: npm
           cache-dependency-path: package.json
