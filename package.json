@@ -1,6 +1,6 @@
 {
   "name": "mailbox",
-  "version": "0.11.4",
+  "version": "0.11.3",
   "description": "Mailbox is for converting a XState Machine to an Actor that can deal with concurrency requests",
   "type": "module",
   "exports": {
@@ -63,7 +63,6 @@
   "homepage": "https://github.com/huan/mailbox#readme",
   "devDependencies": {
     "@chatie/eslint-config": "^1.0.4",
-    "@chatie/git-scripts": "^0.7.7",
     "@chatie/semver": "^0.4.7",
     "@chatie/tsconfig": "^4.9.1",
     "@types/ws": "^8.5.3",
@@ -87,10 +86,5 @@
   "publishConfig": {
     "access": "public",
     "tag": "next"
-  },
-  "git": {
-    "scripts": {
-      "pre-push": "npx git-scripts-pre-push"
-    }
   }
 }
