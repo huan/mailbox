@@ -40,13 +40,20 @@ import {
   waitFor as xstateWaitFor,
 } from 'xstate'
 
-import type { AnyActorLogic, AnyEventObject, EventObject, InspectionEvent } from 'xstate'
+import type {
+  ActorOptions,
+  AnyActorLogic,
+  AnyEventObject,
+  EventObject,
+  InspectionEvent,
+} from 'xstate'
 
-// Clock interface for SimulatedClock compatibility
-interface Clock {
-  setTimeout: (fn: () => void, ms: number) => any
-  clearTimeout: (id: any) => void
-}
+/**
+ * Clock type extracted from XState's ActorOptions.
+ * This ensures compatibility with future XState versions.
+ * @see https://github.com/statelyai/xstate/blob/main/packages/core/src/system.ts
+ */
+type Clock = NonNullable<ActorOptions<AnyActorLogic>['clock']>
 
 import { type Observer, Subject, type Unsubscribable } from 'rxjs'
 import 'symbol-observable'
