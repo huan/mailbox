@@ -6,6 +6,8 @@ XState v5 Actor Mailbox - Queue and process messages sequentially for XState mac
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-blue.svg)](https://www.typescriptlang.org/)
 [![ES Modules](https://img.shields.io/badge/ES-Modules-brightgreen)](https://github.com/Chatie/tsconfig/issues/16)
 
+👉 Blog Post: [From Message Chaos to Order: How I Rebuilt the Mailbox Library for XState@5, Huan, 2026, Ship.Fail](https://ship.fail/blog/2026/01/08/from-message-chaos-to-order-mailbox-xstate-v5/)
+
 ## Overview
 
 Mailbox implements the Actor Mailbox pattern on top of XState v5:
