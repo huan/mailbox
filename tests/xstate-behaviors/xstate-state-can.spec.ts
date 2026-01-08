@@ -15,7 +15,7 @@ import { setup, createActor } from 'xstate'
 test('XState v5: snapshot.can() with specific event handler', async t => {
   const testMachine = setup({
     actions: {
-      logTest: () => console.log('EVENT:TEST'),
+      logTest: () => { /* test action */ },
     },
   }).createMachine({
     id: 'TestMachine',
@@ -45,7 +45,7 @@ test('XState v5: snapshot.can() with specific event handler', async t => {
 test('XState v5: snapshot.can() with wildcard (*) event handler', async t => {
   const testMachine = setup({
     actions: {
-      logAny: () => console.log('EVENT:*'),
+      logAny: () => { /* wildcard action */ },
     },
   }).createMachine({
     id: 'WildcardMachine',

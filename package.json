@@ -50,16 +50,21 @@
   },
   "homepage": "https://github.com/huan/mailbox#readme",
   "devDependencies": {
-    "@chatie/eslint-config": "^1.0.4",
     "@chatie/semver": "^0.4.7",
-    "@chatie/tsconfig": "^4.9.1",
     "@statelyai/inspect": "^0.4.0",
+    "@types/node": "^22.0.0",
     "@types/sinon": "^21.0.0",
     "@types/ws": "^8.5.3",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
     "@xstate/graph": "^3.0.4",
+    "eslint": "^8.57.0",
+    "eslint-plugin-promise": "^7.0.0",
     "is-observable": "^2.1.0",
+    "npm-run-all": "^4.1.5",
     "pkg-jq": "^0.2.11",
     "read-pkg-up": "^8.0.0",
+    "shx": "^0.4.0",
     "sinon": "^21.0.1",
     "typescript": "^5.1.6",
     "vitest": "^4.0.16",
@@ -68,7 +73,7 @@
   "dependencies": {
     "rxjs": "^7.5.5",
     "symbol-observable": "^4.0.0",
-    "xstate": "^5.25.0"
+    "xstate": "^5.0.0"
   },
   "peerDependencies": {
     "xstate": "^5.0.0"

@@ -1,19 +1,42 @@
 {
-  "extends": "@chatie/tsconfig",
   "compilerOptions": {
+    // ES Module support
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+
+    // Output
     "outDir": "dist/esm",
-    "ignoreDeprecations": "5.0",
-    "baseUrl": ".",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+
+    // Type checking
+    "strict": true,
     "noImplicitAny": false,
-    "types": [
-      "vitest/globals",
-      "node"
-    ],
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+
+    // Interop
+    "esModuleInterop": true,
+    "resolveJsonModule": false,
+
+    // Path mapping
+    "baseUrl": ".",
     "paths": {
-      "#test-helpers": [
-        "./tests/vitest-tap"
-      ]
-    }
+      "#test-helpers": ["./tests/vitest-tap"]
+    },
+
+    // Types
+    "types": ["vitest/globals", "node"],
+
+    // Libraries
+    "lib": ["ESNext"]
   },
   "exclude": [
     "node_modules/",
@@ -26,7 +49,7 @@
     "scripts/**/*.ts",
     "src/**/*.ts",
     "tests/**/*.spec.ts",
-    "types/**/*.d.ts",
-    "tests/machine-behaviors/**/.ts",
-  ],
+    "tests/machine-behaviors/**/*.ts",
+    "types/**/*.d.ts"
+  ]
 }
