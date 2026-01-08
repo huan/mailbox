@@ -14,8 +14,7 @@
   },
   "typings": "./dist/esm/src/mods/mod.d.ts",
   "engines": {
-    "node": ">=18",
-    "npm": ">=9"
+    "node": ">=18"
   },
   "scripts": {
     "clean": "shx rm -fr dist/*",
@@ -52,7 +51,6 @@
   "homepage": "https://github.com/huan/mailbox#readme",
   "devDependencies": {
     "@biomejs/biome": "^1.9.0",
-    "@chatie/semver": "^0.4.7",
     "@statelyai/inspect": "^0.4.0",
     "@types/node": "^22.0.0",
     "@types/sinon": "^21.0.0",
