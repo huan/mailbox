@@ -96,7 +96,11 @@ jobs:
           npm config get registry
           ls -la
           (test -f .npmrc && echo "Found .npmrc:" && cat .npmrc) || echo "No .npmrc"
-
+          echo "repo=$GITHUB_REPOSITORY"
+          echo "ref=$GITHUB_REF"
+          echo "workflow=$GITHUB_WORKFLOW"
+          echo "workflow_ref=$GITHUB_WORKFLOW_REF"
+          echo "run_id=$GITHUB_RUN_ID"
       - name: Is A Publish Branch
         if: steps.check-branch.outputs.match == 'true'
         run: |
@@ -104,7 +108,7 @@ jobs:
           VERSION=$(npx pkg-jq -r .version)
           if npx version-exists "$NAME" "$VERSION"
           then echo "$NAME@$VERSION exists on NPM, skipped."
-          else npm publish
+          else npm publish --provenance
           fi
       - name: Is Not A Publish Branch
         if: steps.check-branch.outputs.match != 'true'
