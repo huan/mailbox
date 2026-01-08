@@ -27,10 +27,15 @@ npm install mailbox xstate
 
 ```typescript
 import * as Mailbox from 'mailbox'
-import { createMachine, assign } from 'xstate'
+import { setup, assign } from 'xstate'
 
 // Create a machine that processes work one item at a time
-const workerMachine = createMachine({
+const workerMachine = setup({
+  types: {} as {
+    context: { result: string | null }
+    events: { type: 'WORK'; data: string } | { type: 'DONE'; result: string | null }
+  },
+}).createMachine({
   id: 'worker',
   initial: 'idle',
   context: { result: null },

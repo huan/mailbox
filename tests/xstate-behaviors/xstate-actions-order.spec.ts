@@ -6,10 +6,6 @@
  * In XState v5, actions execute in sequence without batching.
  *
  * Order: exit actions → transition actions → entry actions
- *
- * Note: XState v5's assign() action is different from v4. Side effects inside
- * assign callbacks may not execute in the same order or timing as v4.
- * For proper action ordering tests, use standalone action functions.
  */
 /* eslint-disable sort-keys */
 

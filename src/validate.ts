@@ -115,7 +115,14 @@ export function validate(machine: AnyActorLogic): boolean {
       }
     },
   })
-  actor.start()
+
+  try {
+    actor.start()
+  } catch (error) {
+    throw new MailboxValidationError(
+      `Machine failed to start: ${error instanceof Error ? error.message : String(error)}`
+    )
+  }
 
   // Validation 1: Check for ACTOR_IDLE on initialization
   const initIdleEvents = sentToParentEvents.filter(e => e.type === Type.ACTOR_IDLE)
