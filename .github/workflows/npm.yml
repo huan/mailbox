@@ -29,7 +29,7 @@ jobs:
           cache-dependency-path: package.json
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm install
 
       - name: Test
         run: npm test
@@ -47,7 +47,7 @@ jobs:
           cache-dependency-path: package.json
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm install
 
       - name: Generate Version
         run: ./scripts/generate-version.sh
@@ -70,7 +70,7 @@ jobs:
           cache-dependency-path: package.json
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm install
 
       - name: Generate Version
         run: ./scripts/generate-version.sh
