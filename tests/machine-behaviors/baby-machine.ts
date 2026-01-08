@@ -5,7 +5,7 @@
  * multiple states, delays, and reply actions.
  */
 
-import { setup, assign } from 'xstate'
+import { assign, setup } from 'xstate'
 import * as Mailbox from '../../src/mods/mod.js'
 
 // ============================================================================
@@ -88,34 +88,21 @@ export const machine = setup({
   context: initialContext(),
   states: {
     [State.awake]: {
-      entry: [
-        Mailbox.actions.idle('Baby'),
-        Mailbox.actions.reply(Event.PLAY()),
-      ],
-      exit: [
-        Mailbox.actions.reply(Event.EAT()),
-      ],
+      entry: [Mailbox.actions.idle('Baby'), Mailbox.actions.reply(Event.PLAY())],
+      exit: [Mailbox.actions.reply(Event.EAT())],
       on: {
         '*': {
           target: State.awake,
         },
         [Type.SLEEP]: {
           target: State.asleep,
-          actions: [
-            Mailbox.actions.reply(Event.REST()),
-          ],
+          actions: [Mailbox.actions.reply(Event.REST())],
         },
       },
     },
     [State.asleep]: {
-      entry: [
-        { type: 'assignMs' },
-        Mailbox.actions.reply(Event.DREAM()),
-      ],
-      exit: [
-        { type: 'clearMs' },
-        Mailbox.actions.reply(Event.PEE()),
-      ],
+      entry: [{ type: 'assignMs' }, Mailbox.actions.reply(Event.DREAM())],
+      exit: [{ type: 'clearMs' }, Mailbox.actions.reply(Event.PEE())],
       after: {
         cryMs: {
           actions: Mailbox.actions.reply(Event.CRY()),

@@ -15,60 +15,60 @@
 import { test } from '#test-helpers'
 
 // Standard ESM imports from XState v5
-import { setup, createActor, sendTo, sendParent, assign } from 'xstate'
-void sendTo; void sendParent // used in machine definitions
+import { assign, createActor, sendParent, sendTo, setup } from 'xstate'
+void sendTo
+void sendParent // used in machine definitions
 
 // Note: We intentionally DON'T use Mailbox here to demonstrate the problem it solves
 
 const DELAY_MS = 10
 
 // Simple CoffeeMaker machine WITHOUT mailbox wrapping
-const createCoffeeMakerMachine = (delayMs: number = DELAY_MS) => setup({
-  types: {} as {
-    context: { customer: string | null }
-    events:
-      | { type: 'MAKE_ME_COFFEE', customer: string }
-      | { type: 'COFFEE', customer: string }
-  },
-  actions: {
-    storeCustomer: assign({
-      customer: ({ event }: any) => event.customer,
-    }),
-    clearCustomer: assign({
-      customer: () => null,
-    }),
-    sendCoffeeToParent: sendParent(({ context }: any) => ({
-      type: 'COFFEE',
-      customer: context.customer,
-    })),
-  },
-}).createMachine({
-  id: 'CoffeeMaker',
-  initial: 'idle',
-  context: { customer: null },
-  states: {
-    idle: {
-      on: {
-        MAKE_ME_COFFEE: {
-          target: 'busy',
-          actions: 'storeCustomer',
+const createCoffeeMakerMachine = (delayMs: number = DELAY_MS) =>
+  setup({
+    types: {} as {
+      context: { customer: string | null }
+      events: { type: 'MAKE_ME_COFFEE'; customer: string } | { type: 'COFFEE'; customer: string }
+    },
+    actions: {
+      storeCustomer: assign({
+        customer: ({ event }: any) => event.customer,
+      }),
+      clearCustomer: assign({
+        customer: () => null,
+      }),
+      sendCoffeeToParent: sendParent(({ context }: any) => ({
+        type: 'COFFEE',
+        customer: context.customer,
+      })),
+    },
+  }).createMachine({
+    id: 'CoffeeMaker',
+    initial: 'idle',
+    context: { customer: null },
+    states: {
+      idle: {
+        on: {
+          MAKE_ME_COFFEE: {
+            target: 'busy',
+            actions: 'storeCustomer',
+          },
         },
       },
-    },
-    busy: {
-      after: {
-        [delayMs]: {
-          target: 'idle',
-          actions: ['sendCoffeeToParent', 'clearCustomer'],
+      busy: {
+        after: {
+          [delayMs]: {
+            target: 'idle',
+            actions: ['sendCoffeeToParent', 'clearCustomer'],
+          },
         },
+        // NOTE: While making coffee, additional orders are IGNORED
+        // This is the problem Mailbox solves!
       },
-      // NOTE: While making coffee, additional orders are IGNORED
-      // This is the problem Mailbox solves!
     },
-  },
-})
+  })
 
-test('EDUCATIONAL: CoffeeMaker processes one order correctly', async t => {
+test('EDUCATIONAL: CoffeeMaker processes one order correctly', async (t) => {
   /**
    * Happy path - single order is processed correctly.
    */
@@ -77,9 +77,7 @@ test('EDUCATIONAL: CoffeeMaker processes one order correctly', async t => {
   const parentMachine = setup({
     types: {} as {
       context: Record<string, never>
-      events:
-        | { type: 'MAKE_ME_COFFEE', customer: string }
-        | { type: 'COFFEE', customer: string }
+      events: { type: 'MAKE_ME_COFFEE'; customer: string } | { type: 'COFFEE'; customer: string }
     },
     actors: {
       coffeeMaker: createCoffeeMakerMachine(5),
@@ -113,7 +111,7 @@ test('EDUCATIONAL: CoffeeMaker processes one order correctly', async t => {
 
   actor.send({ type: 'MAKE_ME_COFFEE', customer: 'Alice' })
 
-  await new Promise(r => setTimeout(r, 50))
+  await new Promise((r) => setTimeout(r, 50))
 
   t.equal(coffees.length, 1, 'should serve exactly 1 coffee')
   t.equal(coffees[0]?.customer, 'Alice', 'should serve Alice')
@@ -121,7 +119,7 @@ test('EDUCATIONAL: CoffeeMaker processes one order correctly', async t => {
   actor.stop()
 })
 
-test('EDUCATIONAL: Without Mailbox, coffee orders are LOST when barista is busy', async t => {
+test('EDUCATIONAL: Without Mailbox, coffee orders are LOST when barista is busy', async (t) => {
   /**
    * THIS TEST DEMONSTRATES THE PROBLEM MAILBOX SOLVES!
    *
@@ -142,9 +140,7 @@ test('EDUCATIONAL: Without Mailbox, coffee orders are LOST when barista is busy'
   const parentMachine = setup({
     types: {} as {
       context: Record<string, never>
-      events:
-        | { type: 'MAKE_ME_COFFEE', customer: string }
-        | { type: 'COFFEE', customer: string }
+      events: { type: 'MAKE_ME_COFFEE'; customer: string } | { type: 'COFFEE'; customer: string }
     },
     actors: {
       coffeeMaker: createCoffeeMakerMachine(10),
@@ -182,19 +178,11 @@ test('EDUCATIONAL: Without Mailbox, coffee orders are LOST when barista is busy'
   actor.send({ type: 'MAKE_ME_COFFEE', customer: 'Charlie' })
 
   // Wait for all potential processing
-  await new Promise(r => setTimeout(r, 100))
+  await new Promise((r) => setTimeout(r, 100))
 
   // WITHOUT MAILBOX: Only 1 customer is served!
-  t.equal(
-    coffees.length,
-    1,
-    'WITHOUT MAILBOX: Only 1 of 3 orders processed (2 customers angry!)'
-  )
-  t.equal(
-    coffees[0]?.customer,
-    'Alice',
-    'Only Alice (first customer) got served'
-  )
+  t.equal(coffees.length, 1, 'WITHOUT MAILBOX: Only 1 of 3 orders processed (2 customers angry!)')
+  t.equal(coffees[0]?.customer, 'Alice', 'Only Alice (first customer) got served')
 
   // With Mailbox.from(coffeeMaker), all 3 would be served sequentially.
   // See integration-v5.spec.ts for the Mailbox solution.

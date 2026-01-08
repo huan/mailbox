@@ -6,7 +6,7 @@
  */
 
 // Standard ESM imports from XState v5
-import { createMachine, assign } from 'xstate'
+import { assign, createMachine } from 'xstate'
 
 // Import Mailbox
 import * as Mailbox from '../../src/mailbox.js'
@@ -42,43 +42,40 @@ export const initialContext = (): Context => ({ i: -1 })
 
 const MAX_DELAY_MS = 10
 
-export const machine = createMachine({
-  id: 'DingDong',
-  initial: State.idle,
-  context: initialContext(),
-  states: {
-    [State.idle]: {
-      entry: [
-        Mailbox.actions.idle('DingDongMachine'),
-      ],
-      on: {
-        '*': State.idle,
-        [Type.DING]: {
-          target: State.busy,
-          actions: assign({
-            i: ({ event }: any) => event.payload.i,
-          }),
+export const machine = createMachine(
+  {
+    id: 'DingDong',
+    initial: State.idle,
+    context: initialContext(),
+    states: {
+      [State.idle]: {
+        entry: [Mailbox.actions.idle('DingDongMachine')],
+        on: {
+          '*': State.idle,
+          [Type.DING]: {
+            target: State.busy,
+            actions: assign({
+              i: ({ event }: any) => event.payload.i,
+            }),
+          },
         },
       },
-    },
-    [State.busy]: {
-      after: {
-        randomMs: {
-          actions: [
-            Mailbox.actions.reply(
-              (ctx: Context) => Event.DONG(ctx.i)
-            ),
-          ],
-          target: State.idle,
+      [State.busy]: {
+        after: {
+          randomMs: {
+            actions: [Mailbox.actions.reply((ctx: Context) => Event.DONG(ctx.i))],
+            target: State.idle,
+          },
         },
       },
     },
   },
-}, {
-  delays: {
-    randomMs: () => Math.floor(Math.random() * MAX_DELAY_MS),
+  {
+    delays: {
+      randomMs: () => Math.floor(Math.random() * MAX_DELAY_MS),
+    },
   },
-})
+)
 
 // ============================================================================
 // Export all as default for compatibility with existing test patterns

@@ -9,9 +9,9 @@
 import { test } from '#test-helpers'
 
 // Standard ESM imports from XState v5
-import { setup, createActor } from 'xstate'
+import { createActor, setup } from 'xstate'
 
-test('XState v5: actor should have consistent sessionId', async t => {
+test('XState v5: actor should have consistent sessionId', async (t) => {
   const machine = setup({}).createMachine({
     id: 'test',
   })

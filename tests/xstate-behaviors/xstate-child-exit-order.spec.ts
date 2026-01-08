@@ -8,12 +8,12 @@
  */
 /* eslint-disable sort-keys */
 
-import { test, sinon } from '#test-helpers'
+import { sinon, test } from '#test-helpers'
 
 // Standard ESM imports from XState v5
-import { setup, createActor, assign } from 'xstate'
+import { assign, createActor, setup } from 'xstate'
 
-test('XState v5: invoked child entry order - child starts before parent entry completes', async t => {
+test('XState v5: invoked child entry order - child starts before parent entry completes', async (t) => {
   const sandbox = sinon.createSandbox()
   const spy = sandbox.spy()
 
@@ -50,20 +50,14 @@ test('XState v5: invoked child entry order - child starts before parent entry co
 
   // In v5, invoked children start during state entry
   const entryOrder = spy.args.map((a: any) => a[0])
-  t.ok(
-    entryOrder.includes('invokedChild.entry'),
-    'invoked child entry should be called'
-  )
-  t.ok(
-    entryOrder.includes('parent.entry'),
-    'parent entry should be called'
-  )
+  t.ok(entryOrder.includes('invokedChild.entry'), 'invoked child entry should be called')
+  t.ok(entryOrder.includes('parent.entry'), 'parent entry should be called')
 
   actor.stop()
   sandbox.restore()
 })
 
-test('XState v5: exit actions fire during internal transitions', async t => {
+test('XState v5: exit actions fire during internal transitions', async (t) => {
   /**
    * In XState v5, exit actions fire during state transitions, not when
    * actor.stop() is called from outside. This test verifies exit behavior
@@ -108,14 +102,14 @@ test('XState v5: exit actions fire during internal transitions', async t => {
   t.same(
     actionOrder,
     ['state1.exit', 'state2.entry'],
-    'exit actions should fire before entry actions during transition'
+    'exit actions should fire before entry actions during transition',
   )
 
   actor.stop()
   sandbox.restore()
 })
 
-test('XState v5: spawned child starts when spawn action executes', async t => {
+test('XState v5: spawned child starts when spawn action executes', async (t) => {
   const sandbox = sinon.createSandbox()
   const spy = sandbox.spy()
 
@@ -154,14 +148,8 @@ test('XState v5: spawned child starts when spawn action executes', async t => {
   actor.start()
 
   const entryOrder = spy.args.map((a: any) => a[0])
-  t.ok(
-    entryOrder.includes('parent.entry'),
-    'parent entry should be called'
-  )
-  t.ok(
-    entryOrder.includes('spawnedChild.entry'),
-    'spawned child entry should be called'
-  )
+  t.ok(entryOrder.includes('parent.entry'), 'parent entry should be called')
+  t.ok(entryOrder.includes('spawnedChild.entry'), 'spawned child entry should be called')
 
   actor.stop()
   sandbox.restore()

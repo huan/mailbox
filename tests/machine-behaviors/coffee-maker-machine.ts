@@ -5,7 +5,7 @@
  * Demonstrates the Mailbox pattern with async processing.
  */
 
-import { setup, assign, sendTo } from 'xstate'
+import { assign, sendTo, setup } from 'xstate'
 import * as Mailbox from '../../src/mods/mod.js'
 
 // ============================================================================
@@ -23,14 +23,16 @@ export const Type = {
 } as const
 
 export const Event = {
-  MAKE_ME_COFFEE: (customer: string) => ({
-    type: Type.MAKE_ME_COFFEE,
-    payload: { customer },
-  }) as const,
-  COFFEE: (customer: string) => ({
-    type: Type.COFFEE,
-    payload: { customer },
-  }) as const,
+  MAKE_ME_COFFEE: (customer: string) =>
+    ({
+      type: Type.MAKE_ME_COFFEE,
+      payload: { customer },
+    }) as const,
+  COFFEE: (customer: string) =>
+    ({
+      type: Type.COFFEE,
+      payload: { customer },
+    }) as const,
 }
 
 export interface Context {
@@ -48,9 +50,7 @@ export const DELAY_MS = 10
 export const machine = setup({
   types: {} as {
     context: Context
-    events:
-      | ReturnType<typeof Event.MAKE_ME_COFFEE>
-      | ReturnType<typeof Event.COFFEE>
+    events: ReturnType<typeof Event.MAKE_ME_COFFEE> | ReturnType<typeof Event.COFFEE>
   },
   actions: {
     assignCustomer: assign({

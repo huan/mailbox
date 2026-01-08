@@ -19,7 +19,7 @@
  */
 
 // Import from mailbox implementation
-import { from, type MailboxOptions } from './mailbox.js'
+import { type MailboxOptions, from } from './mailbox.js'
 
 // Standard ESM import from XState v5
 import { createMachine } from 'xstate'
@@ -35,9 +35,4 @@ const address = mailbox.address
 
 const logger: MailboxOptions['logger'] = () => {}
 
-export {
-  mailbox,
-  machine,
-  address,
-  logger,
-}
+export { mailbox, machine, address, logger }

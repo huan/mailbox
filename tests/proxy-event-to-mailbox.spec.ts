@@ -13,9 +13,9 @@
 import { test } from '#test-helpers'
 
 // Standard ESM imports from XState v5
-import { setup, createActor, sendTo } from 'xstate'
+import { createActor, sendTo, setup } from 'xstate'
 
-test('proxy() action forwards events to target actor', async t => {
+test('proxy() action forwards events to target actor', async (t) => {
   /**
    * Test that proxy() action forwards incoming events to a target actor.
    * This tests the basic proxy pattern where one machine forwards events.
@@ -74,15 +74,15 @@ test('proxy() action forwards events to target actor', async t => {
   actor.send({ type: 'PING' })
   actor.send({ type: 'PONG' })
 
-  await new Promise(r => setTimeout(r, 10))
+  await new Promise((r) => setTimeout(r, 10))
 
   t.ok(
-    receivedEvents.some(e => e.type === 'PING'),
-    'target should receive PING'
+    receivedEvents.some((e) => e.type === 'PING'),
+    'target should receive PING',
   )
   t.ok(
-    receivedEvents.some(e => e.type === 'PONG'),
-    'target should receive PONG'
+    receivedEvents.some((e) => e.type === 'PONG'),
+    'target should receive PONG',
   )
 
   actor.stop()

@@ -10,9 +10,9 @@
 import { test } from '#test-helpers'
 
 // Standard ESM imports from XState v5
-import { setup, createActor, sendTo, sendParent } from 'xstate'
+import { createActor, sendParent, sendTo, setup } from 'xstate'
 
-test('XState v5: child can send events to parent via sendParent', async t => {
+test('XState v5: child can send events to parent via sendParent', async (t) => {
   const receivedEvents: any[] = []
 
   const childMachine = setup({
@@ -75,26 +75,26 @@ test('XState v5: child can send events to parent via sendParent', async t => {
   actor.start()
 
   // Wait for child to send CHILD_READY
-  await new Promise(r => setTimeout(r, 10))
+  await new Promise((r) => setTimeout(r, 10))
 
   t.ok(
-    receivedEvents.some(e => e.type === 'CHILD_READY'),
-    'parent should receive CHILD_READY from child'
+    receivedEvents.some((e) => e.type === 'CHILD_READY'),
+    'parent should receive CHILD_READY from child',
   )
 
   // Parent sends PING to child, child responds with PONG
   actor.send({ type: 'PING_CHILD' })
-  await new Promise(r => setTimeout(r, 10))
+  await new Promise((r) => setTimeout(r, 10))
 
   t.ok(
-    receivedEvents.some(e => e.type === 'PONG'),
-    'parent should receive PONG response from child'
+    receivedEvents.some((e) => e.type === 'PONG'),
+    'parent should receive PONG response from child',
   )
 
   actor.stop()
 })
 
-test('XState v5: parent can send events to child via sendTo', async t => {
+test('XState v5: parent can send events to child via sendTo', async (t) => {
   const childEvents: any[] = []
 
   const childMachine = setup({
@@ -156,19 +156,19 @@ test('XState v5: parent can send events to child via sendTo', async t => {
   actor.start()
 
   actor.send({ type: 'ASSIGN_TASK' })
-  await new Promise(r => setTimeout(r, 10))
+  await new Promise((r) => setTimeout(r, 10))
 
   t.ok(
-    childEvents.some(e => e.type === 'TASK'),
-    'child should receive TASK event from parent'
+    childEvents.some((e) => e.type === 'TASK'),
+    'child should receive TASK event from parent',
   )
 
   actor.send({ type: 'ASSIGN_WORK' })
-  await new Promise(r => setTimeout(r, 10))
+  await new Promise((r) => setTimeout(r, 10))
 
   t.ok(
-    childEvents.some(e => e.type === 'WORK'),
-    'child should receive WORK event from parent'
+    childEvents.some((e) => e.type === 'WORK'),
+    'child should receive WORK event from parent',
   )
 
   actor.stop()

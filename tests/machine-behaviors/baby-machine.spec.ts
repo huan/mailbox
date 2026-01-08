@@ -16,7 +16,7 @@
 import { test } from '#test-helpers'
 import Baby from './baby-machine.js'
 
-test('Baby machine is exported', async t => {
+test('Baby machine is exported', async (t) => {
   t.ok(Baby, 'Baby module should be exported')
   t.ok(Baby.machine, 'Baby.machine should exist')
 })

@@ -10,12 +10,14 @@
 import { test } from '#test-helpers'
 
 // Standard ESM imports from XState v5
-import { setup, createActor } from 'xstate'
+import { createActor, setup } from 'xstate'
 
-test('XState v5: snapshot.can() with specific event handler', async t => {
+test('XState v5: snapshot.can() with specific event handler', async (t) => {
   const testMachine = setup({
     actions: {
-      logTest: () => { /* test action */ },
+      logTest: () => {
+        /* test action */
+      },
     },
   }).createMachine({
     id: 'TestMachine',
@@ -42,10 +44,12 @@ test('XState v5: snapshot.can() with specific event handler', async t => {
   actor.stop()
 })
 
-test('XState v5: snapshot.can() with wildcard (*) event handler', async t => {
+test('XState v5: snapshot.can() with wildcard (*) event handler', async (t) => {
   const testMachine = setup({
     actions: {
-      logAny: () => { /* wildcard action */ },
+      logAny: () => {
+        /* wildcard action */
+      },
     },
   }).createMachine({
     id: 'WildcardMachine',

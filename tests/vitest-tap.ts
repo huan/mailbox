@@ -1,5 +1,5 @@
-import { expect, test as baseTest } from 'vitest'
 import sinon from 'sinon'
+import { test as baseTest, expect } from 'vitest'
 
 // Type-level equality check used in existing tests
 export type AssertEqual<T, Expected> = T extends Expected
@@ -8,7 +8,7 @@ export type AssertEqual<T, Expected> = T extends Expected
     : never
   : never
 
-function createAssert () {
+function createAssert() {
   return {
     equal: (actual: unknown, expected: unknown, _message?: string) => {
       expect(actual).toBe(expected)
@@ -54,7 +54,4 @@ test.skip = (name: string, fn: TestFn, timeout?: number) => {
   return baseTest.skip(name, async () => fn(createAssert()), timeout)
 }
 
-export {
-  sinon,
-  test,
-}
+export { sinon, test }

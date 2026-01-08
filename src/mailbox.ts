@@ -30,25 +30,19 @@
 
 // Standard ESM imports from XState v5
 import {
-  setup,
-  createActor,
-  sendTo,
-  sendParent as xstateSendParent,
-  enqueueActions,
-  assign,
-  waitFor as xstateWaitFor,
   SimulatedClock as XStateSimulatedClock,
+  assign,
+  createActor,
+  enqueueActions,
+  sendTo,
+  setup,
+  sendParent as xstateSendParent,
+  waitFor as xstateWaitFor,
 } from 'xstate'
 
-import type {
-  AnyActorLogic,
-  AnyEventObject,
-  EventObject,
-  Clock,
-  InspectionEvent,
-} from 'xstate'
+import type { AnyActorLogic, AnyEventObject, Clock, EventObject, InspectionEvent } from 'xstate'
 
-import { Subject, Observer, Unsubscribable } from 'rxjs'
+import { type Observer, Subject, type Unsubscribable } from 'rxjs'
 import 'symbol-observable'
 
 // ============================================================================
@@ -67,7 +61,7 @@ export const Type = {
   DEAD_LETTER: 'mailbox/DEAD_LETTER',
 } as const
 
-export type MailboxType = typeof Type[keyof typeof Type]
+export type MailboxType = (typeof Type)[keyof typeof Type]
 
 /**
  * Mailbox states - for checking mailbox wrapper state
@@ -79,21 +73,23 @@ export const State = {
   Processing: 'processing',
 } as const
 
-export type MailboxState = typeof State[keyof typeof State]
+export type MailboxState = (typeof State)[keyof typeof State]
 
 /**
  * Mailbox events - factory functions for creating typed events
  */
 export const Event = {
   ACTOR_IDLE: () => ({ type: Type.ACTOR_IDLE }) as const,
-  ACTOR_REPLY: <T extends EventObject>(message: T) => ({
-    type: Type.ACTOR_REPLY,
-    payload: { message },
-  }) as const,
-  DEAD_LETTER: (message: AnyEventObject, reason?: string) => ({
-    type: Type.DEAD_LETTER,
-    payload: { message, reason },
-  }) as const,
+  ACTOR_REPLY: <T extends EventObject>(message: T) =>
+    ({
+      type: Type.ACTOR_REPLY,
+      payload: { message },
+    }) as const,
+  DEAD_LETTER: (message: AnyEventObject, reason?: string) =>
+    ({
+      type: Type.DEAD_LETTER,
+      payload: { message, reason },
+    }) as const,
 }
 
 export type MailboxEvent =
@@ -146,7 +142,7 @@ export interface Mailbox<TEvent extends EventObject = EventObject> {
   /** RxJS interop */
   [Symbol.observable]: () => Mailbox<TEvent>
   /** RxJS interop (legacy) */
-  ['@@observable']: () => Mailbox<TEvent>
+  '@@observable': () => Mailbox<TEvent>
 }
 
 // ============================================================================
@@ -203,7 +199,7 @@ export function createMailboxMachine<TChildLogic extends AnyActorLogic>(
   childLogic: TChildLogic,
   options: MailboxOptions = {},
 ) {
-  const capacity = options.capacity ?? Infinity
+  const capacity = options.capacity ?? Number.POSITIVE_INFINITY
   const log = options.logger ?? (() => {})
 
   return setup({
@@ -239,7 +235,8 @@ export function createMailboxMachine<TChildLogic extends AnyActorLogic>(
     },
     guards: {
       hasQueuedMessages: ({ context }) => context.queue.length > 0,
-      isNotMailboxEvent: ({ event }) => !isMailboxType(event.type) && !event.type.startsWith('xstate.'),
+      isNotMailboxEvent: ({ event }) =>
+        !isMailboxType(event.type) && !event.type.startsWith('xstate.'),
     },
   }).createMachine({
     id: 'mailbox',
@@ -256,9 +253,7 @@ export function createMailboxMachine<TChildLogic extends AnyActorLogic>(
 
     states: {
       idle: {
-        entry: [
-          { type: 'logMessage', params: { message: 'Entering idle state' } },
-        ],
+        entry: [{ type: 'logMessage', params: { message: 'Entering idle state' } }],
         always: {
           guard: 'hasQueuedMessages',
           target: 'processing',
@@ -330,9 +325,10 @@ export const actions = {
     eventOrFn: TEvent | ((context: any, event: any) => TEvent),
   ) => {
     return enqueueActions(({ context, event, enqueue }: any) => {
-      const replyEvent = typeof eventOrFn === 'function'
-        ? (eventOrFn as (context: any, event: any) => TEvent)(context, event)
-        : eventOrFn
+      const replyEvent =
+        typeof eventOrFn === 'function'
+          ? (eventOrFn as (context: any, event: any) => TEvent)(context, event)
+          : eventOrFn
       // Use delay:0 to ensure reply is processed after current transition
       enqueue(xstateSendParent(Event.ACTOR_REPLY(replyEvent), { delay: 0 }))
     })
@@ -370,10 +366,7 @@ class MailboxImpl<TEvent extends EventObject = EventObject> implements Mailbox<T
   private _opened = false
   private _inspectionSub?: { unsubscribe: () => void }
 
-  constructor(
-    childLogic: AnyActorLogic,
-    options: MailboxOptions = {},
-  ) {
+  constructor(childLogic: AnyActorLogic, options: MailboxOptions = {}) {
     const machine = createMailboxMachine(childLogic, options)
 
     this._actor = createActor(machine, {
@@ -440,7 +433,7 @@ class MailboxImpl<TEvent extends EventObject = EventObject> implements Mailbox<T
     return this
   }
 
-  ['@@observable'](): this {
+  '@@observable'(): this {
     return this
   }
 }

@@ -10,9 +10,9 @@
 import { test } from '#test-helpers'
 
 // Standard ESM imports from XState v5
-import { setup, createActor } from 'xstate'
+import { createActor, setup } from 'xstate'
 
-test('XState v5: parent machine can access child machine via snapshot.children', async t => {
+test('XState v5: parent machine can access child machine via snapshot.children', async (t) => {
   const CHILD_ID = 'child-id'
 
   const childMachine = setup({}).createMachine({

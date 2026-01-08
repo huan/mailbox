@@ -14,6 +14,6 @@
  */
 import { test } from '#test-helpers'
 
-test('Nested mailbox tests removed - see multiple-outbound-communications.spec.ts for limitation docs', async t => {
+test('Nested mailbox tests removed - see multiple-outbound-communications.spec.ts for limitation docs', async (t) => {
   t.ok(true, 'Nested mailbox tests documented limitation')
 })

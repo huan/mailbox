@@ -9,10 +9,10 @@
  */
 /* eslint-disable sort-keys */
 
+import { createActor, setup } from 'xstate'
 import { test } from '#test-helpers'
-import { setup, createActor } from 'xstate'
 
-test('XState v5: action execution order during transitions', async t => {
+test('XState v5: action execution order during transitions', async (t) => {
   const log: string[] = []
 
   const machine = setup({
@@ -21,10 +21,18 @@ test('XState v5: action execution order during transitions', async t => {
       events: { type: 'NEXT' }
     },
     actions: {
-      step0EntryLog: ({ context }) => { log.push('step0.entry.log context:' + context.lastSetBy) },
-      step0ExitLog: ({ context }) => { log.push('step0.exit.log context:' + context.lastSetBy) },
-      transitionLog: ({ context }) => { log.push('transition.log context:' + context.lastSetBy) },
-      step1EntryLog: ({ context }) => { log.push('step1.entry.log context:' + context.lastSetBy) },
+      step0EntryLog: ({ context }) => {
+        log.push(`step0.entry.log context:${context.lastSetBy}`)
+      },
+      step0ExitLog: ({ context }) => {
+        log.push(`step0.exit.log context:${context.lastSetBy}`)
+      },
+      transitionLog: ({ context }) => {
+        log.push(`transition.log context:${context.lastSetBy}`)
+      },
+      step1EntryLog: ({ context }) => {
+        log.push(`step1.entry.log context:${context.lastSetBy}`)
+      },
     },
   }).createMachine({
     id: 'ActionOrderTest',
@@ -53,11 +61,7 @@ test('XState v5: action execution order during transitions', async t => {
   actor.start()
 
   // Entry actions should run on start
-  t.same(
-    log,
-    ['step0.entry.log context:initial'],
-    'entry actions should run on start'
-  )
+  t.same(log, ['step0.entry.log context:initial'], 'entry actions should run on start')
 
   log.length = 0
   actor.send({ type: 'NEXT' })
@@ -70,13 +74,13 @@ test('XState v5: action execution order during transitions', async t => {
       'transition.log context:initial',
       'step1.entry.log context:initial',
     ],
-    'actions should execute in order: exit → transition → entry'
+    'actions should execute in order: exit → transition → entry',
   )
 
   actor.stop()
 })
 
-test('XState v5: always transitions execute immediately after entry', async t => {
+test('XState v5: always transitions execute immediately after entry', async (t) => {
   const log: string[] = []
 
   const machine = setup({
@@ -85,7 +89,7 @@ test('XState v5: always transitions execute immediately after entry', async t =>
     },
     actions: {
       logAndIncrement: ({ context }) => {
-        log.push('increment from ' + context.count)
+        log.push(`increment from ${context.count}`)
       },
     },
     guards: {

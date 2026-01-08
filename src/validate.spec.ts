@@ -6,12 +6,12 @@
  * - Sends ACTOR_IDLE to parent on initialization
  */
 
-import { test } from '#test-helpers'
 import { createMachine } from 'xstate'
+import { test } from '#test-helpers'
 
 import * as Mailbox from './mods/mod.js'
 
-test('validate() passes for valid mailbox-addressable machine', async t => {
+test('validate() passes for valid mailbox-addressable machine', async (t) => {
   // A properly structured machine that signals idle
   const validMachine = createMachine({
     id: 'valid-machine',
@@ -32,7 +32,7 @@ test('validate() passes for valid mailbox-addressable machine', async t => {
   t.ok(Mailbox.validate(validMachine), 'should pass validation for valid machine')
 })
 
-test('validate() throws for machine without ACTOR_IDLE on init', async t => {
+test('validate() throws for machine without ACTOR_IDLE on init', async (t) => {
   // Machine that doesn't signal idle on initialization
   const invalidMachine = createMachine({
     id: 'invalid-machine',
@@ -62,13 +62,10 @@ test('validate() throws for machine without ACTOR_IDLE on init', async t => {
 
   t.ok(threw, 'should throw an error')
   t.ok(caughtError instanceof Mailbox.MailboxValidationError, 'should throw MailboxValidationError')
-  t.ok(
-    caughtError?.message.includes('ACTOR_IDLE'),
-    'error message should mention ACTOR_IDLE'
-  )
+  t.ok(caughtError?.message.includes('ACTOR_IDLE'), 'error message should mention ACTOR_IDLE')
 })
 
-test('validate() works with DingDong-style machine', async t => {
+test('validate() works with DingDong-style machine', async (t) => {
   // A machine similar to DingDong that responds to events with delays
   const dingDongMachine = createMachine({
     id: 'ding-dong',
@@ -94,7 +91,7 @@ test('validate() works with DingDong-style machine', async t => {
   t.ok(Mailbox.validate(dingDongMachine), 'should pass validation for DingDong-style machine')
 })
 
-test('validate() works with immediate response machine', async t => {
+test('validate() works with immediate response machine', async (t) => {
   // A machine that responds immediately and returns to idle
   const workerMachine = createMachine({
     id: 'worker',
@@ -116,7 +113,7 @@ test('validate() works with immediate response machine', async t => {
   t.ok(Mailbox.validate(workerMachine), 'should pass validation for immediate response machine')
 })
 
-test('MailboxValidationError has correct name and message', async t => {
+test('MailboxValidationError has correct name and message', async (t) => {
   const error = new Mailbox.MailboxValidationError('test message')
   t.equal(error.name, 'MailboxValidationError', 'should have correct error name')
   t.ok(error.message.includes('test message'), 'should include the message')

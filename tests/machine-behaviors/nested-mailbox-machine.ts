@@ -5,7 +5,7 @@
  * invokes a child mailbox and forwards events to it.
  */
 
-import { setup, sendTo } from 'xstate'
+import { sendTo, setup } from 'xstate'
 import * as Mailbox from '../../src/mods/mod.js'
 
 // ============================================================================
@@ -35,9 +35,7 @@ const CHILD_ID = 'Child'
 
 export const childMachine = setup({
   types: {} as {
-    events:
-      | ReturnType<typeof Event.NEXT>
-      | ReturnType<typeof Event.COMPLETE>
+    events: ReturnType<typeof Event.NEXT> | ReturnType<typeof Event.COMPLETE>
   },
 }).createMachine({
   id: CHILD_ID,

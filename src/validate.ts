@@ -16,16 +16,9 @@
  *   limitations under the License.
  */
 
-import {
-  setup,
-  createActor,
-} from 'xstate'
+import { createActor, setup } from 'xstate'
 
-import type {
-  AnyActorLogic,
-  AnyEventObject,
-  InspectionEvent,
-} from 'xstate'
+import type { AnyActorLogic, AnyEventObject, InspectionEvent } from 'xstate'
 
 import { Type } from './mailbox.js'
 
@@ -120,17 +113,17 @@ export function validate(machine: AnyActorLogic): boolean {
     actor.start()
   } catch (error) {
     throw new MailboxValidationError(
-      `Machine failed to start: ${error instanceof Error ? error.message : String(error)}`
+      `Machine failed to start: ${error instanceof Error ? error.message : String(error)}`,
     )
   }
 
   // Validation 1: Check for ACTOR_IDLE on initialization
-  const initIdleEvents = sentToParentEvents.filter(e => e.type === Type.ACTOR_IDLE)
+  const initIdleEvents = sentToParentEvents.filter((e) => e.type === Type.ACTOR_IDLE)
   if (initIdleEvents.length === 0) {
     actor.stop()
     throw new MailboxValidationError(
       `Machine must send ${Type.ACTOR_IDLE} to parent on initialization. ` +
-      `Add 'Mailbox.actions.idle("${(machine as any).id || 'machine-id'}")' to the entry action of your idle state.`
+        `Add 'Mailbox.actions.idle("${(machine as any).id || 'machine-id'}")' to the entry action of your idle state.`,
     )
   }
 

@@ -21,9 +21,9 @@
 import { test } from '#test-helpers'
 
 // Standard ESM imports from XState v5
-import { setup, createActor, sendParent, assign } from 'xstate'
+import { assign, createActor, sendParent, setup } from 'xstate'
 
-test('DOCUMENTED LIMITATION: Nested mailbox communication can cause deadlock', async t => {
+test('DOCUMENTED LIMITATION: Nested mailbox communication can cause deadlock', async (t) => {
   /**
    * This test documents the architectural limitation rather than testing
    * specific functionality. It serves as documentation for developers.
@@ -105,16 +105,16 @@ test('DOCUMENTED LIMITATION: Nested mailbox communication can cause deadlock', a
 
   // Send PING to the invoked service
   const snapshot = actor.getSnapshot()
-  const serviceRef = snapshot.children['service']
+  const serviceRef = snapshot.children.service
   if (serviceRef) {
     serviceRef.send({ type: 'PING' })
   }
 
-  await new Promise(r => setTimeout(r, 10))
+  await new Promise((r) => setTimeout(r, 10))
 
   t.ok(
-    receivedEvents.some(e => e.type === 'PONG'),
-    'consumer should receive PONG from service (single-level communication works)'
+    receivedEvents.some((e) => e.type === 'PONG'),
+    'consumer should receive PONG from service (single-level communication works)',
   )
 
   actor.stop()
