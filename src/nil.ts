@@ -17,22 +17,23 @@
  *   limitations under the License.
  *
  */
-import { createMachine }  from 'xstate'
 
-import type { Options }   from './impls/mod.js'
+// Import from mailbox implementation
+import { from, type MailboxOptions } from './mailbox.js'
 
-import { from }   from './from.js'
+// Standard ESM import from XState v5
+import { createMachine } from 'xstate'
 
 /**
  * Null destinations for Machine, Mailbox, Address, and Logger
  */
-const machine = createMachine<{}>({})
+const machine = createMachine({})
 const mailbox = from(machine)
 mailbox.open()
 
 const address = mailbox.address
 
-const logger: Options['logger'] = () => {}
+const logger: MailboxOptions['logger'] = () => {}
 
 export {
   mailbox,

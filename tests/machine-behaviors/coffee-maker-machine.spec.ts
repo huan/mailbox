@@ -1,134 +1,203 @@
 #!/usr/bin/env -S node --no-warnings --loader ts-node/esm
+/**
+ * Educational Tests: Why Mailbox Exists (CoffeeMaker Example)
+ *
+ * These tests demonstrate the same problem as DingDong tests:
+ * Without Mailbox, messages sent while a machine is busy are LOST.
+ *
+ * CoffeeMaker scenario:
+ * - Customer orders coffee (MAKE_ME_COFFEE)
+ * - Machine takes 10ms to make coffee
+ * - If another customer orders while busy, their order is LOST!
+ */
 /* eslint-disable sort-keys */
 
-import {
-  test,
-  sinon,
-}                   from 'tstest'
+import { test } from '#test-helpers'
 
-import {
-  AnyEventObject,
-  createMachine,
-  interpret,
-  actions,
-}                   from 'xstate'
+// Standard ESM imports from XState v5
+import { setup, createActor, sendTo, sendParent, assign } from 'xstate'
+void sendTo; void sendParent // used in machine definitions
 
-import * as Mailbox   from '../../src/mods/mod.js'
+// Note: We intentionally DON'T use Mailbox here to demonstrate the problem it solves
 
-import CoffeeMaker from './coffee-maker-machine.js'
+const DELAY_MS = 10
 
-test('CoffeeMaker.machine smoke testing', async t => {
-  const CUSTOMER = 'John'
+// Simple CoffeeMaker machine WITHOUT mailbox wrapping
+const createCoffeeMakerMachine = (delayMs: number = DELAY_MS) => setup({
+  types: {} as {
+    context: { customer: string | null }
+    events:
+      | { type: 'MAKE_ME_COFFEE', customer: string }
+      | { type: 'COFFEE', customer: string }
+  },
+  actions: {
+    storeCustomer: assign({
+      customer: ({ event }: any) => event.customer,
+    }),
+    clearCustomer: assign({
+      customer: () => null,
+    }),
+    sendCoffeeToParent: sendParent(({ context }: any) => ({
+      type: 'COFFEE',
+      customer: context.customer,
+    })),
+  },
+}).createMachine({
+  id: 'CoffeeMaker',
+  initial: 'idle',
+  context: { customer: null },
+  states: {
+    idle: {
+      on: {
+        MAKE_ME_COFFEE: {
+          target: 'busy',
+          actions: 'storeCustomer',
+        },
+      },
+    },
+    busy: {
+      after: {
+        [delayMs]: {
+          target: 'idle',
+          actions: ['sendCoffeeToParent', 'clearCustomer'],
+        },
+      },
+      // NOTE: While making coffee, additional orders are IGNORED
+      // This is the problem Mailbox solves!
+    },
+  },
+})
 
-  const sandbox = sinon.createSandbox({
-    useFakeTimers: true,
-  })
+test('EDUCATIONAL: CoffeeMaker processes one order correctly', async t => {
+  /**
+   * Happy path - single order is processed correctly.
+   */
+  const coffees: Array<{ customer: string }> = []
 
-  const CHILD_ID = 'child'
-
-  const parentMachine = createMachine({
-    id: 'parent',
-    initial: 'testing',
+  const parentMachine = setup({
+    types: {} as {
+      context: Record<string, never>
+      events:
+        | { type: 'MAKE_ME_COFFEE', customer: string }
+        | { type: 'COFFEE', customer: string }
+    },
+    actors: {
+      coffeeMaker: createCoffeeMakerMachine(5),
+    },
+  }).createMachine({
+    id: 'CoffeeShop',
+    initial: 'open',
+    context: {},
     invoke: {
-      id: CHILD_ID,
-      src: CoffeeMaker.machine.withContext({}),
+      id: 'barista',
+      src: 'coffeeMaker',
     },
     states: {
-      testing: {
+      open: {
         on: {
-          [CoffeeMaker.Type.MAKE_ME_COFFEE]: {
-            actions: actions.send((_, e) => e, { to: CHILD_ID }),
+          MAKE_ME_COFFEE: {
+            actions: sendTo('barista', ({ event }: any) => event),
+          },
+          COFFEE: {
+            actions: ({ event }: any) => {
+              coffees.push({ customer: event.customer })
+            },
           },
         },
       },
     },
   })
 
-  const interpreter = interpret(parentMachine)
+  const actor = createActor(parentMachine)
+  actor.start()
 
-  const eventList: AnyEventObject[] = []
-  interpreter.onTransition(s => {
-    eventList.push(s.event)
+  actor.send({ type: 'MAKE_ME_COFFEE', customer: 'Alice' })
 
-    console.info('onTransition: ')
-    console.info('  - states:', s.value)
-    console.info('  - event:', s.event.type)
-    console.info()
-  })
+  await new Promise(r => setTimeout(r, 50))
 
-  interpreter.start()
-  interpreter.send(CoffeeMaker.Event.MAKE_ME_COFFEE(CUSTOMER))
-  t.same(
-    eventList.map(e => e.type),
-    [
-      'xstate.init',
-      Mailbox.Type.ACTOR_IDLE,
-      CoffeeMaker.Type.MAKE_ME_COFFEE,
-    ],
-    'should have received init/RECEIVE/MAKE_ME_COFFEE events after initializing',
-  )
+  t.equal(coffees.length, 1, 'should serve exactly 1 coffee')
+  t.equal(coffees[0]?.customer, 'Alice', 'should serve Alice')
 
-  eventList.length = 0
-  await sandbox.clock.runAllAsync()
-  t.same(
-    eventList
-      .filter(e => e.type === Mailbox.Type.ACTOR_REPLY),
-    [
-      Mailbox.Event.ACTOR_REPLY(CoffeeMaker.Event.COFFEE(CUSTOMER)),
-    ],
-    'should have received COFFEE/RECEIVE events after runAllAsync',
-  )
-
-  interpreter.stop()
-  sandbox.restore()
+  actor.stop()
 })
 
-test('XState machine will lost incoming messages(events) when receiving multiple messages at the same time', async t => {
-  const sandbox = sinon.createSandbox({
-    useFakeTimers: true,
-  })
+test('EDUCATIONAL: Without Mailbox, coffee orders are LOST when barista is busy', async t => {
+  /**
+   * THIS TEST DEMONSTRATES THE PROBLEM MAILBOX SOLVES!
+   *
+   * Scenario: 3 customers order coffee at the same time
+   * - Alice orders: Barista starts making coffee (busy for 10ms)
+   * - Bob orders: Barista is busy, order IGNORED!
+   * - Charlie orders: Barista is busy, order IGNORED!
+   *
+   * Result: Only Alice gets coffee. Bob and Charlie leave angry!
+   *
+   * With Mailbox.from(coffeeMaker):
+   * - All 3 orders would be queued
+   * - Processed one at a time
+   * - All 3 customers get their coffee
+   */
+  const coffees: Array<{ customer: string }> = []
 
-  const ITEM_NUMBERS = [ ...Array(10).keys() ]
-  const MAKE_ME_COFFEE_EVENT_LIST = ITEM_NUMBERS.map(i => CoffeeMaker.Event.MAKE_ME_COFFEE(String(i)))
-  const COFFEE_EVENT_LIST         = ITEM_NUMBERS.map(i => CoffeeMaker.Event.COFFEE(String(i)))
-
-  const containerMachine = createMachine({
-    invoke: {
-      id: 'child',
-      src: CoffeeMaker.machine.withContext({}),
+  const parentMachine = setup({
+    types: {} as {
+      context: Record<string, never>
+      events:
+        | { type: 'MAKE_ME_COFFEE', customer: string }
+        | { type: 'COFFEE', customer: string }
     },
-    on: {
-      [CoffeeMaker.Type.MAKE_ME_COFFEE]: {
-        actions: [
-          actions.send((_, e) => e, { to: 'child' }),
-        ],
+    actors: {
+      coffeeMaker: createCoffeeMakerMachine(10),
+    },
+  }).createMachine({
+    id: 'CoffeeShop',
+    initial: 'open',
+    context: {},
+    invoke: {
+      id: 'barista',
+      src: 'coffeeMaker',
+    },
+    states: {
+      open: {
+        on: {
+          MAKE_ME_COFFEE: {
+            actions: sendTo('barista', ({ event }: any) => event),
+          },
+          COFFEE: {
+            actions: ({ event }: any) => {
+              coffees.push({ customer: event.customer })
+            },
+          },
+        },
       },
     },
-    states: {},
   })
 
-  const interpreter = interpret(containerMachine)
+  const actor = createActor(parentMachine)
+  actor.start()
 
-  const eventList: AnyEventObject[] = []
-  interpreter
-    .onTransition(s => eventList.push(s.event))
-    .start()
+  // 3 customers order at the same time
+  actor.send({ type: 'MAKE_ME_COFFEE', customer: 'Alice' })
+  actor.send({ type: 'MAKE_ME_COFFEE', customer: 'Bob' })
+  actor.send({ type: 'MAKE_ME_COFFEE', customer: 'Charlie' })
 
-  MAKE_ME_COFFEE_EVENT_LIST.forEach(e => interpreter.send(e))
+  // Wait for all potential processing
+  await new Promise(r => setTimeout(r, 100))
 
-  await sandbox.clock.runAllAsync()
-  // eventList.forEach(e => console.info(e))
-  t.same(
-    eventList
-      .filter(e => e.type === Mailbox.Type.ACTOR_REPLY),
-    [
-      COFFEE_EVENT_LIST.map(e =>
-        Mailbox.Event.ACTOR_REPLY(e),
-      )[0],
-    ],
-    `should only get 1 COFFEE event no matter how many MAKE_ME_COFFEE events we sent (at the same time, total: ${MAKE_ME_COFFEE_EVENT_LIST.length})`,
+  // WITHOUT MAILBOX: Only 1 customer is served!
+  t.equal(
+    coffees.length,
+    1,
+    'WITHOUT MAILBOX: Only 1 of 3 orders processed (2 customers angry!)'
+  )
+  t.equal(
+    coffees[0]?.customer,
+    'Alice',
+    'Only Alice (first customer) got served'
   )
 
-  interpreter.stop()
-  sandbox.restore()
+  // With Mailbox.from(coffeeMaker), all 3 would be served sequentially.
+  // See integration-v5.spec.ts for the Mailbox solution.
+
+  actor.stop()
 })

@@ -1,21 +1,29 @@
 #!/usr/bin/env -S node --no-warnings --loader ts-node/esm
+/**
+ * XState v5 Behavior: Actor Session ID
+ *
+ * Tests that actor IDs are consistent throughout the actor lifecycle.
+ */
 /* eslint-disable sort-keys */
 
-import { test }                     from 'tstest'
-import { interpret, createMachine } from 'xstate'
+import { test } from '#test-helpers'
 
-test('XState interpreter should have a consistent sessionId between start/stop', async t => {
-  const interpreter = interpret(createMachine({}))
+// Standard ESM imports from XState v5
+import { setup, createActor } from 'xstate'
 
-  const sessionId = interpreter.sessionId
-  t.ok(sessionId, 'should get a vaild sessionId')
+test('XState v5: actor should have consistent sessionId', async t => {
+  const machine = setup({}).createMachine({
+    id: 'test',
+  })
 
-  interpreter.start()
-  t.equal(interpreter.sessionId, sessionId, 'should be consistent sessionId after start')
+  const actor = createActor(machine)
 
-  interpreter.stop()
-  t.equal(interpreter.sessionId, sessionId, 'should be consistent sessionId after stop')
+  const sessionId = actor.sessionId
+  t.ok(sessionId, 'should get a valid sessionId before start')
 
-  interpreter.start()
-  t.equal(interpreter.sessionId, sessionId, 'should be consistent sessionId after restart')
+  actor.start()
+  t.equal(actor.sessionId, sessionId, 'should be consistent sessionId after start')
+
+  actor.stop()
+  t.equal(actor.sessionId, sessionId, 'should be consistent sessionId after stop')
 })

@@ -1,6 +1,6 @@
 #!/usr/bin/env -S node --no-warnings --loader ts-node/esm
 
-import { test }  from 'tstest'
+import { test }  from '#test-helpers'
 
 import { VERSION } from './version.js'
 

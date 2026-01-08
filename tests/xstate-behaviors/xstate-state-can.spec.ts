@@ -1,48 +1,73 @@
 #!/usr/bin/env -S node --no-warnings --loader ts-node/esm
+/**
+ * XState v5 Behavior: snapshot.can() Method
+ *
+ * Tests the snapshot.can() method which checks if an event can trigger a transition.
+ * This works the same in v5 as v4, but uses createActor instead of interpret.
+ */
 /* eslint-disable sort-keys */
 
-import {
-  test,
-}                   from 'tstest'
+import { test } from '#test-helpers'
 
-import {
-  interpret,
-  createMachine,
-  actions,
-}                   from 'xstate'
+// Standard ESM imports from XState v5
+import { setup, createActor } from 'xstate'
 
-test('state.can() machine with a TEST event', async t => {
-  const testMachine = createMachine({
-    on: {
-      TEST: {
-        actions: actions.log('EVENT:TEST'),
+test('XState v5: snapshot.can() with specific event handler', async t => {
+  const testMachine = setup({
+    actions: {
+      logTest: () => console.log('EVENT:TEST'),
+    },
+  }).createMachine({
+    id: 'TestMachine',
+    initial: 'ready',
+    states: {
+      ready: {
+        on: {
+          TEST: {
+            actions: 'logTest',
+          },
+        },
       },
     },
   })
 
-  const interpreter = interpret(testMachine)
+  const actor = createActor(testMachine)
+  actor.start()
 
-  interpreter.start()
-  const snapshot = interpreter.getSnapshot()
+  const snapshot = actor.getSnapshot()
 
-  t.ok(snapshot.can('TEST'), 'should be able to send event TEST')
-  t.notOk(snapshot.can('XXX'), 'should not be able to send event XXX')
+  t.ok(snapshot.can({ type: 'TEST' }), 'should be able to send event TEST')
+  t.notOk(snapshot.can({ type: 'XXX' }), 'should not be able to send event XXX')
+
+  actor.stop()
 })
 
-test('state.can() machine with a * event', async t => {
-  const testMachine = createMachine({
-    on: {
-      '*': {
-        actions: actions.log('EVENT:*'),
+test('XState v5: snapshot.can() with wildcard (*) event handler', async t => {
+  const testMachine = setup({
+    actions: {
+      logAny: () => console.log('EVENT:*'),
+    },
+  }).createMachine({
+    id: 'WildcardMachine',
+    initial: 'ready',
+    states: {
+      ready: {
+        on: {
+          '*': {
+            actions: 'logAny',
+          },
+        },
       },
     },
   })
 
-  const interpreter = interpret(testMachine)
+  const actor = createActor(testMachine)
+  actor.start()
 
-  interpreter.start()
-  const snapshot = interpreter.getSnapshot()
+  const snapshot = actor.getSnapshot()
 
-  t.ok(snapshot.can('TEST'), 'should be able to send event TESST')
-  t.ok(snapshot.can('XXX'), 'should be able to send event XXX')
+  t.ok(snapshot.can({ type: 'TEST' }), 'should be able to send event TEST')
+  t.ok(snapshot.can({ type: 'XXX' }), 'should be able to send event XXX')
+
+  actor.stop()
 })

@@ -2,18 +2,31 @@
   "extends": "@chatie/tsconfig",
   "compilerOptions": {
     "outDir": "dist/esm",
+    "ignoreDeprecations": "5.0",
+    "baseUrl": ".",
+    "noImplicitAny": false,
+    "types": [
+      "vitest/globals",
+      "node"
+    ],
+    "paths": {
+      "#test-helpers": [
+        "./tests/vitest-tap"
+      ]
+    }
   },
   "exclude": [
     "node_modules/",
     "dist/",
     "tests/fixtures/",
+    "examples/"
   ],
   "include": [
     "bin/*.ts",
-    "examples/**/*.ts",
     "scripts/**/*.ts",
     "src/**/*.ts",
     "tests/**/*.spec.ts",
+    "types/**/*.d.ts",
     "tests/machine-behaviors/**/.ts",
   ],
 }

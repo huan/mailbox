@@ -1,27 +1,40 @@
-export type {
-  Mailbox as Interface,
-  Options,
-  Address,
-}                           from '../impls/mod.js'
+/**
+ * Mailbox - XState v5 Native Implementation
+ *
+ * Main module exports for the Mailbox library.
+ */
+
+// Core mailbox functionality
 export {
+  // Main factory function
+  from,
+  // Type guards
   isMailbox,
   isAddress,
-}                           from '../is/mod.js'
-export * as actions         from '../actions/mod.js'
-export {
-  Event,
+  isMailboxType,
+  // Event types and state
   Type,
-}                           from '../duck/mod.js'
+  Event,
+  State,
+  // Options and interfaces
+  type Mailbox as Interface,
+  type MailboxOptions as Options,
+  type Address,
+  // Actions for child machines
+  actions,
+  // XState utilities
+  SimulatedClock,
+  waitFor,
+} from '../mailbox.js'
+
+// Version
+export { VERSION } from '../version.js'
+
+// Nil/null objects
+export * as nil from '../nil.js'
+
+// Validation utility
 export {
-  duckularize,
-  type Duckula,
-}                           from '../duckula/mod.js'
-
-export { from }       from '../from.js'
-export { wrap }       from '../wrap.js'
-
-export * as nil       from '../nil.js'
-export { VERSION }    from '../version.js'
-
-export * as helpers   from './helpers.js'
-export * as impls     from './impls.js'
+  validate,
+  MailboxValidationError,
+} from '../validate.js'

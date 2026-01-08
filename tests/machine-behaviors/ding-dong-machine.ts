@@ -1,77 +1,94 @@
-/* eslint-disable sort-keys */
-import { createAction } from 'typesafe-actions'
-import { createMachine, actions }   from 'xstate'
+/**
+ * DingDong Machine - XState v5 native
+ *
+ * Responds to DING events with DONG after a random delay.
+ * Demonstrates the Mailbox pattern for sequential message processing.
+ */
 
-import * as Mailbox from '../../src/mods/mod.js'
+// Standard ESM imports from XState v5
+import { createMachine, assign } from 'xstate'
 
-enum State {
-  idle = 'ding-dong/idle',
-  busy = 'ding-dong/busy',
+// Import Mailbox
+import * as Mailbox from '../../src/mailbox.js'
+
+// ============================================================================
+// Types
+// ============================================================================
+
+export const State = {
+  idle: 'ding-dong/idle',
+  busy: 'ding-dong/busy',
+} as const
+
+export const Type = {
+  DING: 'ding-dong/DING',
+  DONG: 'ding-dong/DONG',
+} as const
+
+export const Event = {
+  DING: (i: number) => ({ type: Type.DING, payload: { i } }) as const,
+  DONG: (i: number) => ({ type: Type.DONG, payload: { i } }) as const,
 }
 
-enum Type {
-  DING = 'ding-dong/DING',
-  DONG = 'ding-dong/DONG',
+export interface Context {
+  i: number
 }
 
-const events = {
-  DING : createAction(Type.DING, (i: number) => ({ i }))(),
-  DONG : createAction(Type.DONG, (i: number) => ({ i }))(),
-}
+export const initialContext = (): Context => ({ i: -1 })
 
-interface Context {
-  i: number,
-}
-
-const duckula = Mailbox.duckularize({
-  id: 'DingDong',
-  events,
-  states: State,
-  initialContext: { i: 0 } as Context,
-})
+// ============================================================================
+// Machine
+// ============================================================================
 
 const MAX_DELAY_MS = 10
 
-const machine = createMachine<
-  Context,
-  ReturnType<typeof duckula.Event[keyof typeof duckula.Event]>
->({
-  id: duckula.id,
-  initial: duckula.State.idle,
-  context: {
-    i: -1,
-  },
+export const machine = createMachine({
+  id: 'DingDong',
+  initial: State.idle,
+  context: initialContext(),
   states: {
-    [duckula.State.idle]: {
+    [State.idle]: {
       entry: [
         Mailbox.actions.idle('DingDongMachine'),
       ],
       on: {
-        '*': duckula.State.idle,
-        [duckula.Type.DING]: {
-          target: duckula.State.busy,
-          actions: actions.assign({
-            i: (_, e) => e.payload.i,
+        '*': State.idle,
+        [Type.DING]: {
+          target: State.busy,
+          actions: assign({
+            i: ({ event }: any) => event.payload.i,
           }),
         },
       },
     },
-    [duckula.State.busy]: {
+    [State.busy]: {
       after: {
         randomMs: {
           actions: [
-            Mailbox.actions.reply(ctx => events.DONG(ctx.i)),
+            Mailbox.actions.reply(
+              (ctx: Context) => Event.DONG(ctx.i)
+            ),
           ],
-          target: duckula.State.idle,
+          target: State.idle,
         },
       },
     },
   },
 }, {
   delays: {
-    randomMs: _ => Math.floor(Math.random() * MAX_DELAY_MS),
+    randomMs: () => Math.floor(Math.random() * MAX_DELAY_MS),
   },
 })
 
-duckula.machine = machine
-export default duckula as Required<typeof duckula>
+// ============================================================================
+// Export all as default for compatibility with existing test patterns
+// ============================================================================
+
+export default {
+  id: 'DingDong',
+  State,
+  Type,
+  Event,
+  initialContext,
+  machine,
+}
