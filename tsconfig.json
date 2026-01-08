@@ -48,7 +48,7 @@
     "bin/*.ts",
     "scripts/**/*.ts",
     "src/**/*.ts",
-    "tests/**/*.spec.ts",
+    "tests/**/*.test.ts",
     "tests/machine-behaviors/**/*.ts",
     "types/**/*.d.ts"
   ]
