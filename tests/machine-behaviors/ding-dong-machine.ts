@@ -63,7 +63,7 @@ export const machine = createMachine(
       [State.busy]: {
         after: {
           randomMs: {
-            actions: [Mailbox.actions.reply((ctx: Context) => Event.DONG(ctx.i))],
+            actions: [Mailbox.actions.reply(({ context }) => Event.DONG((context as Context).i))],
             target: State.idle,
           },
         },

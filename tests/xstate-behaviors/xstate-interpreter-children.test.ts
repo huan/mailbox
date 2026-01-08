@@ -51,12 +51,14 @@ test('XState v5: parent machine can access child machine via snapshot.children',
   // The child should be an actor reference
   const childRef = snapshot.children[CHILD_ID]
   t.ok(childRef, 'should get child actor reference')
-  t.ok(childRef.getSnapshot, 'child should have getSnapshot method')
+  if (childRef) {
+    t.ok(childRef.getSnapshot, 'child should have getSnapshot method')
 
-  // The child's state should be accessible
-  const childSnapshot = childRef.getSnapshot()
-  t.ok(childSnapshot.value, 'child snapshot should have value')
-  t.equal(childSnapshot.value, 'active', 'child should be in active state')
+    // The child's state should be accessible
+    const childSnapshot = childRef.getSnapshot()
+    t.ok(childSnapshot.value, 'child snapshot should have value')
+    t.equal(childSnapshot.value, 'active', 'child should be in active state')
+  }
 
   actor.stop()
 })

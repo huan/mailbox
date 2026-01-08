@@ -65,7 +65,10 @@ const createDingDongMachine = () =>
         after: {
           10: {
             target: 'idle',
-            actions: Mailbox.actions.reply((ctx: any) => ({ type: 'DONG', value: ctx.lastValue })),
+            actions: Mailbox.actions.reply(({ context }) => ({
+              type: 'DONG',
+              value: (context as any).lastValue,
+            })),
           },
         },
       },
@@ -129,7 +132,7 @@ test('Mailbox: with SimulatedClock delays work correctly', async (t) => {
   mailbox.subscribe({ next: (e) => replies.push(e) })
 
   mailbox.open()
-  mailbox.send({ type: 'DING', value: 42 })
+  mailbox.send({ type: 'DING', value: 42 } as any)
 
   // Advance clock incrementally to allow microtasks to flush
   for (let i = 0; i < 20; i++) {

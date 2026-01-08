@@ -100,7 +100,8 @@ export const parentMachine = setup({
         [Mailbox.Type.ACTOR_REPLY]: {
           actions: sendTo(
             ({ self }) => self,
-            ({ event }) => (event as ReturnType<typeof Mailbox.Event.ACTOR_REPLY>).payload.message,
+            ({ event }) =>
+              (event as ReturnType<typeof Mailbox.Event.ACTOR_REPLY>).payload.message as any,
           ),
         },
         [Type.COMPLETE]: {

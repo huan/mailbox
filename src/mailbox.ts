@@ -40,7 +40,13 @@ import {
   waitFor as xstateWaitFor,
 } from 'xstate'
 
-import type { AnyActorLogic, AnyEventObject, Clock, EventObject, InspectionEvent } from 'xstate'
+import type { AnyActorLogic, AnyEventObject, EventObject, InspectionEvent } from 'xstate'
+
+// Clock interface for SimulatedClock compatibility
+interface Clock {
+  setTimeout: (fn: () => void, ms: number) => any
+  clearTimeout: (id: any) => void
+}
 
 import { type Observer, Subject, type Unsubscribable } from 'rxjs'
 import 'symbol-observable'
@@ -249,7 +255,7 @@ export function createMailboxMachine<TChildLogic extends AnyActorLogic>(
     invoke: {
       id: CHILD_ID,
       src: 'childActor',
-    },
+    } as any,
 
     states: {
       idle: {
@@ -309,7 +315,7 @@ export const actions = {
    * Signal that the child actor is idle and ready for the next message.
    * Call this in entry actions of idle states.
    */
-  idle: (_machineId: string) => {
+  idle: (_machineId: string): any => {
     return enqueueActions(({ event, enqueue }: any) => {
       // Don't signal idle for mailbox internal events
       if (isMailboxType(event.type)) return
@@ -322,13 +328,10 @@ export const actions = {
    * The mailbox will route it to whoever sent the original message.
    */
   reply: <TEvent extends EventObject>(
-    eventOrFn: TEvent | ((context: any, event: any) => TEvent),
-  ) => {
+    eventOrFn: TEvent | ((args: { context: any; event: any }) => TEvent),
+  ): any => {
     return enqueueActions(({ context, event, enqueue }: any) => {
-      const replyEvent =
-        typeof eventOrFn === 'function'
-          ? (eventOrFn as (context: any, event: any) => TEvent)(context, event)
-          : eventOrFn
+      const replyEvent = typeof eventOrFn === 'function' ? eventOrFn({ context, event }) : eventOrFn
       // Use delay:0 to ensure reply is processed after current transition
       enqueue(xstateSendParent(Event.ACTOR_REPLY(replyEvent), { delay: 0 }))
     })
@@ -337,17 +340,19 @@ export const actions = {
   /**
    * Proxy events to a mailbox
    */
-  proxy: (_sourceId: string) => (mailbox: Mailbox) => {
-    return enqueueActions(({ event, self }: any) => {
-      if (isMailboxType(event.type)) return
-      // Add origin so replies come back to us
-      const eventWithOrigin = {
-        ...event,
-        _origin: self.sessionId,
-      }
-      mailbox.send(eventWithOrigin as any)
-    })
-  },
+  proxy:
+    (_sourceId: string) =>
+    (mailbox: Mailbox): any => {
+      return enqueueActions(({ event, self }: any) => {
+        if (isMailboxType(event.type)) return
+        // Add origin so replies come back to us
+        const eventWithOrigin = {
+          ...event,
+          _origin: self.sessionId,
+        }
+        mailbox.send(eventWithOrigin as any)
+      })
+    },
 }
 
 // ============================================================================
