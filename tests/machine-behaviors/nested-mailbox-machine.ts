@@ -1,108 +1,128 @@
-/* eslint-disable sort-keys */
-import { createMachine, actions }   from 'xstate'
-import { createAction }             from 'typesafe-actions'
+/**
+ * Nested Mailbox Machine - XState v5 native
+ *
+ * Demonstrates nested mailbox pattern where a parent machine
+ * invokes a child mailbox and forwards events to it.
+ */
 
-import * as Mailbox   from '../../src/mods/mod.js'
+import { sendTo, setup } from 'xstate'
+import * as Mailbox from '../../src/mods/mod.js'
 
-enum State {
-  Idle = 'nested-mailbox/Idle',
-  Busy = 'nested-mailbox/Busy',
-}
+// ============================================================================
+// Types
+// ============================================================================
 
-enum Type {
-  NEXT      = 'nested-mailbox/NEXT',
-  COMPLETE  = 'nested-mailbox/COMPLETE',
-}
-
-const Event = {
-  NEXT     : createAction(Type.NEXT)(),
-  COMPLETE : createAction(Type.COMPLETE)(),
+export const State = {
+  Idle: 'nested-mailbox/Idle',
+  Busy: 'nested-mailbox/Busy',
 } as const
 
-export const duckula = Mailbox.duckularize({
-  id: 'Nested',
-  events: Event,
-  states: State,
-  initialContext: {},
-})
+export const Type = {
+  NEXT: 'nested-mailbox/NEXT',
+  COMPLETE: 'nested-mailbox/COMPLETE',
+} as const
+
+export const Event = {
+  NEXT: () => ({ type: Type.NEXT }) as const,
+  COMPLETE: () => ({ type: Type.COMPLETE }) as const,
+}
+
+// ============================================================================
+// Child Machine
+// ============================================================================
 
 const CHILD_ID = 'Child'
-const childMachine = createMachine({
+
+export const childMachine = setup({
+  types: {} as {
+    events: ReturnType<typeof Event.NEXT> | ReturnType<typeof Event.COMPLETE>
+  },
+}).createMachine({
   id: CHILD_ID,
-  initial: duckula.State.Idle,
+  initial: State.Idle,
   states: {
-    [duckula.State.Idle]: {
-      entry: [
-        actions.log('states.Idle.entry', CHILD_ID),
-        Mailbox.actions.idle(CHILD_ID),
-      ],
+    [State.Idle]: {
+      entry: Mailbox.actions.idle(CHILD_ID),
       on: {
-        [duckula.Type.NEXT]: {
-          actions: actions.log('states.Idle.on.NEXT', CHILD_ID),
-          target: duckula.State.Busy,
+        [Type.NEXT]: {
+          target: State.Busy,
         },
       },
     },
-
-    [duckula.State.Busy]: {
-      entry: [
-        actions.log('states.Busy.entry', CHILD_ID),
-        Mailbox.actions.reply(duckula.Event.COMPLETE()),
-      ],
-      always: duckula.State.Idle,
+    [State.Busy]: {
+      entry: Mailbox.actions.reply(Event.COMPLETE()),
+      always: State.Idle,
     },
   },
 })
+
+// ============================================================================
+// Parent Machine
+// ============================================================================
 
 const PARENT_MACHINE_ID = 'Parent'
-const parentMachine = createMachine<any, any>({
+
+// Create child mailbox for the parent to invoke
+const childMailbox = Mailbox.from(childMachine)
+
+export const parentMachine = setup({
+  types: {} as {
+    events:
+      | ReturnType<typeof Event.NEXT>
+      | ReturnType<typeof Event.COMPLETE>
+      | ReturnType<typeof Mailbox.Event.ACTOR_REPLY>
+  },
+  actors: {
+    childMailbox: childMachine,
+  },
+  actions: {
+    forwardToChild: sendTo(CHILD_ID, ({ event }) => event),
+  },
+}).createMachine({
   id: PARENT_MACHINE_ID,
-  initial: duckula.State.Idle,
+  initial: State.Idle,
   states: {
-    [duckula.State.Idle]: {
-      entry: [
-        actions.log('states.Idle.entry', PARENT_MACHINE_ID),
-        Mailbox.actions.idle(PARENT_MACHINE_ID),
-      ],
+    [State.Idle]: {
+      entry: Mailbox.actions.idle(PARENT_MACHINE_ID),
       on: {
-        [duckula.Type.NEXT]: {
-          actions: actions.log('states.Idle.on.NEXT', PARENT_MACHINE_ID),
-          target: duckula.State.Busy,
+        [Type.NEXT]: {
+          target: State.Busy,
         },
       },
     },
-
-    [duckula.State.Busy]: {
+    [State.Busy]: {
       invoke: {
         id: CHILD_ID,
-        src: Mailbox.wrap(childMachine),
+        src: 'childMailbox',
       },
-      entry: [
-        actions.log((_, e) => `states.Busy.entry ${e.type} ${JSON.stringify(e)}`, PARENT_MACHINE_ID),
-        actions.send((_, e) => e, { to: CHILD_ID }),
-      ],
+      entry: 'forwardToChild',
       on: {
-        '*': {
-          actions: actions.log((_, e) => `states.Busy.on ${JSON.stringify(e)}`, PARENT_MACHINE_ID),
-          target: duckula.State.Idle,
-        },
         [Mailbox.Type.ACTOR_REPLY]: {
-          actions: [
-            actions.log((_, e) => `states.Busy.on.ACTOR_REPLY ${JSON.stringify(e)}`, PARENT_MACHINE_ID),
-            actions.send<any, ReturnType<typeof Mailbox.Event.ACTOR_REPLY>>((_, e) => e.payload.message),
-          ],
+          actions: sendTo(
+            ({ self }) => self,
+            ({ event }) =>
+              (event as ReturnType<typeof Mailbox.Event.ACTOR_REPLY>).payload.message as any,
+          ),
         },
-        [duckula.Type.COMPLETE]: {
-          actions: [
-            actions.log('states.Busy.on.COMPLETE', PARENT_MACHINE_ID),
-            Mailbox.actions.reply((_, e) => e),
-          ],
-          target: duckula.State.Idle,
+        [Type.COMPLETE]: {
+          actions: Mailbox.actions.reply(({ event }) => event),
+          target: State.Idle,
         },
       },
     },
-
   },
 })
 
-export default parentMachine
+// ============================================================================
+// Export
+// ============================================================================
+
+export default {
+  id: 'Nested',
+  State,
+  Type,
+  Event,
+  childMachine,
+  parentMachine,
+  childMailbox,
+}

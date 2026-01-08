@@ -1,49 +1,33 @@
 {
   "name": "mailbox",
-  "version": "0.11.3",
-  "description": "Mailbox is for converting a XState Machine to an Actor that can deal with concurrency requests",
+  "version": "1.0.0",
+  "description": "XState v5 Actor Mailbox - Queue and process messages sequentially for XState machines",
   "type": "module",
+  "imports": {
+    "#test-helpers": "./tests/vitest-tap.ts"
+  },
   "exports": {
     ".": {
       "import": "./dist/esm/src/mods/mod.js",
       "require": "./dist/cjs/src/mods/mod.js"
-    },
-    "./helpers": {
-      "import": "./dist/esm/src/mods/helpers.js",
-      "require": "./dist/cjs/src/mods/helpers.js"
-    },
-    "./impls": {
-      "import": "./dist/esm/src/mods/impls.js",
-      "require": "./dist/cjs/src/mods/impls.js"
-    }
-  },
-  "typesVersions": {
-    "*": {
-      "helpers": [
-        "./dist/esm/src/mods/helpers.d.ts"
-      ],
-      "impls": [
-        "./dist/esm/src/mods/impls.d.ts"
-      ]
     }
   },
   "typings": "./dist/esm/src/mods/mod.d.ts",
   "engines": {
-    "node": ">=16",
-    "npm": ">=8"
+    "node": ">=18"
   },
   "scripts": {
     "clean": "shx rm -fr dist/*",
-    "demo": "cross-env NODE_OPTIONS=\"--no-warnings --loader=ts-node/esm\" node \"examples/mailbox-demo.ts\"",
     "dist": "npm-run-all clean build dist:commonjs",
     "build": "tsc && tsc -p tsconfig.cjs.json",
     "dist:commonjs": "jq -n \"{ type: \\\"commonjs\\\" }\" > dist/cjs/package.json",
-    "lint": "npm-run-all lint:es lint:ts",
+    "lint": "npm-run-all lint:biome lint:ts",
+    "lint:biome": "biome check src tests",
     "lint:ts": "tsc --isolatedModules --noEmit",
+    "format": "biome format --write src tests",
     "test": "npm-run-all lint test:unit",
-    "test:unit": "cross-env NODE_OPTIONS=\"--no-warnings --loader=ts-node/esm\" tap \"src/**/*.spec.ts\" \"tests/**/*.spec.ts\"",
-    "test:pack": "bash -x scripts/npm-pack-testing.sh",
-    "lint:es": "eslint --ignore-pattern fixtures/ \"src/**/*.ts\" \"tests/**/*.ts\""
+    "test:unit": "vitest run",
+    "test:pack": "bash -x scripts/npm-pack-testing.sh"
   },
   "repository": {
     "type": "git",
@@ -52,8 +36,12 @@
   "keywords": [
     "actor",
     "xstate",
+    "xstate-v5",
+    "mailbox",
     "fsm",
-    "event driven"
+    "state-machine",
+    "event-driven",
+    "message-queue"
   ],
   "author": "Huan LI <zixia@zixia.net>",
   "license": "Apache-2.0",
@@ -62,22 +50,29 @@
   },
   "homepage": "https://github.com/huan/mailbox#readme",
   "devDependencies": {
-    "@chatie/eslint-config": "^1.0.4",
-    "@chatie/semver": "^0.4.7",
-    "@chatie/tsconfig": "^4.9.1",
+    "@biomejs/biome": "^1.9.0",
+    "@statelyai/inspect": "^0.4.0",
+    "@types/node": "^22.0.0",
+    "@types/sinon": "^21.0.0",
     "@types/ws": "^8.5.3",
-    "@xstate/inspect": "0.6.5",
+    "@xstate/graph": "^3.0.4",
     "is-observable": "^2.1.0",
+    "npm-run-all": "^4.1.5",
     "pkg-jq": "^0.2.11",
     "read-pkg-up": "^8.0.0",
+    "shx": "^0.4.0",
+    "sinon": "^21.0.1",
+    "typescript": "^5.1.6",
+    "vitest": "^4.0.16",
     "ws": "^8.6.0"
   },
   "dependencies": {
     "rxjs": "^7.5.5",
     "symbol-observable": "^4.0.0",
-    "typesafe-actions": "^5.1.0",
-    "utility-types": "^3.10.0",
-    "xstate": "4.31.0"
+    "xstate": "^5.0.0"
+  },
+  "peerDependencies": {
+    "xstate": "^5.0.0"
   },
   "files": [
     "dist",
@@ -85,6 +80,6 @@
   ],
   "publishConfig": {
     "access": "public",
-    "tag": "next"
+    "tag": "latest"
   }
 }

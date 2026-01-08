@@ -1,70 +1,114 @@
-/* eslint-disable sort-keys */
-import { createAction }             from 'typesafe-actions'
-import { createMachine, actions }   from 'xstate'
+/**
+ * Coffee Maker Machine - XState v5 native
+ *
+ * Simulates a coffee machine that processes orders one at a time.
+ * Demonstrates the Mailbox pattern with async processing.
+ */
 
+import { assign, sendTo, setup } from 'xstate'
 import * as Mailbox from '../../src/mods/mod.js'
 
-enum State {
-  idle = 'idle',
-  busy = 'busy',
+// ============================================================================
+// Types
+// ============================================================================
+
+export const State = {
+  idle: 'idle',
+  busy: 'busy',
+} as const
+
+export const Type = {
+  MAKE_ME_COFFEE: 'MAKE_ME_COFFEE',
+  COFFEE: 'COFFEE',
+} as const
+
+export const Event = {
+  MAKE_ME_COFFEE: (customer: string) =>
+    ({
+      type: Type.MAKE_ME_COFFEE,
+      payload: { customer },
+    }) as const,
+  COFFEE: (customer: string) =>
+    ({
+      type: Type.COFFEE,
+      payload: { customer },
+    }) as const,
 }
 
-enum Type {
-  MAKE_ME_COFFEE = 'MAKE_ME_COFFEE',
-  COFFEE         = 'COFFEE',
+export interface Context {
+  customer?: string
 }
 
-const Event = {
-  MAKE_ME_COFFEE : createAction(Type.MAKE_ME_COFFEE,  (customer: string) => ({ customer }))(),
-  COFFEE         : createAction(Type.COFFEE,          (customer: string) => ({ customer }))(),
-}
+export const initialContext = (): Context => ({})
 
-interface Context {
-  customer?: string,
-}
-
-const duckula = Mailbox.duckularize({
-  id: 'CoffeeMaker',
-  events: Event,
-  states: State,
-  initialContext: {} as Context,
-})
+// ============================================================================
+// Machine
+// ============================================================================
 
 export const DELAY_MS = 10
 
-const machine = createMachine<
-  ReturnType<typeof duckula.initialContext>,
-  ReturnType<typeof Event[keyof typeof Event]>
->({
-  id: duckula.id,
-  initial: duckula.State.idle,
+export const machine = setup({
+  types: {} as {
+    context: Context
+    events: ReturnType<typeof Event.MAKE_ME_COFFEE> | ReturnType<typeof Event.COFFEE>
+  },
+  actions: {
+    assignCustomer: assign({
+      customer: ({ event }) => {
+        if (event.type === Type.MAKE_ME_COFFEE) {
+          return event.payload.customer
+        }
+        return undefined
+      },
+    }),
+    clearCustomer: assign({
+      customer: () => undefined,
+    }),
+    sendCoffee: sendTo(
+      ({ self }) => self,
+      ({ context }) => Event.COFFEE(context.customer!),
+      { delay: DELAY_MS },
+    ),
+  },
+}).createMachine({
+  id: 'CoffeeMaker',
+  initial: State.idle,
+  context: initialContext(),
   states: {
-    [duckula.State.idle]: {
+    [State.idle]: {
       entry: Mailbox.actions.idle('CoffeeMaker'),
       on: {
-        [duckula.Type.MAKE_ME_COFFEE]: {
-          target: duckula.State.busy,
-          actions: actions.assign((_, e) => ({ customer: e.payload.customer })),
+        [Type.MAKE_ME_COFFEE]: {
+          target: State.busy,
+          actions: 'assignCustomer',
         },
-        '*': duckula.State.idle,
+        '*': {
+          target: State.idle,
+        },
       },
     },
-    [duckula.State.busy]: {
-      entry: [
-        actions.send(ctx => duckula.Event.COFFEE(ctx.customer!), {
-          delay: DELAY_MS,
-        }),
-      ],
+    [State.busy]: {
+      entry: 'sendCoffee',
       on: {
-        [duckula.Type.COFFEE]: {
-          actions: Mailbox.actions.reply((_, e) => e),
-          target: duckula.State.idle,
+        [Type.COFFEE]: {
+          actions: Mailbox.actions.reply(({ event }) => event),
+          target: State.idle,
         },
       },
-      exit: actions.assign({ customer: _ => undefined }),
+      exit: 'clearCustomer',
     },
   },
 })
 
-duckula.machine = machine
-export default duckula as Required<typeof duckula>
+// ============================================================================
+// Export all as default for compatibility
+// ============================================================================
+
+export default {
+  id: 'CoffeeMaker',
+  State,
+  Type,
+  Event,
+  initialContext,
+  machine,
+}
